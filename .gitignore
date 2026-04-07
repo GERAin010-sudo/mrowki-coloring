@@ -1,0 +1,6 @@
+node_modules/
+crm/.env
+crm/data/
+crm/*.db
+.DS_Store
+*.log
