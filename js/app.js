@@ -401,72 +401,37 @@
         </div>
       </section>
 
-      <section class="section">
+      <section class="section" style="padding:var(--space-3xl) 0 var(--space-4xl)">
         <div class="container">
           <div class="gallery-filters reveal">
             <button class="gallery-filter-btn active" data-filter="all">Wszystkie</button>
             <button class="gallery-filter-btn" data-filter="okna">Okna</button>
             <button class="gallery-filter-btn" data-filter="drzwi">Drzwi</button>
             <button class="gallery-filter-btn" data-filter="fasady">Fasady</button>
+            <button class="gallery-filter-btn" data-filter="bramy_windy">Bramy</button>
+            <button class="gallery-filter-btn" data-filter="parapety">Parapety</button>
             <button class="gallery-filter-btn" data-filter="inne">Inne</button>
           </div>
-          <div class="gallery-grid reveal stagger-children">
-            <div class="gallery-item" data-category="okna">
-              <img src="assets/images/work-01.jpg" alt="Lakierowanie okien aluminiowych">
-              <div class="gallery-overlay"><span class="gallery-overlay-title">Stolarka okienna</span><span class="gallery-overlay-desc">Lakierowanie profili RAL 7016</span></div>
-            </div>
-            <div class="gallery-item" data-category="okna">
-              <img src="assets/images/work-05.jpg" alt="Maskowanie i malowanie okien">
-              <div class="gallery-overlay"><span class="gallery-overlay-title">Przygotowanie powierzchni</span><span class="gallery-overlay-desc">Proces maskowania i szlifowania</span></div>
-            </div>
-            <div class="gallery-item" data-category="drzwi">
-              <img src="assets/images/work-04.jpg" alt="Drzwi wejściowe">
-              <div class="gallery-overlay"><span class="gallery-overlay-title">Drzwi aluminiowe</span><span class="gallery-overlay-desc">Lakierowanie drzwi wejściowych</span></div>
-            </div>
-            <div class="gallery-item" data-category="fasady">
-              <img src="assets/images/work-06.jpg" alt="Fasada budynku">
-              <div class="gallery-overlay"><span class="gallery-overlay-title">Fasada biurowca</span><span class="gallery-overlay-desc">Renowacja profili fasadowych</span></div>
-            </div>
-            <div class="gallery-item" data-category="okna">
-              <img src="assets/images/work-02.jpg" alt="Lakierowanie okien na budowie">
-              <div class="gallery-overlay"><span class="gallery-overlay-title">Realizacja na budowie</span><span class="gallery-overlay-desc">Lakierowanie na miejscu montażu</span></div>
-            </div>
-            <div class="gallery-item" data-category="inne">
-              <img src="assets/images/work-07.jpg" alt="Konstrukcje stalowe">
-              <div class="gallery-overlay"><span class="gallery-overlay-title">Elementy stalowe</span><span class="gallery-overlay-desc">Zabezpieczenie antykorozyjne</span></div>
-            </div>
-            <div class="gallery-item" data-category="drzwi">
-              <img src="assets/images/work-03.jpg" alt="Drzwi balkonowe">
-              <div class="gallery-overlay"><span class="gallery-overlay-title">Drzwi balkonowe</span><span class="gallery-overlay-desc">Lakierowanie i renowacja</span></div>
-            </div>
-            <div class="gallery-item" data-category="fasady">
-              <img src="assets/images/work-10.jpg" alt="Fasada aluminiowa">
-              <div class="gallery-overlay"><span class="gallery-overlay-title">Panel elewacyjny</span><span class="gallery-overlay-desc">Lakierowanie paneli fasadowych</span></div>
-            </div>
-            <div class="gallery-item" data-category="inne">
-              <img src="assets/images/work-14.jpg" alt="Brama garażowa">
-              <div class="gallery-overlay"><span class="gallery-overlay-title">Brama garażowa</span><span class="gallery-overlay-desc">Lakierowanie bramy segmentowej</span></div>
-            </div>
-            <div class="gallery-item" data-category="okna">
-              <img src="assets/images/work-08.jpg" alt="Okna aluminiowe">
-              <div class="gallery-overlay"><span class="gallery-overlay-title">Stolarka okienna</span><span class="gallery-overlay-desc">Projekt deweloperski</span></div>
-            </div>
-            <div class="gallery-item" data-category="inne">
-              <img src="assets/images/work-09.jpg" alt="Poprawki lakiernicze">
-              <div class="gallery-overlay"><span class="gallery-overlay-title">Poprawki</span><span class="gallery-overlay-desc">Naprawa uszkodzeń transportowych</span></div>
-            </div>
-            <div class="gallery-item" data-category="fasady">
-              <img src="assets/images/work-15.jpg" alt="Elewacja budynku">
-              <div class="gallery-overlay"><span class="gallery-overlay-title">Elewacja</span><span class="gallery-overlay-desc">Kompleksowe lakierowanie fasady</span></div>
-            </div>
+          <div class="masonry-gallery reveal" id="masonry-gallery">
+            <div class="masonry-loading">Ładowanie galerii...</div>
           </div>
         </div>
       </section>
 
       <!-- Lightbox -->
-      <div class="lightbox" id="lightbox">
-        <button class="lightbox-close" id="lightbox-close">&times;</button>
-        <img class="lightbox-img" id="lightbox-img" alt="Zdjęcie powiększone">
+      <div class="lightbox-pro" id="lightbox-pro">
+        <div class="lightbox-pro-backdrop"></div>
+        <button class="lightbox-pro-close" id="lightbox-close-pro">&times;</button>
+        <button class="lightbox-pro-nav lightbox-pro-prev" id="lightbox-prev">&lsaquo;</button>
+        <button class="lightbox-pro-nav lightbox-pro-next" id="lightbox-next">&rsaquo;</button>
+        <div class="lightbox-pro-content">
+          <img class="lightbox-pro-img" id="lightbox-img-pro" alt="">
+          <div class="lightbox-pro-caption">
+            <div class="lightbox-pro-title" id="lightbox-title-pro"></div>
+            <div class="lightbox-pro-desc" id="lightbox-desc-pro"></div>
+          </div>
+        </div>
+        <div class="lightbox-pro-counter" id="lightbox-counter-pro"></div>
       </div>
     `;
   }
@@ -691,9 +656,104 @@
   }
 
   /* === GALLERY === */
-  function initGallery() {
+  const CRM_API = 'http://localhost:3000';
+  
+  // Fallback hardcoded photos
+  const FALLBACK_PHOTOS = [
+    { tytul:'Stolarka okienna', opis:'Lakierowanie profili RAL 7016', kategoria:'okna', plik:'', src:'assets/images/work-01.jpg' },
+    { tytul:'Przygotowanie powierzchni', opis:'Proces maskowania i szlifowania', kategoria:'okna', plik:'', src:'assets/images/work-05.jpg' },
+    { tytul:'Drzwi aluminiowe', opis:'Lakierowanie drzwi wejściowych', kategoria:'drzwi', plik:'', src:'assets/images/work-04.jpg' },
+    { tytul:'Fasada biurowca', opis:'Renowacja profili fasadowych', kategoria:'fasady', plik:'', src:'assets/images/work-06.jpg' },
+    { tytul:'Realizacja na budowie', opis:'Lakierowanie na miejscu montażu', kategoria:'okna', plik:'', src:'assets/images/work-02.jpg' },
+    { tytul:'Elementy stalowe', opis:'Zabezpieczenie antykorozyjne', kategoria:'inne', plik:'', src:'assets/images/work-07.jpg' },
+    { tytul:'Drzwi balkonowe', opis:'Lakierowanie i renowacja', kategoria:'drzwi', plik:'', src:'assets/images/work-03.jpg' },
+    { tytul:'Panel elewacyjny', opis:'Lakierowanie paneli fasadowych', kategoria:'fasady', plik:'', src:'assets/images/work-10.jpg' },
+    { tytul:'Brama garażowa', opis:'Lakierowanie bramy segmentowej', kategoria:'bramy_windy', plik:'', src:'assets/images/work-14.jpg' },
+    { tytul:'Stolarka okienna', opis:'Projekt deweloperski', kategoria:'okna', plik:'', src:'assets/images/work-08.jpg' },
+    { tytul:'Poprawki lakiernicze', opis:'Naprawa uszkodzeń transportowych', kategoria:'poprawki', plik:'', src:'assets/images/work-09.jpg' },
+    { tytul:'Elewacja budynku', opis:'Kompleksowe lakierowanie fasady', kategoria:'fasady', plik:'', src:'assets/images/work-15.jpg' },
+  ];
+
+  let galleryData = [];
+  let filteredData = [];
+  let currentLightboxIndex = 0;
+
+  async function initGallery() {
+    const container = document.getElementById('masonry-gallery');
+    if (!container) return;
+
+    // Try loading from API, fallback to hardcoded
+    try {
+      const res = await fetch(`${CRM_API}/api/realizacje`);
+      if (res.ok) {
+        const apiPhotos = await res.json();
+        if (apiPhotos.length > 0) {
+          galleryData = apiPhotos.map(p => ({
+            ...p,
+            src: `${CRM_API}/uploads/${p.plik}`
+          }));
+        } else {
+          galleryData = [...FALLBACK_PHOTOS];
+        }
+      } else {
+        galleryData = [...FALLBACK_PHOTOS];
+      }
+    } catch(e) {
+      galleryData = [...FALLBACK_PHOTOS];
+    }
+
+    // Merge: API photos first, then fallback
+    if (galleryData.length > 0 && galleryData[0].id) {
+      // If we got API data, also add fallback photos
+      galleryData = [...galleryData, ...FALLBACK_PHOTOS];
+    }
+
+    filteredData = [...galleryData];
+    renderMasonryGallery(container);
+    initGalleryFilters();
+  }
+
+  function renderMasonryGallery(container) {
+    if (!filteredData.length) {
+      container.innerHTML = '<div class="masonry-empty">Brak zdjęć w galerii</div>';
+      return;
+    }
+
+    // Masonry heights for visual interest
+    const heights = ['masonry-tall', 'masonry-normal', 'masonry-normal', 'masonry-wide', 'masonry-normal', 'masonry-tall'];
+    
+    container.innerHTML = filteredData.map((photo, i) => `
+      <div class="masonry-item ${heights[i % heights.length]}" data-category="${photo.kategoria}" data-index="${i}" style="animation-delay:${i * 0.06}s">
+        <img src="${photo.src}" alt="${photo.tytul}" loading="lazy">
+        <div class="masonry-overlay">
+          <div class="masonry-overlay-inner">
+            <span class="masonry-cat">${getCategoryLabel(photo.kategoria)}</span>
+            <h3 class="masonry-title">${photo.tytul}</h3>
+            ${photo.opis ? `<p class="masonry-desc">${photo.opis}</p>` : ''}
+          </div>
+          <div class="masonry-zoom">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    // Attach click events for lightbox
+    container.querySelectorAll('.masonry-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const idx = parseInt(item.dataset.index);
+        openProLightbox(idx);
+      });
+    });
+  }
+
+  function getCategoryLabel(cat) {
+    const labels = { okna:'Okna', drzwi:'Drzwi', fasady:'Fasady', bramy_windy:'Bramy/Windy', parapety:'Parapety', poprawki:'Poprawki', inne:'Inne' };
+    return labels[cat] || cat;
+  }
+
+  function initGalleryFilters() {
     const filterBtns = document.querySelectorAll('.gallery-filter-btn');
-    const items = document.querySelectorAll('.gallery-item');
     if (!filterBtns.length) return;
 
     filterBtns.forEach(btn => {
@@ -701,32 +761,63 @@
         filterBtns.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const filter = btn.dataset.filter;
-        items.forEach(item => {
-          item.style.display = (filter === 'all' || item.dataset.category === filter) ? '' : 'none';
-        });
+        filteredData = filter === 'all' ? [...galleryData] : galleryData.filter(p => p.kategoria === filter);
+        const container = document.getElementById('masonry-gallery');
+        if (container) renderMasonryGallery(container);
       });
     });
   }
 
-  /* === LIGHTBOX === */
-  function initLightbox() {
-    const items = document.querySelectorAll('.gallery-item');
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    const lightboxClose = document.getElementById('lightbox-close');
-    if (!lightbox) return;
+  /* === PRO LIGHTBOX === */
+  function openProLightbox(index) {
+    currentLightboxIndex = index;
+    const lb = document.getElementById('lightbox-pro');
+    if (!lb) return;
+    updateProLightbox();
+    lb.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
 
-    items.forEach(item => {
-      item.addEventListener('click', () => {
-        const img = item.querySelector('img');
-        lightboxImg.src = img.src;
-        lightbox.classList.add('active');
-      });
+  function closeProLightbox() {
+    const lb = document.getElementById('lightbox-pro');
+    if (lb) lb.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function updateProLightbox() {
+    const photo = filteredData[currentLightboxIndex];
+    if (!photo) return;
+    document.getElementById('lightbox-img-pro').src = photo.src;
+    document.getElementById('lightbox-title-pro').textContent = photo.tytul;
+    document.getElementById('lightbox-desc-pro').textContent = photo.opis || '';
+    document.getElementById('lightbox-counter-pro').textContent = `${currentLightboxIndex + 1} / ${filteredData.length}`;
+  }
+
+  function initLightbox() {
+    const lb = document.getElementById('lightbox-pro');
+    if (!lb) return;
+
+    document.getElementById('lightbox-close-pro')?.addEventListener('click', closeProLightbox);
+    lb.querySelector('.lightbox-pro-backdrop')?.addEventListener('click', closeProLightbox);
+    
+    document.getElementById('lightbox-prev')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentLightboxIndex = (currentLightboxIndex - 1 + filteredData.length) % filteredData.length;
+      updateProLightbox();
     });
 
-    lightboxClose?.addEventListener('click', () => lightbox.classList.remove('active'));
-    lightbox.addEventListener('click', (e) => {
-      if (e.target === lightbox) lightbox.classList.remove('active');
+    document.getElementById('lightbox-next')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentLightboxIndex = (currentLightboxIndex + 1) % filteredData.length;
+      updateProLightbox();
+    });
+
+    // Keyboard nav
+    document.addEventListener('keydown', (e) => {
+      if (!lb.classList.contains('active')) return;
+      if (e.key === 'Escape') closeProLightbox();
+      if (e.key === 'ArrowLeft') { currentLightboxIndex = (currentLightboxIndex - 1 + filteredData.length) % filteredData.length; updateProLightbox(); }
+      if (e.key === 'ArrowRight') { currentLightboxIndex = (currentLightboxIndex + 1) % filteredData.length; updateProLightbox(); }
     });
   }
 

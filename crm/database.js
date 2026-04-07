@@ -78,6 +78,18 @@ class CRMDatabase {
         dane TEXT,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
+
+      -- Portfolio / Realizacje gallery
+      CREATE TABLE IF NOT EXISTS realizacje (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tytul TEXT NOT NULL,
+        opis TEXT,
+        kategoria TEXT DEFAULT 'inne' CHECK(kategoria IN ('okna', 'drzwi', 'fasady', 'bramy_windy', 'parapety', 'poprawki', 'inne')),
+        plik TEXT NOT NULL,
+        kolejnosc INTEGER DEFAULT 0,
+        widoczny INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
     `);
   }
 
@@ -246,6 +258,32 @@ class CRMDatabase {
     return this.db.prepare('DELETE FROM konwersacje WHERE telegram_id = ?').run(String(telegramId));
   }
 
+  /* ===== REALIZACJE (Portfolio) ===== */
+  createRealizacja(data) {
+    const maxOrder = this.db.prepare('SELECT COALESCE(MAX(kolejnosc), 0) as mx FROM realizacje').get().mx;
+    const stmt = this.db.prepare(`
+      INSERT INTO realizacje (tytul, opis, kategoria, plik, kolejnosc) VALUES (?, ?, ?, ?, ?)
+    `);
+    return stmt.run(data.tytul, data.opis || '', data.kategoria || 'inne', data.plik, maxOrder + 1);
+  }
+
+  getAllRealizacje() {
+    return this.db.prepare('SELECT * FROM realizacje WHERE widoczny = 1 ORDER BY kolejnosc ASC, created_at DESC').all();
+  }
+
+  getAllRealizacjeAdmin() {
+    return this.db.prepare('SELECT * FROM realizacje ORDER BY kolejnosc ASC, created_at DESC').all();
+  }
+
+  updateRealizacja(id, data) {
+    const stmt = this.db.prepare('UPDATE realizacje SET tytul=?, opis=?, kategoria=?, widoczny=? WHERE id=?');
+    return stmt.run(data.tytul, data.opis, data.kategoria, data.widoczny ? 1 : 0, id);
+  }
+
+  deleteRealizacja(id) {
+    return this.db.prepare('DELETE FROM realizacje WHERE id = ?').run(id);
+  }
+
   /* ===== REPORTS ===== */
   getStats() {
     const totalOrders = this.db.prepare('SELECT COUNT(*) as cnt FROM zlecenia').get().cnt;
@@ -253,11 +291,12 @@ class CRMDatabase {
     const completedOrders = this.db.prepare("SELECT COUNT(*) as cnt FROM zlecenia WHERE status = 'zakonczone'").get().cnt;
     const totalClients = this.db.prepare('SELECT COUNT(*) as cnt FROM klienci').get().cnt;
     const totalRevenue = this.db.prepare("SELECT COALESCE(SUM(kwota), 0) as total FROM zlecenia WHERE status = 'zakonczone'").get().total;
+    const totalPhotos = this.db.prepare('SELECT COUNT(*) as cnt FROM realizacje').get().cnt;
     
     const byStatus = this.db.prepare("SELECT status, COUNT(*) as cnt FROM zlecenia GROUP BY status").all();
     const byType = this.db.prepare("SELECT typ_uslugi, COUNT(*) as cnt FROM zlecenia GROUP BY typ_uslugi").all();
 
-    return { totalOrders, activeOrders, completedOrders, totalClients, totalRevenue, byStatus, byType };
+    return { totalOrders, activeOrders, completedOrders, totalClients, totalRevenue, totalPhotos, byStatus, byType };
   }
 
   close() {

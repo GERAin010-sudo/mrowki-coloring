@@ -6,6 +6,8 @@ const STATUS = { nowe: 'Nowe', wycena: 'Wycena', zaakceptowane: 'Zaakceptowane',
 const SERVICES = { okna: 'Stolarka okienna', drzwi: 'Drzwi aluminiowe', fasady: 'Fasady budynków', bramy_windy: 'Bramy i windy', parapety: 'Parapety', poprawki: 'Poprawki lakiernicze', inne: 'Inne' };
 const CTYPES = { deweloper: 'Deweloper', wykonawca: 'Wykonawca', producent: 'Producent', architekt: 'Architekt', montazysta: 'Montażysta', administrator: 'Administrator', inny: 'Inny' };
 
+const CATEGORIES = { okna: 'Okna', drzwi: 'Drzwi', fasady: 'Fasady', bramy_windy: 'Bramy/Windy', parapety: 'Parapety', poprawki: 'Poprawki', inne: 'Inne' };
+
 let currentView = 'dashboard';
 
 // Nav
@@ -41,6 +43,7 @@ document.getElementById('menu-toggle').addEventListener('click', () => {
 document.getElementById('btn-add').addEventListener('click', () => {
   if (currentView === 'orders') showNewOrderForm();
   if (currentView === 'clients') showNewClientForm();
+  if (currentView === 'realizacje') showUploadPhotoForm();
 });
 
 // Load view
@@ -57,7 +60,6 @@ function loadView(view) {
     case 'orders':
       title.textContent = 'Zlecenia';
       addBtn.style.display = 'inline-flex';
-      addBtn.querySelector('svg + *')?.remove();
       addBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Nowe zlecenie';
       loadOrders();
       break;
@@ -66,6 +68,12 @@ function loadView(view) {
       addBtn.style.display = 'inline-flex';
       addBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Nowy klient';
       loadClients();
+      break;
+    case 'realizacje':
+      title.textContent = 'Realizacje';
+      addBtn.style.display = 'inline-flex';
+      addBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Dodaj zdjęcie';
+      loadRealizacje();
       break;
   }
 }
@@ -83,6 +91,7 @@ async function loadDashboard() {
         <div class="stat-card"><div class="stat-card-label">Aktywne</div><div class="stat-card-value accent">${stats.activeOrders}</div></div>
         <div class="stat-card"><div class="stat-card-label">Zakończone</div><div class="stat-card-value success">${stats.completedOrders}</div></div>
         <div class="stat-card"><div class="stat-card-label">Klienci</div><div class="stat-card-value">${stats.totalClients}</div></div>
+        <div class="stat-card"><div class="stat-card-label">Zdjęcia</div><div class="stat-card-value">${stats.totalPhotos || 0}</div></div>
       </div>
       <div class="table-wrapper">
         <div class="table-header"><span class="table-title">Aktywne zlecenia</span></div>
@@ -139,6 +148,161 @@ async function loadClients() {
       </div>
     `;
   } catch(err) { content.innerHTML = '<div class="empty-state">Błąd ładowania</div>'; }
+}
+
+// ===== REALIZACJE =====
+async function loadRealizacje() {
+  const content = document.getElementById('content');
+  try {
+    const items = await fetch(`${API}/api/realizacje/admin`).then(r => r.json());
+    content.innerHTML = `
+      <div class="photo-grid-admin">
+        ${items.length ? items.map(item => {
+          const safeTitle = item.tytul.replace(/'/g, "\\'");
+          const safeDesc = (item.opis || '').replace(/'/g, "\\'");
+          return `
+          <div class="photo-card-admin ${item.widoczny ? '' : 'hidden-photo'}">
+            <div class="photo-card-img">
+              <img src="/uploads/${item.plik}" alt="${item.tytul}" loading="lazy">
+              <div class="photo-card-badge">${CATEGORIES[item.kategoria] || item.kategoria}</div>
+              ${!item.widoczny ? '<div class="photo-card-hidden-label">Ukryte</div>' : ''}
+            </div>
+            <div class="photo-card-info">
+              <div class="photo-card-title">${item.tytul}</div>
+              ${item.opis ? `<div class="photo-card-desc">${item.opis}</div>` : ''}
+              <div class="photo-card-actions">
+                <button class="btn-sm" onclick="editPhotoCategory(${item.id}, '${safeTitle}', '${safeDesc}', '${item.kategoria}', ${item.widoczny})" title="Edytuj">✏️ Edytuj</button>
+                <button class="btn-sm btn-toggle" onclick="togglePhotoVisibility(${item.id}, ${item.widoczny ? 0 : 1}, '${safeTitle}', '${safeDesc}', '${item.kategoria}')" title="${item.widoczny ? 'Ukryj' : 'Pokaż'}">
+                  ${item.widoczny ? '👁️' : '🚫'}
+                </button>
+                <button class="btn-sm btn-danger" onclick="deletePhoto(${item.id})" title="Usuń">🗑️</button>
+              </div>
+            </div>
+          </div>
+        `}).join('') : '<div class="empty-state">Brak zdjęć. Kliknij "Dodaj zdjęcie" aby dodać pierwszą realizację.</div>'}
+      </div>
+    `;
+  } catch(err) {
+    content.innerHTML = '<div class="empty-state">Błąd ładowania realizacji</div>';
+  }
+}
+
+function editPhotoCategory(id, tytul, opis, kategoria, widoczny) {
+  const catOpts = Object.entries(CATEGORIES).map(([k,v]) => `<option value="${k}" ${k===kategoria?'selected':''}>${v}</option>`).join('');
+  openModal('Edytuj realizację', `
+    <form onsubmit="submitPhotoEdit(event, ${id}, ${widoczny})">
+      <div class="form-group"><label class="form-label">Tytuł</label><input class="form-input" id="ep-title" required value="${tytul}"></div>
+      <div class="form-group"><label class="form-label">Opis</label><textarea class="form-textarea" id="ep-desc">${opis}</textarea></div>
+      <div class="form-group"><label class="form-label">Kategoria</label><select class="form-select" id="ep-cat">${catOpts}</select></div>
+      <div class="form-actions"><button type="submit" class="btn-submit">Zapisz</button><button type="button" class="btn-cancel" onclick="closeModal()">Anuluj</button></div>
+    </form>
+  `);
+}
+
+async function submitPhotoEdit(e, id, widoczny) {
+  e.preventDefault();
+  await fetch(`${API}/api/realizacje/${id}`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      tytul: document.getElementById('ep-title').value,
+      opis: document.getElementById('ep-desc').value,
+      kategoria: document.getElementById('ep-cat').value,
+      widoczny: widoczny
+    })
+  });
+  closeModal();
+  loadView('realizacje');
+}
+
+function showUploadPhotoForm() {
+  const catOpts = Object.entries(CATEGORIES).map(([k,v]) => `<option value="${k}">${v}</option>`).join('');
+  openModal('Dodaj zdjęcie realizacji', `
+    <form id="upload-form" onsubmit="submitPhoto(event)">
+      <div class="form-group">
+        <label class="form-label">Zdjęcie *</label>
+        <div class="upload-drop-zone" id="drop-zone">
+          <input type="file" id="f-photo" accept="image/*" required style="display:none">
+          <div class="drop-zone-content" id="drop-content">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--accent)"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Kliknij lub przeciągnij zdjęcie</span>
+            <span style="font-size:0.75rem;color:var(--text-muted)">JPG, PNG, WEBP — max 15MB</span>
+          </div>
+          <img id="drop-preview" style="display:none;max-width:100%;max-height:200px;border-radius:4px;">
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Tytuł *</label><input class="form-input" id="f-title" required placeholder="np. Lakierowanie fasady biurowca"></div>
+      <div class="form-group"><label class="form-label">Opis</label><textarea class="form-textarea" id="f-desc" placeholder="Krótki opis realizacji..."></textarea></div>
+      <div class="form-group"><label class="form-label">Kategoria</label><select class="form-select" id="f-cat">${catOpts}</select></div>
+      <div class="form-actions"><button type="submit" class="btn-submit" id="upload-btn">Dodaj</button><button type="button" class="btn-cancel" onclick="closeModal()">Anuluj</button></div>
+    </form>
+  `);
+
+  // Setup drag & drop
+  const zone = document.getElementById('drop-zone');
+  const input = document.getElementById('f-photo');
+  const preview = document.getElementById('drop-preview');
+  const dropContent = document.getElementById('drop-content');
+
+  zone.addEventListener('click', () => input.click());
+  zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) {
+      input.files = e.dataTransfer.files;
+      showPreview(e.dataTransfer.files[0]);
+    }
+  });
+  input.addEventListener('change', () => { if (input.files[0]) showPreview(input.files[0]); });
+
+  function showPreview(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      dropContent.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+async function submitPhoto(e) {
+  e.preventDefault();
+  const btn = document.getElementById('upload-btn');
+  btn.textContent = 'Przesyłanie...';
+  btn.disabled = true;
+
+  const formData = new FormData();
+  formData.append('photo', document.getElementById('f-photo').files[0]);
+  formData.append('tytul', document.getElementById('f-title').value);
+  formData.append('opis', document.getElementById('f-desc').value);
+  formData.append('kategoria', document.getElementById('f-cat').value);
+
+  try {
+    const res = await fetch(`${API}/api/realizacje`, { method: 'POST', body: formData });
+    if (!res.ok) throw new Error('Upload failed');
+    closeModal();
+    loadView('realizacje');
+  } catch(err) {
+    alert('Błąd przesyłania: ' + err.message);
+    btn.textContent = 'Dodaj';
+    btn.disabled = false;
+  }
+}
+
+async function togglePhotoVisibility(id, newState, tytul, opis, kategoria) {
+  await fetch(`${API}/api/realizacje/${id}`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tytul, opis, kategoria, widoczny: newState })
+  });
+  loadView('realizacje');
+}
+
+async function deletePhoto(id) {
+  if (!confirm('Na pewno usunąć to zdjęcie?')) return;
+  await fetch(`${API}/api/realizacje/${id}`, { method: 'DELETE' });
+  loadView('realizacje');
 }
 
 // Order detail modal

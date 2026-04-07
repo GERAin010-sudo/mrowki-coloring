@@ -7,16 +7,43 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const CRMDatabase = require('./database');
 const BotCommands = require('./bot/commands');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Uploads directory
+const UPLOADS_DIR = path.join(__dirname, '..', 'assets', 'uploads');
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+// Multer config for photo uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const name = `realizacja-${Date.now()}${ext}`;
+    cb(null, name);
+  }
+});
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 15 * 1024 * 1024 }, // 15MB
+  fileFilter: (req, file, cb) => {
+    const allowed = /\.(jpg|jpeg|png|webp|gif)$/i;
+    if (allowed.test(path.extname(file.originalname))) cb(null, true);
+    else cb(new Error('Dozwolone formaty: JPG, PNG, WEBP, GIF'));
+  }
+});
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'admin')));
+// Serve uploaded images for the frontend website
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 // Initialize Database
 const db = new CRMDatabase();
@@ -149,6 +176,67 @@ app.get('/api/historia/:zlecenieId', (req, res) => {
   try {
     const history = db.getOrderHistory(req.params.zlecenieId);
     res.json(history);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- Realizacje (Portfolio) ---
+// Public: only visible photos
+app.get('/api/realizacje', (req, res) => {
+  try {
+    res.json(db.getAllRealizacje());
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Admin: all photos including hidden
+app.get('/api/realizacje/admin', (req, res) => {
+  try {
+    res.json(db.getAllRealizacjeAdmin());
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Upload new photo
+app.post('/api/realizacje', upload.single('photo'), (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'Brak pliku' });
+    const result = db.createRealizacja({
+      tytul: req.body.tytul || 'Realizacja',
+      opis: req.body.opis || '',
+      kategoria: req.body.kategoria || 'inne',
+      plik: req.file.filename
+    });
+    res.status(201).json({ id: result.lastInsertRowid, plik: req.file.filename, message: 'Zdjęcie dodane' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update photo metadata
+app.put('/api/realizacje/:id', (req, res) => {
+  try {
+    db.updateRealizacja(req.params.id, req.body);
+    res.json({ message: 'Realizacja zaktualizowana' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete photo
+app.delete('/api/realizacje/:id', (req, res) => {
+  try {
+    // Get file info before deleting
+    const item = db.db.prepare('SELECT plik FROM realizacje WHERE id = ?').get(req.params.id);
+    if (item) {
+      const filePath = path.join(UPLOADS_DIR, item.plik);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
+    db.deleteRealizacja(req.params.id);
+    res.json({ message: 'Realizacja usunięta' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
