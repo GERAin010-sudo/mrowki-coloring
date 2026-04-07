@@ -1,20 +1,97 @@
 /* ============================================
    MRÓWKI COLORING CRM — Admin Panel JS
-   Weeek-style Kanban Pipeline CRM
+   Weeek-style Kanban Pipeline CRM + i18n + Themes
    ============================================ */
 
 const API = '';
 let currentView = 'dashboard';
 let funnels = {};
 let dragDealId = null;
+let currentLang = localStorage.getItem('crm_lang') || 'pl';
+let currentTheme = localStorage.getItem('crm_theme') || 'dark';
 
-// Category labels
+// ===== i18n TRANSLATIONS =====
+const L = {
+  pl: {
+    dashboard:'Dashboard', sprzedaz:'Sprzedaż', wykonanie:'Wykonanie', kontakty:'Kontakty', kompanie:'Kompanie', magazyn:'Magazyn', realizacje:'Realizacje',
+    nowa_transakcja:'Nowa transakcja', dodaj_kontakt:'Dodaj kontakt', dodaj_kompanie:'Dodaj kompanię', nowa_pozycja:'Nowa pozycja', dodaj_zdjecie:'Dodaj zdjęcie',
+    transakcje:'Transakcje', wartosc:'Wartość', pozycje:'Pozycje', stan_magazynowy:'Stan magazynowy', magazyn_pusty:'Magazyn pusty',
+    nazwa:'Nazwa', email:'Email', telefon:'Telefon', adres:'Adres', nip:'NIP', kategoria:'Kategoria', ilosc:'Ilość', cena_jedn:'Cena jedn.', dostawca:'Dostawca',
+    kwota:'Kwota', etap:'Etap', kompania:'Kompania', kontakt:'Kontakt', opis:'Opis', adres_realizacji:'Adres realizacji',
+    imie:'Imię', nazwisko:'Nazwisko', stanowisko:'Stanowisko', email_faktury:'Email dla faktur', odpowiedzialny:'Odpowiedzialny',
+    utworz:'Utwórz', zapisz:'Zapisz', anuluj:'Anuluj', dodaj:'Dodaj', edytuj:'Edytuj', usun:'Usuń', zamknij:'Zamknij',
+    brak:'— brak —', brak_kontaktow:'Brak kontaktów', brak_kompanii:'Brak kompanii', brak_zdjec:'Brak zdjęć', blad:'Błąd ładowania',
+    zadania:'Zadania', historia:'Historia', zuzycie_materialow:'Zużycie materiałów', nowe_zadanie:'Nowe zadanie...', na_pewno_usunac:'Na pewno usunąć?',
+    zakup:'Zakup', zuzycie:'Zużycie', nr_faktury:'Nr faktury', data_zakupu:'Data zakupu', zapisz_zakup:'Zapisz zakup', zapisz_zuzycie:'Zapisz zużycie',
+    transakcja:'Transakcja', notatka:'Notatka', notatki:'Notatki', tytul:'Tytuł', zdjecie:'Zdjęcie', kliknij_przeciagnij:'Kliknij lub przeciągnij',
+    przesylanie:'Przesyłanie...', edytuj_realizacje:'Edytuj realizację', nowy_kontakt:'Nowy kontakt', edytuj_kontakt:'Edytuj kontakt',
+    nowa_kompania:'Nowa kompania', edytuj_kompanie:'Edytuj kompanię', edytuj_transakcje:'Edytuj transakcję', nowa_pozycja_mag:'Nowa pozycja magazynowa',
+    edytuj_pozycje:'Edytuj pozycję', ilosc_poczatkowa:'Ilość początkowa', voronka:'Voronka', wynik:'Wynik',
+    ukryte:'Ukryte', widoczne:'Widoczne', jednostka:'Jednostka',
+  },
+  ua: {
+    dashboard:'Дашборд', sprzedaz:'Продажі', wykonanie:'Виконання', kontakty:'Контакти', kompanie:'Компанії', magazyn:'Склад', realizacje:'Реалізації',
+    nowa_transakcja:'Нова угода', dodaj_kontakt:'Додати контакт', dodaj_kompanie:'Додати компанію', nowa_pozycja:'Нова позиція', dodaj_zdjecie:'Додати фото',
+    transakcje:'Угоди', wartosc:'Вартість', pozycje:'Позиції', stan_magazynowy:'Стан складу', magazyn_pusty:'Склад порожній',
+    nazwa:'Назва', email:'Email', telefon:'Телефон', adres:'Адреса', nip:'NIP', kategoria:'Категорія', ilosc:'Кількість', cena_jedn:'Ціна за од.', dostawca:'Постачальник',
+    kwota:'Сума', etap:'Етап', kompania:'Компанія', kontakt:'Контакт', opis:'Опис', adres_realizacji:'Адреса виконання',
+    imie:'Ім\'я', nazwisko:'Прізвище', stanowisko:'Посада', email_faktury:'Email для рахунків', odpowiedzialny:'Відповідальний',
+    utworz:'Створити', zapisz:'Зберегти', anuluj:'Скасувати', dodaj:'Додати', edytuj:'Редагувати', usun:'Видалити', zamknij:'Закрити',
+    brak:'— немає —', brak_kontaktow:'Немає контактів', brak_kompanii:'Немає компаній', brak_zdjec:'Немає фото', blad:'Помилка завантаження',
+    zadania:'Завдання', historia:'Історія', zuzycie_materialow:'Витрати матеріалів', nowe_zadanie:'Нове завдання...', na_pewno_usunac:'Точно видалити?',
+    zakup:'Закупівля', zuzycie:'Витрата', nr_faktury:'№ рахунку', data_zakupu:'Дата закупівлі', zapisz_zakup:'Зберегти закупівлю', zapisz_zuzycie:'Зберегти витрату',
+    transakcja:'Угода', notatka:'Нотатка', notatki:'Нотатки', tytul:'Назва', zdjecie:'Фото', kliknij_przeciagnij:'Натисніть або перетягніть',
+    przesylanie:'Завантаження...', edytuj_realizacje:'Редагувати реалізацію', nowy_kontakt:'Новий контакт', edytuj_kontakt:'Редагувати контакт',
+    nowa_kompania:'Нова компанія', edytuj_kompanie:'Редагувати компанію', edytuj_transakcje:'Редагувати угоду', nowa_pozycja_mag:'Нова позиція складу',
+    edytuj_pozycje:'Редагувати позицію', ilosc_poczatkowa:'Початкова кількість', voronka:'Воронка', wynik:'Результат',
+    ukryte:'Приховано', widoczne:'Видиме', jednostka:'Одиниця',
+  },
+  ru: {
+    dashboard:'Дашборд', sprzedaz:'Продажи', wykonanie:'Исполнение', kontakty:'Контакты', kompanie:'Компании', magazyn:'Склад', realizacje:'Реализации',
+    nowa_transakcja:'Новая сделка', dodaj_kontakt:'Добавить контакт', dodaj_kompanie:'Добавить компанию', nowa_pozycja:'Новая позиция', dodaj_zdjecie:'Добавить фото',
+    transakcje:'Сделки', wartosc:'Стоимость', pozycje:'Позиции', stan_magazynowy:'Состояние склада', magazyn_pusty:'Склад пуст',
+    nazwa:'Название', email:'Email', telefon:'Телефон', adres:'Адрес', nip:'NIP', kategoria:'Категория', ilosc:'Количество', cena_jedn:'Цена за ед.', dostawca:'Поставщик',
+    kwota:'Сумма', etap:'Этап', kompania:'Компания', kontakt:'Контакт', opis:'Описание', adres_realizacji:'Адрес исполнения',
+    imie:'Имя', nazwisko:'Фамилия', stanowisko:'Должность', email_faktury:'Email для счетов', odpowiedzialny:'Ответственный',
+    utworz:'Создать', zapisz:'Сохранить', anuluj:'Отмена', dodaj:'Добавить', edytuj:'Редактировать', usun:'Удалить', zamknij:'Закрыть',
+    brak:'— нет —', brak_kontaktow:'Нет контактов', brak_kompanii:'Нет компаний', brak_zdjec:'Нет фото', blad:'Ошибка загрузки',
+    zadania:'Задачи', historia:'История', zuzycie_materialow:'Расход материалов', nowe_zadanie:'Новая задача...', na_pewno_usunac:'Точно удалить?',
+    zakup:'Закупка', zuzycie:'Расход', nr_faktury:'№ счёта', data_zakupu:'Дата закупки', zapisz_zakup:'Сохранить закупку', zapisz_zuzycie:'Сохранить расход',
+    transakcja:'Сделка', notatka:'Заметка', notatki:'Заметки', tytul:'Название', zdjecie:'Фото', kliknij_przeciagnij:'Нажмите или перетяните',
+    przesylanie:'Загрузка...', edytuj_realizacje:'Редактировать реализацию', nowy_kontakt:'Новый контакт', edytuj_kontakt:'Редактировать контакт',
+    nowa_kompania:'Новая компания', edytuj_kompanie:'Редактировать компанию', edytuj_transakcje:'Редактировать сделку', nowa_pozycja_mag:'Новая позиция склада',
+    edytuj_pozycje:'Редактировать позицию', ilosc_poczatkowa:'Начальное количество', voronka:'Воронка', wynik:'Результат',
+    ukryte:'Скрыто', widoczne:'Видимое', jednostka:'Единица',
+  }
+};
+function t(key) { return L[currentLang]?.[key] || L.pl[key] || key; }
+
 const CATEGORIES = { okna:'Okna', drzwi:'Drzwi', fasady:'Fasady', bramy_windy:'Bramy/Windy', parapety:'Parapety', poprawki:'Poprawki', inne:'Inne' };
 const STOCK_CATS = { material:'Materiał', farba:'Farba', narzedzie:'Narzędzie', srodek:'Środek ochrony', inne:'Inne' };
 const STOCK_UNITS = { szt:'szt', l:'l', kg:'kg', m2:'m²', m:'m', op:'op', kpl:'kpl' };
 
+/* ===== THEME & LANG ===== */
+function applyTheme(theme) {
+  currentTheme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('crm_theme', theme);
+  const btn = document.getElementById('theme-toggle');
+  if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+function applyLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('crm_lang', lang);
+  // Update sidebar labels
+  document.querySelectorAll('.nav-item[data-view]').forEach(el => {
+    const key = {dashboard:'dashboard',funnel_sprzedaz:'sprzedaz',funnel_wykonanie:'wykonanie',kontakty:'kontakty',kompanie:'kompanie',magazyn:'magazyn',realizacje:'realizacje'}[el.dataset.view];
+    if (key) { const txt = el.childNodes; txt[txt.length - 1].textContent = ' ' + t(key); }
+  });
+  loadView(currentView);
+}
+
 /* ===== INIT ===== */
 (async () => {
+  applyTheme(currentTheme);
   try {
     const res = await fetch(`${API}/api/funnels`);
     funnels = await res.json();
@@ -51,7 +128,17 @@ const STOCK_UNITS = { szt:'szt', l:'l', kg:'kg', m2:'m²', m:'m', op:'op', kpl:'
     else if (currentView === 'realizacje') showUploadPhotoForm();
   });
 
-  loadView('dashboard');
+  // Theme toggle
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+  });
+
+  // Language select
+  const langSel = document.getElementById('lang-select');
+  langSel.value = currentLang;
+  langSel.addEventListener('change', () => applyLang(langSel.value));
+
+  applyLang(currentLang);
 })();
 
 function openModal(title, html) {
@@ -67,45 +154,46 @@ function loadView(view) {
   const title = document.getElementById('page-title');
   addBtn.style.display = 'none';
 
+  const SVG_PLUS = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> ';
   switch(view) {
     case 'dashboard':
-      title.textContent = 'Dashboard';
+      title.textContent = t('dashboard');
       loadDashboard();
       break;
     case 'funnel_sprzedaz':
-      title.textContent = 'Sprzedaż';
+      title.textContent = t('sprzedaz');
       addBtn.style.display = 'inline-flex';
-      addBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Nowa transakcja';
+      addBtn.innerHTML = SVG_PLUS + t('nowa_transakcja');
       loadKanban('sprzedaz');
       break;
     case 'funnel_wykonanie':
-      title.textContent = 'Wykonanie';
+      title.textContent = t('wykonanie');
       addBtn.style.display = 'inline-flex';
-      addBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Nowa transakcja';
+      addBtn.innerHTML = SVG_PLUS + t('nowa_transakcja');
       loadKanban('wykonanie');
       break;
     case 'kontakty':
-      title.textContent = 'Kontakty';
+      title.textContent = t('kontakty');
       addBtn.style.display = 'inline-flex';
-      addBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Dodaj kontakt';
+      addBtn.innerHTML = SVG_PLUS + t('dodaj_kontakt');
       loadContacts();
       break;
     case 'kompanie':
-      title.textContent = 'Kompanie';
+      title.textContent = t('kompanie');
       addBtn.style.display = 'inline-flex';
-      addBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Dodaj kompanię';
+      addBtn.innerHTML = SVG_PLUS + t('dodaj_kompanie');
       loadCompanies();
       break;
     case 'magazyn':
-      title.textContent = 'Magazyn';
+      title.textContent = t('magazyn');
       addBtn.style.display = 'inline-flex';
-      addBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Nowa pozycja';
+      addBtn.innerHTML = SVG_PLUS + t('nowa_pozycja');
       loadWarehouse();
       break;
     case 'realizacje':
-      title.textContent = 'Realizacje';
+      title.textContent = t('realizacje');
       addBtn.style.display = 'inline-flex';
-      addBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Dodaj zdjęcie';
+      addBtn.innerHTML = SVG_PLUS + t('dodaj_zdjecie');
       loadRealizacje();
       break;
   }
@@ -118,15 +206,15 @@ async function loadDashboard() {
     const stats = await fetch(`${API}/api/stats`).then(r => r.json());
     c.innerHTML = `
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-card-label">Transakcje</div><div class="stat-card-value primary">${stats.totalDeals}</div></div>
-        <div class="stat-card"><div class="stat-card-label">Sprzedaż</div><div class="stat-card-value accent">${stats.salesDeals} <small style="font-size:0.7rem;color:var(--text-muted)">${(stats.salesSum||0).toLocaleString()} zł</small></div></div>
-        <div class="stat-card"><div class="stat-card-label">Wykonanie</div><div class="stat-card-value success">${stats.execDeals} <small style="font-size:0.7rem;color:var(--text-muted)">${(stats.execSum||0).toLocaleString()} zł</small></div></div>
-        <div class="stat-card"><div class="stat-card-label">Kompanie</div><div class="stat-card-value">${stats.totalCompanies}</div></div>
-        <div class="stat-card"><div class="stat-card-label">Kontakty</div><div class="stat-card-value">${stats.totalContacts}</div></div>
-        <div class="stat-card"><div class="stat-card-label">Magazyn</div><div class="stat-card-value">${stats.stockItems} <small style="font-size:0.7rem;color:var(--text-muted)">${(stats.stockValue||0).toLocaleString()} zł</small></div></div>
+        <div class="stat-card"><div class="stat-card-label">${t('transakcje')}</div><div class="stat-card-value primary">${stats.totalDeals}</div></div>
+        <div class="stat-card"><div class="stat-card-label">${t('sprzedaz')}</div><div class="stat-card-value accent">${stats.salesDeals} <small style="font-size:0.7rem;color:var(--text-muted)">${(stats.salesSum||0).toLocaleString()} zł</small></div></div>
+        <div class="stat-card"><div class="stat-card-label">${t('wykonanie')}</div><div class="stat-card-value success">${stats.execDeals} <small style="font-size:0.7rem;color:var(--text-muted)">${(stats.execSum||0).toLocaleString()} zł</small></div></div>
+        <div class="stat-card"><div class="stat-card-label">${t('kompanie')}</div><div class="stat-card-value">${stats.totalCompanies}</div></div>
+        <div class="stat-card"><div class="stat-card-label">${t('kontakty')}</div><div class="stat-card-value">${stats.totalContacts}</div></div>
+        <div class="stat-card"><div class="stat-card-label">${t('magazyn')}</div><div class="stat-card-value">${stats.stockItems} <small style="font-size:0.7rem;color:var(--text-muted)">${(stats.stockValue||0).toLocaleString()} zł</small></div></div>
       </div>
     `;
-  } catch(e) { c.innerHTML = '<div class="empty-state">Nie udało się załadować</div>'; }
+  } catch(e) { c.innerHTML = '<div class="empty-state">' + t('blad') + '</div>'; }
 }
 
 /* ===== KANBAN BOARD ===== */
@@ -161,7 +249,7 @@ async function loadKanban(voronka) {
             </div>
             <div class="kanban-col-body">
               ${stageDeals.map(d => dealCard(d)).join('')}
-              <button class="kanban-add-btn" onclick="showNewDealForm('${voronka}','${stage.id}')">+ Dodaj</button>
+              <button class="kanban-add-btn" onclick="showNewDealForm('${voronka}','${stage.id}')">+ ${t('dodaj')}</button>
             </div>
           </div>
         `;
@@ -222,7 +310,7 @@ async function showDealDetail(id) {
 
       <div class="deal-section">
         <div class="deal-section-header">
-          <span>Zadania ${totalTasks ? `(${doneCount}/${totalTasks})` : ''}</span>
+          <span>${t('zadania')} ${totalTasks ? `(${doneCount}/${totalTasks})` : ''}</span>
         </div>
         <div id="deal-tasks">
           ${(deal.zadania||[]).map(z => `
@@ -234,27 +322,27 @@ async function showDealDetail(id) {
           `).join('')}
         </div>
         <div class="task-add">
-          <input type="text" id="new-task-input" placeholder="Nowe zadanie..." class="form-input" onkeydown="if(event.key==='Enter')addNewTask(${id})">
+          <input type="text" id="new-task-input" placeholder="${t('nowe_zadanie')}" class="form-input" onkeydown="if(event.key==='Enter')addNewTask(${id})">
           <button class="btn-sm" onclick="addNewTask(${id})">+</button>
         </div>
       </div>
 
       ${deal.zuzycie?.length ? `
       <div class="deal-section">
-        <div class="deal-section-header"><span>Zużycie materiałów</span></div>
+        <div class="deal-section-header"><span>${t('zuzycie_materialow')}</span></div>
         ${deal.zuzycie.map(z => `<div class="task-item"><span>${z.material_nazwa}: ${z.ilosc} ${z.jednostka}</span><small style="color:var(--text-muted);margin-left:auto">${z.data_zuzycia}</small></div>`).join('')}
       </div>` : ''}
 
       ${deal.historia?.length ? `
       <div class="deal-section">
-        <div class="deal-section-header"><span>Historia</span></div>
+        <div class="deal-section-header"><span>${t('historia')}</span></div>
         ${deal.historia.map(h => `<div style="padding:0.3rem 0;font-size:0.8rem;color:var(--text-secondary)">${h.opis} <span style="color:var(--text-muted)">(${new Date(h.created_at).toLocaleString('pl')})</span></div>`).join('')}
       </div>` : ''}
 
       <div class="form-actions">
-        <button class="btn-submit" onclick="showEditDealForm(${id})">Edytuj</button>
-        <button class="btn-cancel" onclick="deleteDeal(${id})">Usuń</button>
-        <button class="btn-cancel" onclick="closeModal()">Zamknij</button>
+        <button class="btn-submit" onclick="showEditDealForm(${id})">${t('edytuj')}</button>
+        <button class="btn-cancel" onclick="deleteDeal(${id})">${t('usun')}</button>
+        <button class="btn-cancel" onclick="closeModal()">${t('zamknij')}</button>
       </div>
     </div>
   `);
@@ -281,7 +369,7 @@ async function deleteTask(taskId, dealId) {
 }
 
 async function deleteDeal(id) {
-  if (!confirm('Na pewno usunąć transakcję?')) return;
+  if (!confirm(t('na_pewno_usunac'))) return;
   await fetch(`${API}/api/transakcje/${id}`, { method: 'DELETE' });
   closeModal();
   loadView(currentView);
@@ -293,23 +381,23 @@ async function showNewDealForm(voronka, etap) {
   const contacts = await fetch(`${API}/api/kontakty`).then(r => r.json());
   const funnel = funnels[voronka];
   const stageOpts = funnel ? funnel.stages.map(s => `<option value="${s.id}" ${s.id===etap?'selected':''}>${s.name}</option>`).join('') : '';
-  const compOpts = '<option value="">— brak —</option>' + companies.map(c => `<option value="${c.id}">${c.nazwa}</option>`).join('');
-  const contOpts = '<option value="">— brak —</option>' + contacts.map(c => `<option value="${c.id}">${c.imie} ${c.nazwisko||''} ${c.kompania_nazwa ? '('+c.kompania_nazwa+')' : ''}</option>`).join('');
+  const compOpts = `<option value="">${t('brak')}</option>` + companies.map(c => `<option value="${c.id}">${c.nazwa}</option>`).join('');
+  const contOpts = `<option value="">${t('brak')}</option>` + contacts.map(c => `<option value="${c.id}">${c.imie} ${c.nazwisko||''} ${c.kompania_nazwa ? '('+c.kompania_nazwa+')' : ''}</option>`).join('');
 
-  openModal('Nowa transakcja', `
+  openModal(t('nowa_transakcja'), `
     <form onsubmit="submitDeal(event,'${voronka}')">
-      <div class="form-group"><label class="form-label">Nazwa *</label><input class="form-input" id="d-name" required placeholder="np. Warbud - Poznań - Szpital"></div>
+      <div class="form-group"><label class="form-label">${t('nazwa')} *</label><input class="form-input" id="d-name" required placeholder="np. Warbud - Poznań - Szpital"></div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Kwota</label><input class="form-input" id="d-amount" type="number" step="0.01" placeholder="0.00"></div>
-        <div class="form-group"><label class="form-label">Etap</label><select class="form-select" id="d-stage">${stageOpts}</select></div>
+        <div class="form-group"><label class="form-label">${t('kwota')}</label><input class="form-input" id="d-amount" type="number" step="0.01" placeholder="0.00"></div>
+        <div class="form-group"><label class="form-label">${t('etap')}</label><select class="form-select" id="d-stage">${stageOpts}</select></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Kompania</label><select class="form-select" id="d-company">${compOpts}</select></div>
-        <div class="form-group"><label class="form-label">Kontakt</label><select class="form-select" id="d-contact">${contOpts}</select></div>
+        <div class="form-group"><label class="form-label">${t('kompania')}</label><select class="form-select" id="d-company">${compOpts}</select></div>
+        <div class="form-group"><label class="form-label">${t('kontakt')}</label><select class="form-select" id="d-contact">${contOpts}</select></div>
       </div>
-      <div class="form-group"><label class="form-label">Opis</label><textarea class="form-textarea" id="d-desc" placeholder="Notatki..."></textarea></div>
-      <div class="form-group"><label class="form-label">Adres realizacji</label><input class="form-input" id="d-address" placeholder="ul. ..."></div>
-      <div class="form-actions"><button type="submit" class="btn-submit">Utwórz</button><button type="button" class="btn-cancel" onclick="closeModal()">Anuluj</button></div>
+      <div class="form-group"><label class="form-label">${t('opis')}</label><textarea class="form-textarea" id="d-desc" placeholder="${t('notatki')}..."></textarea></div>
+      <div class="form-group"><label class="form-label">${t('adres_realizacji')}</label><input class="form-input" id="d-address" placeholder="ul. ..."></div>
+      <div class="form-actions"><button type="submit" class="btn-submit">${t('utworz')}</button><button type="button" class="btn-cancel" onclick="closeModal()">${t('anuluj')}</button></div>
     </form>
   `);
 }
@@ -344,7 +432,7 @@ async function showEditDealForm(id) {
   const compOpts = '<option value="">— brak —</option>' + companies.map(c => `<option value="${c.id}" ${c.id==deal.kompania_id?'selected':''}>${c.nazwa}</option>`).join('');
   const contOpts = '<option value="">— brak —</option>' + contacts.map(c => `<option value="${c.id}" ${c.id==deal.kontakt_id?'selected':''}>${c.imie} ${c.nazwisko||''}</option>`).join('');
 
-  openModal('Edytuj transakcję', `
+  openModal(t('edytuj_transakcje'), `
     <form onsubmit="submitEditDeal(event,${id})">
       <div class="form-group"><label class="form-label">Nazwa *</label><input class="form-input" id="d-name" required value="${deal.nazwa}"></div>
       <div class="form-row">
@@ -388,8 +476,8 @@ async function loadContacts() {
   const contacts = await fetch(`${API}/api/kontakty`).then(r => r.json());
   c.innerHTML = `
     <div class="table-wrapper">
-      <div class="table-header"><span class="table-title">Kontakty (${contacts.length})</span></div>
-      ${contacts.length ? `<table><thead><tr><th>Imię i nazwisko</th><th>Email</th><th>Telefon</th><th>Kompania</th><th></th></tr></thead><tbody>
+      <div class="table-header"><span class="table-title">${t('kontakty')} (${contacts.length})</span></div>
+      ${contacts.length ? `<table><thead><tr><th>${t('imie')} ${t('nazwisko')}</th><th>${t('email')}</th><th>${t('telefon')}</th><th>${t('kompania')}</th><th></th></tr></thead><tbody>
         ${contacts.map(ct => `<tr>
           <td><strong>${ct.imie} ${ct.nazwisko||''}</strong></td>
           <td>${ct.email||'—'}</td>
@@ -397,7 +485,7 @@ async function loadContacts() {
           <td>${ct.kompania_nazwa||'—'}</td>
           <td><button class="btn-sm" onclick="showEditContactForm(${ct.id})">✏️</button> <button class="btn-sm btn-danger" onclick="deleteContact(${ct.id})">🗑️</button></td>
         </tr>`).join('')}
-      </tbody></table>` : '<div class="empty-state">Brak kontaktów</div>'}
+      </tbody></table>` : '<div class="empty-state">' + t('brak_kontaktow') + '</div>'}
     </div>
   `;
 }
@@ -405,19 +493,19 @@ async function loadContacts() {
 async function showNewContactForm() {
   const companies = await fetch(`${API}/api/kompanie`).then(r => r.json());
   const compOpts = '<option value="">— brak —</option>' + companies.map(c => `<option value="${c.id}">${c.nazwa}</option>`).join('');
-  openModal('Nowy kontakt', `
+  openModal(t('nowy_kontakt'), `
     <form onsubmit="submitContact(event)">
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Imię *</label><input class="form-input" id="c-first" required></div>
-        <div class="form-group"><label class="form-label">Nazwisko</label><input class="form-input" id="c-last"></div>
+        <div class="form-group"><label class="form-label">${t('imie')} *</label><input class="form-input" id="c-first" required></div>
+        <div class="form-group"><label class="form-label">${t('nazwisko')}</label><input class="form-input" id="c-last"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="c-email" type="email"></div>
-        <div class="form-group"><label class="form-label">Telefon</label><input class="form-input" id="c-phone"></div>
+        <div class="form-group"><label class="form-label">${t('email')}</label><input class="form-input" id="c-email" type="email"></div>
+        <div class="form-group"><label class="form-label">${t('telefon')}</label><input class="form-input" id="c-phone"></div>
       </div>
-      <div class="form-group"><label class="form-label">Kompania</label><select class="form-select" id="c-company">${compOpts}</select></div>
-      <div class="form-group"><label class="form-label">Stanowisko</label><input class="form-input" id="c-position" placeholder="np. Kierownik projektu"></div>
-      <div class="form-actions"><button type="submit" class="btn-submit">Dodaj</button><button type="button" class="btn-cancel" onclick="closeModal()">Anuluj</button></div>
+      <div class="form-group"><label class="form-label">${t('kompania')}</label><select class="form-select" id="c-company">${compOpts}</select></div>
+      <div class="form-group"><label class="form-label">${t('stanowisko')}</label><input class="form-input" id="c-position"></div>
+      <div class="form-actions"><button type="submit" class="btn-submit">${t('dodaj')}</button><button type="button" class="btn-cancel" onclick="closeModal()">${t('anuluj')}</button></div>
     </form>
   `);
 }
@@ -442,7 +530,7 @@ async function showEditContactForm(id) {
   const ct = await fetch(`${API}/api/kontakty/${id}`).then(r => r.json());
   const companies = await fetch(`${API}/api/kompanie`).then(r => r.json());
   const compOpts = '<option value="">— brak —</option>' + companies.map(c => `<option value="${c.id}" ${c.id==ct.kompania_id?'selected':''}>${c.nazwa}</option>`).join('');
-  openModal('Edytuj kontakt', `
+  openModal(t('edytuj_kontakt'), `
     <form onsubmit="submitEditContact(event,${id})">
       <div class="form-row">
         <div class="form-group"><label class="form-label">Imię *</label><input class="form-input" id="c-first" required value="${ct.imie}"></div>
@@ -476,7 +564,7 @@ async function submitEditContact(e, id) {
 }
 
 async function deleteContact(id) {
-  if (!confirm('Usunąć kontakt?')) return;
+  if (!confirm(t('na_pewno_usunac'))) return;
   await fetch(`${API}/api/kontakty/${id}`, { method: 'DELETE' });
   loadView('kontakty');
 }
@@ -487,8 +575,8 @@ async function loadCompanies() {
   const comps = await fetch(`${API}/api/kompanie`).then(r => r.json());
   c.innerHTML = `
     <div class="table-wrapper">
-      <div class="table-header"><span class="table-title">Kompanie (${comps.length})</span></div>
-      ${comps.length ? `<table><thead><tr><th>Nazwa</th><th>Email</th><th>Telefon</th><th>Adres</th><th>NIP</th><th></th></tr></thead><tbody>
+      <div class="table-header"><span class="table-title">${t('kompanie')} (${comps.length})</span></div>
+      ${comps.length ? `<table><thead><tr><th>${t('nazwa')}</th><th>${t('email')}</th><th>${t('telefon')}</th><th>${t('adres')}</th><th>${t('nip')}</th><th></th></tr></thead><tbody>
         ${comps.map(co => `<tr>
           <td><strong>${co.nazwa}</strong></td>
           <td>${co.email||'—'}</td>
@@ -497,13 +585,13 @@ async function loadCompanies() {
           <td>${co.nip||'—'}</td>
           <td><button class="btn-sm" onclick="showEditCompanyForm(${co.id})">✏️</button> <button class="btn-sm btn-danger" onclick="deleteCompany(${co.id})">🗑️</button></td>
         </tr>`).join('')}
-      </tbody></table>` : '<div class="empty-state">Brak kompanii</div>'}
+      </tbody></table>` : '<div class="empty-state">' + t('brak_kompanii') + '</div>'}
     </div>
   `;
 }
 
 async function showNewCompanyForm() {
-  openModal('Nowa kompania', `
+  openModal(t('nowa_kompania'), `
     <form onsubmit="submitCompany(event)">
       <div class="form-group"><label class="form-label">Nazwa *</label><input class="form-input" id="co-name" required></div>
       <div class="form-row">
@@ -540,7 +628,7 @@ async function submitCompany(e) {
 
 async function showEditCompanyForm(id) {
   const co = await fetch(`${API}/api/kompanie/${id}`).then(r => r.json());
-  openModal('Edytuj kompanię', `
+  openModal(t('edytuj_kompanie'), `
     <form onsubmit="submitEditCompany(event,${id})">
       <div class="form-group"><label class="form-label">Nazwa *</label><input class="form-input" id="co-name" required value="${co.nazwa}"></div>
       <div class="form-row">
@@ -576,7 +664,7 @@ async function submitEditCompany(e, id) {
 }
 
 async function deleteCompany(id) {
-  if (!confirm('Usunąć kompanię?')) return;
+  if (!confirm(t('na_pewno_usunac'))) return;
   await fetch(`${API}/api/kompanie/${id}`, { method: 'DELETE' });
   loadView('kompanie');
 }
@@ -588,12 +676,12 @@ async function loadWarehouse() {
   const totalVal = items.reduce((s,i) => s + (i.ilosc * i.cena_jedn), 0);
   c.innerHTML = `
     <div class="stats-grid" style="margin-bottom:1.5rem">
-      <div class="stat-card"><div class="stat-card-label">Pozycje</div><div class="stat-card-value">${items.length}</div></div>
-      <div class="stat-card"><div class="stat-card-label">Wartość</div><div class="stat-card-value accent">${totalVal.toLocaleString()} zł</div></div>
+      <div class="stat-card"><div class="stat-card-label">${t('pozycje')}</div><div class="stat-card-value">${items.length}</div></div>
+      <div class="stat-card"><div class="stat-card-label">${t('wartosc')}</div><div class="stat-card-value accent">${totalVal.toLocaleString()} zł</div></div>
     </div>
     <div class="table-wrapper">
-      <div class="table-header"><span class="table-title">Stan magazynowy</span></div>
-      ${items.length ? `<table><thead><tr><th>Nazwa</th><th>Kategoria</th><th>Ilość</th><th>Cena jedn.</th><th>Wartość</th><th>Dostawca</th><th></th></tr></thead><tbody>
+      <div class="table-header"><span class="table-title">${t('stan_magazynowy')}</span></div>
+      ${items.length ? `<table><thead><tr><th>${t('nazwa')}</th><th>${t('kategoria')}</th><th>${t('ilosc')}</th><th>${t('cena_jedn')}</th><th>${t('wartosc')}</th><th>${t('dostawca')}</th><th></th></tr></thead><tbody>
         ${items.map(i => `<tr>
           <td><strong>${i.nazwa}</strong></td>
           <td>${STOCK_CATS[i.kategoria]||i.kategoria}</td>
@@ -608,7 +696,7 @@ async function loadWarehouse() {
             <button class="btn-sm btn-danger" onclick="deleteStock(${i.id})">🗑️</button>
           </td>
         </tr>`).join('')}
-      </tbody></table>` : '<div class="empty-state">Magazyn pusty</div>'}
+      </tbody></table>` : '<div class="empty-state">' + t('magazyn_pusty') + '</div>'}
     </div>
   `;
 }
@@ -616,7 +704,7 @@ async function loadWarehouse() {
 function showNewStockForm() {
   const catOpts = Object.entries(STOCK_CATS).map(([k,v]) => `<option value="${k}">${v}</option>`).join('');
   const unitOpts = Object.entries(STOCK_UNITS).map(([k,v]) => `<option value="${k}">${v}</option>`).join('');
-  openModal('Nowa pozycja magazynowa', `
+  openModal(t('nowa_pozycja_mag'), `
     <form onsubmit="submitStock(event)">
       <div class="form-group"><label class="form-label">Nazwa *</label><input class="form-input" id="s-name" required placeholder="np. Farba RAL 7016"></div>
       <div class="form-row">
@@ -653,7 +741,7 @@ async function showEditStockForm(id) {
   const item = await fetch(`${API}/api/magazyn/${id}`).then(r => r.json());
   const catOpts = Object.entries(STOCK_CATS).map(([k,v]) => `<option value="${k}" ${k===item.kategoria?'selected':''}>${v}</option>`).join('');
   const unitOpts = Object.entries(STOCK_UNITS).map(([k,v]) => `<option value="${k}" ${k===item.jednostka?'selected':''}>${v}</option>`).join('');
-  openModal('Edytuj pozycję', `
+  openModal(t('edytuj_pozycje'), `
     <form onsubmit="submitEditStock(event,${id})">
       <div class="form-group"><label class="form-label">Nazwa *</label><input class="form-input" id="s-name" required value="${item.nazwa}"></div>
       <div class="form-row">
@@ -737,7 +825,7 @@ async function submitConsume(e, stockId) {
 }
 
 async function deleteStock(id) {
-  if (!confirm('Usunąć pozycję?')) return;
+  if (!confirm(t('na_pewno_usunac'))) return;
   await fetch(`${API}/api/magazyn/${id}`, { method: 'DELETE' });
   loadView('magazyn');
 }
@@ -769,15 +857,15 @@ async function loadRealizacje() {
               </div>
             </div>
           </div>
-        `}).join('') : '<div class="empty-state">Brak zdjęć</div>'}
+        `}).join('') : '<div class="empty-state">' + t('brak_zdjec') + '</div>'}
       </div>
     `;
-  } catch(e) { c.innerHTML = '<div class="empty-state">Błąd ładowania</div>'; }
+  } catch(e) { c.innerHTML = '<div class="empty-state">' + t('blad') + '</div>'; }
 }
 
 function editPhotoCategory(id, tytul, opis, kategoria, widoczny) {
   const catOpts = Object.entries(CATEGORIES).map(([k,v]) => `<option value="${k}" ${k===kategoria?'selected':''}>${v}</option>`).join('');
-  openModal('Edytuj realizację', `
+  openModal(t('edytuj_realizacje'), `
     <form onsubmit="submitPhotoEdit(event, ${id}, ${widoczny})">
       <div class="form-group"><label class="form-label">Tytuł</label><input class="form-input" id="ep-title" required value="${tytul}"></div>
       <div class="form-group"><label class="form-label">Opis</label><textarea class="form-textarea" id="ep-desc">${opis}</textarea></div>
@@ -812,7 +900,7 @@ async function deletePhoto(id) {
 
 function showUploadPhotoForm() {
   const catOpts = Object.entries(CATEGORIES).map(([k,v]) => `<option value="${k}">${v}</option>`).join('');
-  openModal('Dodaj zdjęcie', `
+  openModal(t('dodaj_zdjecie'), `
     <form id="upload-form" onsubmit="submitPhoto(event)">
       <div class="form-group">
         <label class="form-label">Zdjęcie *</label>
