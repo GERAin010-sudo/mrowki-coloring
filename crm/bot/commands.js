@@ -46,8 +46,8 @@ class BotCommands {
     const chatId = msg.chat.id;
     const firstName = msg.from.first_name || 'Użytkownik';
     
-    // Register user
-    this.db.createUser(msg.from.id, firstName);
+    // Register user (default role: wykonawca)
+    this.db.createUser(msg.from.id, firstName, 'wykonawca');
     
     const text = `
 🏗️ *Mrówki Coloring CRM*
