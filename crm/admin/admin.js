@@ -4,7 +4,7 @@
    ============================================ */
 
 const API = '';
-let currentView = 'dashboard';
+let currentView = localStorage.getItem('crm_view') || 'dashboard';
 let funnels = {};
 let dragDealId = null;
 let currentLang = localStorage.getItem('crm_lang') || 'pl';
@@ -72,6 +72,9 @@ const L = {
     dodaj_koszt:'Dodaj koszt', typ_kosztu:'Typ kosztu', praca:'Praca', transport:'Transport',
     inne_koszty:'Inne', wykonawca:'Wykonawca', koszty:'Koszty',
     zaloguj_sie:'Zaloguj się', wybierz_uzytkownika:'Wybierz użytkownika', wyloguj:'Wyloguj',
+    moje_konto:'Moje konto', zmien_avatar:'Zmień avatar', kolor:'Kolor', jezyk:'Język',
+    zmien_haslo:'Zmiana hasła', aktualne_haslo:'Aktualne hasło', nowe_haslo:'Nowe hasło',
+    haslo_zmienione:'Hasło zmienione',
     rola:'Rola', rola_admin:'Admin', rola_wlasciciel:'Właściciel', rola_wykonawca:'Wykonawca',
     zmien_role:'Zmień rolę', brak_uzytkownikow:'Brak użytkowników — wyślij /start w bocie',
     widok_lista:'Lista', widok_kalendarz:'Kalendarz', widok_tydzien:'Tydzień', kanban:'Kanban', moje_zadania:'Moje zadania', bez_statusu:'Bez statusu', section_zadania:'ZADANIA',
@@ -127,6 +130,9 @@ const L = {
     dodaj_koszt:'Додати витрату', typ_kosztu:'Тип витрати', praca:'Робота', transport:'Транспорт',
     inne_koszty:'Інше', wykonawca:'Виконавець', koszty:'Витрати',
     zaloguj_sie:'Увійти', wybierz_uzytkownika:'Оберіть користувача', wyloguj:'Вийти',
+    moje_konto:'Мій акаунт', zmien_avatar:'Змінити аватар', kolor:'Колір', jezyk:'Мова',
+    zmien_haslo:'Зміна паролю', aktualne_haslo:'Поточний пароль', nowe_haslo:'Новий пароль',
+    haslo_zmienione:'Пароль змінено',
     rola:'Роль', rola_admin:'Адмін', rola_wlasciciel:'Власник', rola_wykonawca:'Виконавець',
     zmien_role:'Змінити роль', brak_uzytkownikow:'Немає користувачів — надішліть /start у боті',
     widok_lista:'Список', widok_kalendarz:'Календар', widok_tydzien:'Тиждень', kanban:'Канбан', moje_zadania:'Мої задачі', bez_statusu:'Без статусу', section_zadania:'ЗАДАЧІ',
@@ -182,6 +188,9 @@ const L = {
     dodaj_koszt:'Добавить расход', typ_kosztu:'Тип расхода', praca:'Работа', transport:'Транспорт',
     inne_koszty:'Прочее', wykonawca:'Исполнитель', koszty:'Затраты',
     zaloguj_sie:'Войти', wybierz_uzytkownika:'Выберите пользователя', wyloguj:'Выйти',
+    moje_konto:'Мой аккаунт', zmien_avatar:'Сменить аватар', kolor:'Цвет', jezyk:'Язык',
+    zmien_haslo:'Смена пароля', aktualne_haslo:'Текущий пароль', nowe_haslo:'Новый пароль',
+    haslo_zmienione:'Пароль изменён',
     rola:'Роль', rola_admin:'Админ', rola_wlasciciel:'Учредитель', rola_wykonawca:'Исполнитель',
     zmien_role:'Изменить роль', brak_uzytkownikow:'Нет пользователей — отправьте /start в боте',
     widok_lista:'Список', widok_kalendarz:'Календарь', widok_tydzien:'Неделя', kanban:'Канбан', moje_zadania:'Мои задачи', bez_statusu:'Без статуса', section_zadania:'ЗАДАЧИ',
@@ -395,6 +404,166 @@ async function logout() {
   window.location.href = '/login.html';
 }
 
+/* ===== ACCOUNT SETTINGS ===== */
+function showAccountSettings() {
+  if (!currentUser) return;
+  const presetColors = ['#4A8EFF', '#7c3aed', '#059669', '#dc2626', '#d97706', '#0891b2', '#be185d', '#4f46e5', '#0d9488', '#e8a838', '#e11d48', '#64748b'];
+  const avatarPreview = currentUser.avatar
+    ? `<div id="avatar-preview" class="account-avatar" style="background-image:url('${currentUser.avatar}?t=${Date.now()}');background-size:cover;background-position:center"></div>`
+    : `<div id="avatar-preview" class="account-avatar" style="background:${currentUser.kolor||'#4A8EFF'}">${currentUser.imie[0]}</div>`;
+
+  openModal(t('moje_konto') || 'Moje konto', `
+    <div class="account-settings">
+      <div class="account-section">
+        <div class="account-avatar-row">
+          ${avatarPreview}
+          <div class="account-avatar-actions">
+            <input type="file" id="avatar-file" accept="image/*" style="display:none" onchange="uploadAvatar(event)">
+            <button type="button" class="btn-sm" onclick="document.getElementById('avatar-file').click()">📷 ${t('zmien_avatar') || 'Zmień avatar'}</button>
+            ${currentUser.avatar ? `<button type="button" class="btn-sm btn-danger" onclick="removeAvatar()">🗑</button>` : ''}
+          </div>
+        </div>
+      </div>
+
+      <div class="account-section">
+        <label class="form-label">${t('imie') || 'Imię'}</label>
+        <input type="text" class="form-input" id="acc-imie" value="${currentUser.imie || ''}">
+      </div>
+
+      <div class="account-section">
+        <label class="form-label">${t('kolor') || 'Kolor'}</label>
+        <div class="color-palette">
+          ${presetColors.map(c => `
+            <span class="color-swatch ${c.toLowerCase() === (currentUser.kolor||'').toLowerCase() ? 'active' : ''}"
+                  style="background:${c}"
+                  data-color="${c}"
+                  onclick="selectAccountColor('${c}')"></span>
+          `).join('')}
+          <input type="color" id="acc-kolor" value="${currentUser.kolor || '#4A8EFF'}" class="color-custom" onchange="selectAccountColor(this.value)">
+        </div>
+      </div>
+
+      <div class="account-section">
+        <label class="form-label">${t('jezyk') || 'Язык / Język'}</label>
+        <select class="form-input" id="acc-jezyk">
+          <option value="pl" ${currentUser.jezyk==='pl'?'selected':''}>🇵🇱 Polski</option>
+          <option value="ua" ${currentUser.jezyk==='ua'?'selected':''}>🇺🇦 Українська</option>
+          <option value="ru" ${currentUser.jezyk==='ru'?'selected':''}>🇷🇺 Русский</option>
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-submit" onclick="saveAccountProfile()">${t('zapisz')}</button>
+        <button type="button" class="btn-cancel" onclick="closeModal()">${t('anuluj')}</button>
+      </div>
+
+      <div class="account-divider"></div>
+
+      <h4 style="margin:8px 0;font-size:14px">${t('zmien_haslo') || 'Zmiana hasła'}</h4>
+      <div class="account-section">
+        <label class="form-label">${t('aktualne_haslo') || 'Aktualne hasło'}</label>
+        <input type="password" class="form-input" id="acc-curpwd" autocomplete="current-password">
+      </div>
+      <div class="account-section">
+        <label class="form-label">${t('nowe_haslo') || 'Nowe hasło'} (min 6)</label>
+        <input type="password" class="form-input" id="acc-newpwd" autocomplete="new-password">
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-submit" onclick="changeMyPassword()">${t('zmien_haslo') || 'Zmień hasło'}</button>
+      </div>
+    </div>
+  `);
+}
+
+function selectAccountColor(color) {
+  const input = document.getElementById('acc-kolor');
+  if (input) input.value = color;
+  document.querySelectorAll('.color-swatch').forEach(sw => sw.classList.toggle('active', sw.dataset.color === color));
+  const preview = document.getElementById('avatar-preview');
+  if (preview && !currentUser.avatar) {
+    preview.style.background = color;
+  }
+}
+
+async function saveAccountProfile() {
+  try {
+    const imie = document.getElementById('acc-imie').value.trim();
+    const kolor = document.getElementById('acc-kolor').value;
+    const jezyk = document.getElementById('acc-jezyk').value;
+    const res = await fetch('/api/auth/profile', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ imie, kolor, jezyk }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'save failed');
+    currentUser = await res.json();
+    localStorage.setItem('crm_user', JSON.stringify(currentUser));
+    // Update language if changed
+    if (currentUser.jezyk && currentUser.jezyk !== currentLang) {
+      currentLang = currentUser.jezyk;
+      localStorage.setItem('crm_lang', currentLang);
+    }
+    closeModal();
+    location.reload();
+  } catch (e) {
+    alert('Błąd: ' + e.message);
+  }
+}
+
+async function uploadAvatar(ev) {
+  const file = ev.target.files?.[0];
+  if (!file) return;
+  const fd = new FormData();
+  fd.append('avatar', file);
+  try {
+    const res = await fetch('/api/auth/avatar', { method: 'POST', credentials: 'include', body: fd });
+    if (!res.ok) throw new Error((await res.json()).error || 'upload failed');
+    const data = await res.json();
+    currentUser.avatar = data.avatar;
+    localStorage.setItem('crm_user', JSON.stringify(currentUser));
+    const preview = document.getElementById('avatar-preview');
+    if (preview) {
+      preview.textContent = '';
+      preview.style.background = `url('${data.avatar}?t=${Date.now()}') center/cover`;
+    }
+  } catch (e) {
+    alert('Błąd uploadu: ' + e.message);
+  }
+}
+
+async function removeAvatar() {
+  if (!confirm(t('na_pewno_usunac'))) return;
+  try {
+    const res = await fetch('/api/auth/profile', {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ avatar: null }),
+    });
+    if (!res.ok) throw new Error('failed');
+    currentUser.avatar = null;
+    localStorage.setItem('crm_user', JSON.stringify(currentUser));
+    closeModal();
+    location.reload();
+  } catch (e) { alert('Błąd: ' + e.message); }
+}
+
+async function changeMyPassword() {
+  try {
+    const currentPassword = document.getElementById('acc-curpwd').value;
+    const newPassword = document.getElementById('acc-newpwd').value;
+    if (newPassword.length < 6) { alert('Min 6 znaków'); return; }
+    const res = await fetch('/api/auth/change-password', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    if (!res.ok) throw new Error((await res.json()).error || 'failed');
+    alert('✅ ' + (t('haslo_zmienione') || 'Hasło zmienione'));
+    document.getElementById('acc-curpwd').value = '';
+    document.getElementById('acc-newpwd').value = '';
+  } catch (e) { alert('Błąd: ' + e.message); }
+}
+
 /* ===== INIT ===== */
 (async () => {
   applyTheme(currentTheme);
@@ -425,9 +594,12 @@ async function logout() {
   const sidebar = document.getElementById('sidebar');
   const userBar = document.createElement('div');
   userBar.className = 'sidebar-user';
+  const avatarHtml = currentUser.avatar
+    ? `<span class="sidebar-user-avatar" style="background-image:url('${currentUser.avatar}');background-size:cover;background-position:center"></span>`
+    : `<span class="sidebar-user-avatar" style="background:${currentUser.kolor||'#4A8EFF'}">${currentUser.imie[0]}</span>`;
   userBar.innerHTML = `
-    <div class="sidebar-user-info">
-      <span class="sidebar-user-avatar" style="background:${currentUser.kolor||'#4A8EFF'}">${currentUser.imie[0]}</span>
+    <div class="sidebar-user-info" style="cursor:pointer" onclick="showAccountSettings()" title="${t('moj_aktualny') || 'Мой аккаунт'}">
+      ${avatarHtml}
       <div>
         <div class="sidebar-user-name">${currentUser.imie}</div>
         <div class="sidebar-user-role role-badge ${getRoleBadgeClass(currentUser.rola)}">${getRoleLabel(currentUser.rola)}</div>
@@ -455,6 +627,7 @@ async function logout() {
       document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
       item.classList.add('active');
       currentView = item.dataset.view;
+      localStorage.setItem('crm_view', currentView);
       loadView(currentView);
     });
   });
@@ -489,6 +662,11 @@ async function logout() {
   const langSel = document.getElementById('lang-select');
   langSel.value = currentLang;
   langSel.addEventListener('change', () => applyLang(langSel.value));
+
+  // Restore active nav item for saved view
+  document.querySelectorAll('.nav-item').forEach(i => {
+    i.classList.toggle('active', i.dataset.view === currentView);
+  });
 
   applyLang(currentLang);
 })();

@@ -6,6 +6,11 @@
 
 const KB = require('./keyboards');
 const { FUNNELS } = require('../database');
+const AI = require('./ai-worker');
+
+const PRIORITY_MAP_PL = { low: 'niski', normal: 'normalny', high: 'wysoki', urgent: 'pilny' };
+// Task module (tm_tasks) uses English priority IDs; 'urgent' in our schema maps to 'critical' in the UI.
+const PRIORITY_MAP_TM = { low: 'low', normal: 'medium', high: 'high', urgent: 'critical' };
 
 const SERVICE_LABELS = {
   pl: { okna:'Okna', drzwi:'Drzwi', fasady:'Fasady', bramy_windy:'Bramy/Windy', parapety:'Parapety', poprawki:'Poprawki', inne:'Inne' },
@@ -53,6 +58,16 @@ const T = {
     new_deal_notify: (name, company, user) => `🆕 Nowa transakcja *${name}*\nKompania: ${company}\nUtworzył: ${user}`,
     stage_notify: (name, stage, user) => `🔄 *${name}* — status zmieniony na ${stage} przez ${user}`,
     select_stage: '🔄 Wybierz nowy etap:',
+    ai_not_allowed: '⛔ Nie jesteś dodany do CRM. Poproś administratora.',
+    ai_disabled: '⚠️ Tryb AI wyłączony (brak AI\\_WORKER\\_URL).',
+    ai_processing_voice: '🎤 Rozpoznaję wiadomość głosową...',
+    ai_processing_text: '🤖 Analizuję zadanie...',
+    ai_busy: '⚠️ Najpierw dokończ lub anuluj aktualną operację: /anuluj',
+    ai_error: (m) => `❌ Błąd AI: ${m}`,
+    ai_heard: (t) => `📝 _Rozpoznano:_ "${t}"`,
+    ai_clarify_intro: '❓ Aby utworzyć zadanie, odpowiedz na pytanie:',
+    ai_created: (id, title, assignee, due) => `✅ *Zadanie #${id} utworzone*\n\n*${title}*${assignee ? `\n👤 ${assignee}` : ''}${due ? `\n📅 ${due}` : ''}`,
+    ai_cancelled: '❌ Anulowano tworzenie zadania.',
   },
   ua: {
     welcome: (name) => `🏗️ *Mrówki Coloring CRM*\n\nВітаємо, *${name}*!\n\nЦе система управління замовленнями Mrówki Coloring.\n\nВикористовуйте кнопки нижче або /pomoc.`,
@@ -83,6 +98,16 @@ const T = {
     new_deal_notify: (name, company, user) => `🆕 Нова угода *${name}*\nКомпанія: ${company}\nСтворив: ${user}`,
     stage_notify: (name, stage, user) => `🔄 *${name}* — етап змінено на ${stage} (${user})`,
     select_stage: '🔄 Оберіть новий етап:',
+    ai_not_allowed: '⛔ Вас не додано до CRM. Зверніться до адміна.',
+    ai_disabled: '⚠️ AI\\-режим вимкнено (не задано AI\\_WORKER\\_URL).',
+    ai_processing_voice: '🎤 Розпізнаю голосове повідомлення...',
+    ai_processing_text: '🤖 Аналізую завдання...',
+    ai_busy: '⚠️ Спочатку завершіть або скасуйте поточну операцію: /anuluj',
+    ai_error: (m) => `❌ Помилка AI: ${m}`,
+    ai_heard: (t) => `📝 _Розпізнано:_ "${t}"`,
+    ai_clarify_intro: '❓ Щоб створити завдання, дайте відповідь:',
+    ai_created: (id, title, assignee, due) => `✅ *Завдання #${id} створено*\n\n*${title}*${assignee ? `\n👤 ${assignee}` : ''}${due ? `\n📅 ${due}` : ''}`,
+    ai_cancelled: '❌ Створення завдання скасовано.',
   },
   ru: {
     welcome: (name) => `🏗️ *Mrówki Coloring CRM*\n\nДобро пожаловать, *${name}*!\n\nЭто система управления заказами Mrówki Coloring.\n\nИспользуйте кнопки ниже или /pomoc.`,
@@ -113,6 +138,16 @@ const T = {
     new_deal_notify: (name, company, user) => `🆕 Новая сделка *${name}*\nКомпания: ${company}\nСоздал: ${user}`,
     stage_notify: (name, stage, user) => `🔄 *${name}* — этап изменён на ${stage} (${user})`,
     select_stage: '🔄 Выберите новый этап:',
+    ai_not_allowed: '⛔ Вы не добавлены в CRM. Обратитесь к администратору.',
+    ai_disabled: '⚠️ AI\\-режим выключен (не задан AI\\_WORKER\\_URL).',
+    ai_processing_voice: '🎤 Распознаю голосовое сообщение...',
+    ai_processing_text: '🤖 Анализирую задачу...',
+    ai_busy: '⚠️ Сначала завершите или отмените текущую операцию: /anuluj',
+    ai_error: (m) => `❌ Ошибка AI: ${m}`,
+    ai_heard: (t) => `📝 _Распознано:_ "${t}"`,
+    ai_clarify_intro: '❓ Чтобы создать задачу, ответьте на вопрос:',
+    ai_created: (id, title, assignee, due) => `✅ *Задача #${id} создана*\n\n*${title}*${assignee ? `\n👤 ${assignee}` : ''}${due ? `\n📅 ${due}` : ''}`,
+    ai_cancelled: '❌ Создание задачи отменено.',
   }
 };
 
@@ -127,11 +162,12 @@ class BotCommands {
     this.registerCommands();
     this.registerCallbacks();
     this.registerMessages();
-    console.log('[BOT] All handlers registered');
+    this.registerAiHandlers();
+    console.log('[BOT] All handlers registered' + (AI.isEnabled() ? ' (AI worker enabled)' : ' (AI worker NOT configured)'));
   }
 
   getLang(chatId) {
-    const user = this.db.getUserByTelegram(chatId);
+    const user = this.db.getUser(chatId);
     return user?.jezyk || 'pl';
   }
 
@@ -543,6 +579,180 @@ class BotCommands {
     });
   }
 
+  /* ===== AI TASK HANDLERS (voice / free-text → structured task) ===== */
+  registerAiHandlers() {
+    // Voice handler: runs in addition to the default message handler.
+    this.bot.on('voice', async (msg) => {
+      try { await this.handleAiVoice(msg); }
+      catch (e) { console.error('[AI voice]', e); }
+    });
+
+    // Text handler: only triggers for free text (not slash, not inside an existing form).
+    this.bot.on('message', async (msg) => {
+      if (!msg.text || msg.text.startsWith('/')) return;
+      const chatId = msg.chat.id;
+      const conv = this.db.getConversation(chatId);
+      try {
+        if (conv && conv.stan === 'ai_task_clarify') {
+          await this.handleAiClarify(msg, conv);
+          return;
+        }
+        if (conv) return; // an existing form is in progress — let registerMessages handle it
+        await this.handleAiText(msg);
+      } catch (e) {
+        console.error('[AI text]', e);
+      }
+    });
+  }
+
+  // Helpers shared by voice/text/clarify
+  getAllowedUser(chatId) {
+    const u = this.db.getUser(chatId);
+    if (!u || Number(u.aktywny) !== 1) return null;
+    return u;
+  }
+
+  buildAiUsersContext() {
+    const users = this.db.getAllUsers().filter(u => Number(u.aktywny) === 1);
+    return users.slice(0, 30).map(u => ({
+      name: u.imie,
+      role: u.rola || undefined,
+      telegram_id: Number(u.telegram_id) || u.telegram_id,
+    }));
+  }
+
+  async handleAiVoice(msg) {
+    const chatId = msg.chat.id;
+    const user = this.getAllowedUser(chatId);
+    const lang = user?.jezyk || 'pl';
+    if (!user) return this.send(chatId, txt(lang, 'ai_not_allowed'));
+    if (!AI.isEnabled()) return this.send(chatId, txt(lang, 'ai_disabled'));
+
+    const conv = this.db.getConversation(chatId);
+    if (conv && conv.stan !== 'ai_task_clarify') return this.send(chatId, txt(lang, 'ai_busy'));
+
+    const notice = await this.send(chatId, txt(lang, 'ai_processing_voice'));
+    let audioBuffer;
+    try {
+      // node-telegram-bot-api helper: downloads the file and returns a Buffer.
+      const stream = this.bot.getFileStream(msg.voice.file_id);
+      audioBuffer = await streamToBuffer(stream);
+    } catch (e) {
+      return this.send(chatId, txt(lang, 'ai_error')(`download: ${e.message}`));
+    }
+
+    let result;
+    try {
+      result = await AI.processAudio(audioBuffer, {
+        filename: `voice-${msg.voice.file_unique_id}.oga`,
+        users: this.buildAiUsersContext(),
+      });
+    } catch (e) {
+      return this.send(chatId, txt(lang, 'ai_error')(e.message));
+    }
+
+    const recognized = result?.transcription?.text || '';
+    if (recognized) await this.send(chatId, txt(lang, 'ai_heard')(recognized));
+
+    const task = result?.task;
+    if (!task) return this.send(chatId, txt(lang, 'ai_error')('empty task'));
+    await this.processParsedTask(chatId, task, { lang, user, source: recognized });
+  }
+
+  async handleAiText(msg) {
+    const chatId = msg.chat.id;
+    const user = this.getAllowedUser(chatId);
+    const lang = user?.jezyk || 'pl';
+    if (!user) return this.send(chatId, txt(lang, 'ai_not_allowed'));
+    if (!AI.isEnabled()) return this.send(chatId, txt(lang, 'ai_disabled'));
+
+    await this.send(chatId, txt(lang, 'ai_processing_text'));
+    let task;
+    try {
+      task = await AI.parseText(msg.text, { users: this.buildAiUsersContext() });
+    } catch (e) {
+      return this.send(chatId, txt(lang, 'ai_error')(e.message));
+    }
+    await this.processParsedTask(chatId, task, { lang, user, source: msg.text });
+  }
+
+  async handleAiClarify(msg, conv) {
+    const chatId = msg.chat.id;
+    const lang = this.getLang(chatId);
+    const partial = (conv.dane && conv.dane.partial) || {};
+    const originalSource = (conv.dane && conv.dane.source) || '';
+    const userDbRow = this.getAllowedUser(chatId);
+    if (!userDbRow) {
+      this.db.clearConversation(chatId);
+      return this.send(chatId, txt(lang, 'ai_not_allowed'));
+    }
+
+    // Merge the clarification with the original source and re-parse — simpler
+    // than trying to target a specific field, and the model already knows
+    // which ones were missing.
+    const mergedText = `${originalSource}\n\nУточнение: ${msg.text}`;
+    await this.send(chatId, txt(lang, 'ai_processing_text'));
+    let task;
+    try {
+      task = await AI.parseText(mergedText, { users: this.buildAiUsersContext() });
+    } catch (e) {
+      return this.send(chatId, txt(lang, 'ai_error')(e.message));
+    }
+    await this.processParsedTask(chatId, task, { lang, user: userDbRow, source: mergedText, isFollowup: true });
+  }
+
+  async processParsedTask(chatId, task, { lang, user, source, isFollowup = false }) {
+    // Still missing critical fields → ask one clarifying question.
+    // After one follow-up, accept whatever we got to avoid infinite loops.
+    const missing = Array.isArray(task.missing_fields) ? task.missing_fields : [];
+    if (missing.length && !isFollowup && task.clarifying_question) {
+      this.db.setConversation(chatId, 'ai_task_clarify', {
+        partial: task,
+        source,
+      });
+      return this.send(chatId, `${txt(lang, 'ai_clarify_intro')}\n\n${task.clarifying_question}`);
+    }
+
+    // Commit.
+    this.db.clearConversation(chatId);
+
+    const raw = this.db.db;
+    const findTmUserByImie = (imie) => {
+      if (!imie) return null;
+      return raw.prepare(`SELECT id, name FROM tm_users WHERE name LIKE ? || '%' COLLATE NOCASE ORDER BY id LIMIT 1`).get(imie);
+    };
+
+    let assignee_id = null;
+    let assigneeName = null;
+    if (task.assignee_tg_id) {
+      const botUser = this.db.getUser(task.assignee_tg_id);
+      if (botUser) {
+        const tmUser = findTmUserByImie(botUser.imie);
+        if (tmUser) { assignee_id = tmUser.id; assigneeName = tmUser.name; }
+        else assigneeName = botUser.imie; // still show the name in the TG reply even if no tm_user match
+      }
+    }
+
+    const creatorTm = findTmUserByImie(user?.imie);
+    const creator_id = creatorTm?.id || null;
+
+    const title = (task.title && task.title.trim()) || (source.slice(0, 60) + (source.length > 60 ? '…' : ''));
+    const description = task.description || source;
+    const priority = PRIORITY_MAP_TM[task.priority] || 'medium';
+
+    const result = raw.prepare(
+      `INSERT INTO tm_tasks (title, description, status, priority, assignee_id, assignee_type, creator_id, deadline)
+       VALUES (?, ?, 'new', ?, ?, 'single', ?, ?)`
+    ).run(title, description, priority, assignee_id, creator_id, task.due_date || null);
+    const taskId = result.lastInsertRowid;
+
+    if (assignee_id) {
+      raw.prepare('INSERT OR IGNORE INTO tm_task_assignees (task_id, user_id) VALUES (?, ?)').run(taskId, assignee_id);
+    }
+
+    await this.send(chatId, txt(lang, 'ai_created')(taskId, title, assigneeName, task.due_date));
+  }
+
   /* ===== NOTIFICATIONS ===== */
   notifyAdmins(excludeChatId, text) {
     const admins = this.db.getAllUsers().filter(u => u.rola === 'admin' && String(u.telegram_id) !== String(excludeChatId));
@@ -550,6 +760,15 @@ class BotCommands {
       this.bot.sendMessage(admin.telegram_id, text, { parse_mode: 'Markdown' }).catch(() => {});
     });
   }
+}
+
+function streamToBuffer(stream) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    stream.on('data', (c) => chunks.push(c));
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+    stream.on('error', reject);
+  });
 }
 
 module.exports = BotCommands;

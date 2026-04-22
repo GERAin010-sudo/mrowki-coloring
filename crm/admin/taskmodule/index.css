@@ -2588,3 +2588,61 @@ tbody tr:hover .table-task-title { color: var(--primary); }
 /* ==== Embedded mode: hide sidebar (integrated into parent CRM) ==== */
 .sidebar { display: none !important; }
 .main-content { margin-left: 0 !important; }
+
+/* Image avatars inside .avatar divs */
+.avatar img.avatar-img,
+.sidebar-user-avatar img.avatar-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+.avatar:has(img.avatar-img),
+.sidebar-user-avatar:has(img.avatar-img) {
+  background: transparent !important;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* ===== KANBAN SCOPE TABS ===== */
+.kanban-scope-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 10px 16px;
+  align-items: center;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface, #fff);
+}
+.scope-tab {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary, #64748b);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.scope-tab:hover { background: var(--muted, #f1f5f9); color: var(--text-primary, #0f172a); }
+.scope-tab.active {
+  background: var(--primary, #2563eb);
+  color: #fff;
+  border-color: var(--primary, #2563eb);
+}
+.scope-count {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-muted, #94a3b8);
+  font-weight: 500;
+}
+.scope-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 4px;
+}

@@ -509,6 +509,8 @@ class CRMDatabase {
       `ALTER TABLE uzytkownicy ADD COLUMN login TEXT`,
       `ALTER TABLE uzytkownicy ADD COLUMN password_hash TEXT`,
       `ALTER TABLE uzytkownicy ADD COLUMN last_login_at DATETIME`,
+      `ALTER TABLE uzytkownicy ADD COLUMN avatar TEXT`,
+      `ALTER TABLE uzytkownicy ADD COLUMN jezyk TEXT DEFAULT 'pl'`,
       `ALTER TABLE zadania ADD COLUMN opis TEXT`,
       `ALTER TABLE zadania ADD COLUMN adres TEXT`,
       `ALTER TABLE zadania ADD COLUMN lat REAL`,
@@ -1335,7 +1337,22 @@ class CRMDatabase {
   }
 
   tmGetBootstrap() {
-    const users = this.db.prepare('SELECT * FROM tm_users').all();
+    // Read users directly from uzytkownicy (always fresh — color, avatar, name)
+    const rawUsers = this.db.prepare('SELECT id, imie, rola, kolor, avatar FROM uzytkownicy WHERE aktywny=1').all();
+    const accessFromRola = r => r === 'admin' ? 'director' : r === 'wlasciciel' ? 'manager' : 'employee';
+    const users = rawUsers.map(u => {
+      const isImage = u.avatar && /^(\/uploads\/|https?:\/\/)/.test(u.avatar);
+      return {
+        id: u.id,
+        name: u.imie,
+        email: null,
+        role: u.rola,
+        avatar: isImage ? null : (u.avatar || (u.imie || '?').substring(0, 2).toUpperCase()),
+        avatarUrl: isImage ? u.avatar : null,
+        color: u.kolor || '#4A8EFF',
+        accessLevel: accessFromRola(u.rola),
+      };
+    });
     const departments = this.db.prepare('SELECT * FROM tm_departments').all().map(d => ({
       ...d,
       memberIds: this.db.prepare('SELECT user_id FROM tm_department_members WHERE dept_id = ?').all(d.id).map(r => r.user_id)
@@ -1350,8 +1367,7 @@ class CRMDatabase {
       tasks: JSON.parse(t.tasks_json || '[]')
     }));
     const tasks = this.db.prepare('SELECT * FROM tm_tasks').all().map(t => this._tmHydrateTask(t));
-    const users_mapped = users.map(u => ({ id: u.id, name: u.name, email: u.email, role: u.role, avatar: u.avatar, color: u.color, accessLevel: u.access_level }));
-    return { users: users_mapped, departments, projects, tasks, templates };
+    return { users, departments, projects, tasks, templates };
   }
 
   _tmHydrateTask(row) {
@@ -1434,6 +1450,17 @@ class CRMDatabase {
 
   setUserPassword(userId, passwordHash) {
     return this.db.prepare('UPDATE uzytkownicy SET password_hash=? WHERE id=?').run(passwordHash, userId);
+  }
+
+  updateUserProfile(userId, data) {
+    const fields = [];
+    const values = [];
+    for (const key of ['imie', 'kolor', 'jezyk', 'avatar']) {
+      if (key in data) { fields.push(`${key}=?`); values.push(data[key] || null); }
+    }
+    if (!fields.length) return;
+    values.push(userId);
+    return this.db.prepare(`UPDATE uzytkownicy SET ${fields.join(', ')} WHERE id=?`).run(...values);
   }
 
   setUserLogin(userId, login) {

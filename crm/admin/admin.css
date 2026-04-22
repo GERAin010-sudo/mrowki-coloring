@@ -668,3 +668,34 @@ tr:hover td { background: rgba(255,255,255,0.02); }
 .deal-tag-today { background: #e3f2fd !important; color: #1565c0 !important; }
 .task-assignee-dot { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 0.65em; font-weight: 600; }
 
+
+/* ===== ACCOUNT SETTINGS ===== */
+.account-settings { display: flex; flex-direction: column; gap: 14px; padding: 4px; }
+.account-section { display: flex; flex-direction: column; gap: 6px; }
+.account-avatar-row { display: flex; align-items: center; gap: 14px; }
+.account-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: 28px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.account-avatar-actions { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.account-avatar-actions .btn-sm { width: fit-content; }
+.account-divider { height: 1px; background: var(--border-light); margin: 14px 0 4px; }
+
+.color-palette { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.color-swatch {
+  width: 30px; height: 30px; border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.1s, border-color 0.15s;
+}
+.color-swatch:hover { transform: scale(1.1); }
+.color-swatch.active { border-color: var(--text-primary); box-shadow: 0 0 0 2px var(--card-bg), 0 0 0 4px var(--accent); }
+.color-custom { width: 30px; height: 30px; border: none; border-radius: 50%; cursor: pointer; padding: 0; background: transparent; }
+.color-custom::-webkit-color-swatch-wrapper { padding: 0; }
+.color-custom::-webkit-color-swatch { border: 2px dashed var(--border-light); border-radius: 50%; }
+
+/* Sidebar user avatar supports image background */
+.sidebar-user-info:hover { opacity: 0.8; }

@@ -237,6 +237,30 @@ app.get('/api/auth/me', (req, res) => {
   res.json(user);
 });
 
+// Update own profile (name, color, language, avatar)
+app.put('/api/auth/profile', requireAuth, (req, res) => {
+  try {
+    const payload = {};
+    for (const key of ['imie', 'kolor', 'jezyk', 'avatar']) {
+      if (key in (req.body || {})) payload[key] = req.body[key];
+    }
+    db.updateUserProfile(req.currentUser.id, payload);
+    const updated = db.getUserById(req.currentUser.id);
+    delete updated.password_hash;
+    res.json(updated);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Upload own avatar (multipart/form-data: field 'avatar')
+app.post('/api/auth/avatar', requireAuth, upload.single('avatar'), (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file' });
+    const url = `/uploads/${req.file.filename}`;
+    db.updateUserProfile(req.currentUser.id, { avatar: url });
+    res.json({ ok: true, avatar: url });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // Change own password
 app.post('/api/auth/change-password', requireAuth, (req, res) => {
   try {

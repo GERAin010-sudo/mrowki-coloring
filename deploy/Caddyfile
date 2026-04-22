@@ -1,0 +1,28 @@
+# Caddyfile — production reverse proxy with automatic HTTPS
+# Replace domain names below before enabling caddy service in docker-compose.yml.
+
+# ── Public site ──
+mrowki-coloring.pl, www.mrowki-coloring.pl {
+    reverse_proxy site:80
+    encode gzip
+}
+
+# ── CRM (admin + API) ──
+crm.mrowki-coloring.pl {
+    reverse_proxy crm:3000
+    encode gzip
+
+    # Optional: restrict admin access by IP
+    # @internal {
+    #     remote_ip 85.231.45.67/32 92.15.23.11/32
+    # }
+    # @public path /api/auth/* /api/public/* /uploads/* /login.html /login.css /login.js
+    # handle @public {
+    #     reverse_proxy crm:3000
+    # }
+    # handle {
+    #     @blocked not @internal
+    #     respond @blocked "Access denied" 403
+    #     reverse_proxy crm:3000
+    # }
+}

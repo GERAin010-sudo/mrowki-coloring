@@ -16,7 +16,10 @@ let weekOffset = 0;
 let showArchivedProjects = false;
 let currentPayrollMonth = '2026-03'; // default to current month
 let projectDetailView = 'standard'; // 'standard' | 'analytics'
-const CURRENT_USER_ID = 1; // Oleksandr Gerko
+// Kanban filter — multi-select chips that combine. 'all' is exclusive.
+// Possible values: 'mine' | 'from_me' | 'watching' | 'all'
+let kanbanFilters = new Set(JSON.parse(localStorage.getItem('tm_kanban_filters') || '["all"]'));
+let CURRENT_USER_ID = 1; // overridden by tmBootstrap() from /api/auth/me
 
 // ── Router ──
 function navigate(page, params = {}) {
@@ -884,10 +887,31 @@ function renderPagination(total, totalPages) {
 // Kanban Board
 // ==========================================
 function renderKanban() {
-  let tasks = taskStore.getAll().filter(t => canViewTask(t, CURRENT_USER_ID));
+  const me = getUserById(CURRENT_USER_ID);
+  let tasks = taskStore.getAll();
+
+  // Predicates
+  const isMine = t => t.assigneeId === CURRENT_USER_ID || (t.assigneeIds && t.assigneeIds.includes(CURRENT_USER_ID));
+  const isFromMe = t => t.creatorId === CURRENT_USER_ID;
+  const isWatching = t => Array.isArray(t.watcherIds) && t.watcherIds.includes(CURRENT_USER_ID);
+
+  if (kanbanFilters.has('all')) {
+    // All accessible tasks (respects role-based visibility)
+    tasks = tasks.filter(t => canViewTask(t, CURRENT_USER_ID));
+  } else {
+    // Union of selected chip predicates — start empty, add matches
+    tasks = tasks.filter(t => {
+      if (!canViewTask(t, CURRENT_USER_ID)) return false;
+      if (kanbanFilters.has('mine') && isMine(t)) return true;
+      if (kanbanFilters.has('from_me') && isFromMe(t)) return true;
+      if (kanbanFilters.has('watching') && isWatching(t)) return true;
+      return false;
+    });
+  }
+
   if (currentFilter.search) {
     const q = currentFilter.search.toLowerCase();
-    tasks = tasks.filter(t => t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q));
+    tasks = tasks.filter(t => t.title.toLowerCase().includes(q) || (t.description || '').toLowerCase().includes(q));
   }
 
   const columns = Object.values(STATUSES).map(status => ({
@@ -895,7 +919,20 @@ function renderKanban() {
     tasks: tasks.filter(t => t.status === status.id),
   }));
 
+  const chip = (id, icon, label) => `<button class="scope-tab ${kanbanFilters.has(id)?'active':''}" onclick="toggleKanbanFilter('${id}')">${icon} ${label}</button>`;
+  const scopeTabs = `
+    <div class="kanban-scope-tabs">
+      ${chip('mine', '👤', 'Мои')}
+      ${chip('from_me', '✉️', 'От меня')}
+      ${chip('watching', '👁', 'Слежу')}
+      <div class="scope-divider"></div>
+      ${chip('all', '🌐', 'Все')}
+      <span class="scope-count">${tasks.length} задач</span>
+    </div>
+  `;
+
   return `
+    ${scopeTabs}
     <div class="kanban-board animate-in">
       ${columns.map(col => `
         <div class="kanban-column">
@@ -967,6 +1004,23 @@ function renderKanbanCard(task) {
 
 // Drag & Drop
 let draggedTaskId = null;
+
+function toggleKanbanFilter(id) {
+  if (id === 'all') {
+    // "Все" — exclusive: selecting it clears the others
+    kanbanFilters.clear();
+    kanbanFilters.add('all');
+  } else {
+    // Toggle the chip; remove 'all' if any other chip is active
+    kanbanFilters.delete('all');
+    if (kanbanFilters.has(id)) kanbanFilters.delete(id);
+    else kanbanFilters.add(id);
+    // If nothing selected, fall back to 'all'
+    if (kanbanFilters.size === 0) kanbanFilters.add('all');
+  }
+  localStorage.setItem('tm_kanban_filters', JSON.stringify([...kanbanFilters]));
+  render();
+}
 
 function handleDragStart(e, taskId) {
   draggedTaskId = taskId;
@@ -3620,6 +3674,30 @@ async function tmBootstrap() {
     const res = await fetch('/api/tm/bootstrap');
     if (!res.ok) throw new Error('bootstrap failed: ' + res.status);
     window.__TM_BOOT = await res.json();
+    // Pick up current logged-in user ID from /api/auth/me
+    try {
+      const meRes = await fetch('/api/auth/me');
+      if (meRes.ok) {
+        const me = await meRes.json();
+        if (me?.id) CURRENT_USER_ID = me.id;
+      }
+    } catch (e) { /* ignore */ }
+    // Replace USERS (real CRM users — login-enabled accounts)
+    if (typeof USERS !== 'undefined' && window.__TM_BOOT.users) {
+      USERS.length = 0;
+      window.__TM_BOOT.users.forEach(u => {
+        // If user has image avatar URL, replace text avatar with <img>
+        if (u.avatarUrl) {
+          u.avatar = `<img class="avatar-img" src="${u.avatarUrl}" alt="${u.name}">`;
+        }
+        USERS.push(u);
+      });
+    }
+    // Replace DEPARTMENTS
+    if (typeof DEPARTMENTS !== 'undefined' && window.__TM_BOOT.departments) {
+      DEPARTMENTS.length = 0;
+      window.__TM_BOOT.departments.forEach(d => DEPARTMENTS.push(d));
+    }
     // Replace tasks in TaskStore
     if (typeof taskStore !== 'undefined' && window.__TM_BOOT.tasks) {
       taskStore.tasks = window.__TM_BOOT.tasks.map(t => {

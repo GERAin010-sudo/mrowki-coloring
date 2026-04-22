@@ -2,15 +2,9 @@
 // Mock Data for Task Management Module
 // ==========================================
 
-const USERS = [
+// USERS — using `let` so tmBootstrap() can replace with real users from the CRM backend
+let USERS = [
   { id: 1, name: 'Oleksandr Gerko', email: 'mrowki.ua@gmail.com', role: 'Директор', avatar: 'OG', color: '#1e40af', accessLevel: 'director' },
-  { id: 2, name: 'Viktor Kosmin', email: 'v.kosmin@mrowki.com', role: 'Координатор', avatar: 'VK', color: '#7c3aed', accessLevel: 'manager' },
-  { id: 3, name: 'Kateryna Hlushchenko', email: 'k.hlush@mrowki.com', role: 'HR', avatar: 'KH', color: '#059669', accessLevel: 'employee' },
-  { id: 4, name: 'Valentyn Korzhov', email: 'v.korzhov@mrowki.com', role: 'Координатор', avatar: 'VK', color: '#dc2626', accessLevel: 'manager' },
-  { id: 5, name: 'Anna Petrova', email: 'a.petrova@mrowki.com', role: 'HR', avatar: 'AP', color: '#d97706', accessLevel: 'employee' },
-  { id: 6, name: 'Dmytro Savchuk', email: 'd.savchuk@mrowki.com', role: 'Админ', avatar: 'DS', color: '#0891b2', accessLevel: 'director' },
-  { id: 7, name: 'Maria Kovalenko', email: 'm.kovalenko@mrowki.com', role: 'HR-менеджер', avatar: 'MK', color: '#be185d', accessLevel: 'employee' },
-  { id: 8, name: 'Igor Bondarenko', email: 'i.bondarenko@mrowki.com', role: 'Координатор', avatar: 'IB', color: '#4f46e5', accessLevel: 'manager' },
 ];
 
 const ACCESS_LEVELS = {
@@ -78,13 +72,8 @@ const CATEGORIES = [
   { id: 'other', label: 'Другое', color: '#6b7280' },
 ];
 
-const DEPARTMENTS = [
-  { id: 'hr', name: 'HR отдел', memberIds: [3, 5, 7], color: '#7c3aed' },
-  { id: 'sales', name: 'Продажи', memberIds: [2, 4], color: '#2563eb' },
-  { id: 'admin', name: 'Администрация', memberIds: [1, 6], color: '#dc2626' },
-  { id: 'logistics', name: 'Логистика', memberIds: [4, 8], color: '#d97706' },
-  { id: 'coordination', name: 'Координация', memberIds: [2, 4, 8], color: '#059669' },
-];
+// DEPARTMENTS — using `let` so tmBootstrap() can replace with real data from CRM backend
+let DEPARTMENTS = [];
 
 function getDepartmentById(id) {
   return DEPARTMENTS.find(d => d.id === id) || { id: 'unknown', name: 'Неизвестно', memberIds: [], color: '#6b7280' };
