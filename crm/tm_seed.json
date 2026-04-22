@@ -1,0 +1,1606 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Oleksandr Gerko",
+      "email": "mrowki.ua@gmail.com",
+      "role": "Директор",
+      "avatar": "OG",
+      "color": "#1e40af",
+      "accessLevel": "director"
+    },
+    {
+      "id": 2,
+      "name": "Viktor Kosmin",
+      "email": "v.kosmin@mrowki.com",
+      "role": "Координатор",
+      "avatar": "VK",
+      "color": "#7c3aed",
+      "accessLevel": "manager"
+    },
+    {
+      "id": 3,
+      "name": "Kateryna Hlushchenko",
+      "email": "k.hlush@mrowki.com",
+      "role": "HR",
+      "avatar": "KH",
+      "color": "#059669",
+      "accessLevel": "employee"
+    },
+    {
+      "id": 4,
+      "name": "Valentyn Korzhov",
+      "email": "v.korzhov@mrowki.com",
+      "role": "Координатор",
+      "avatar": "VK",
+      "color": "#dc2626",
+      "accessLevel": "manager"
+    },
+    {
+      "id": 5,
+      "name": "Anna Petrova",
+      "email": "a.petrova@mrowki.com",
+      "role": "HR",
+      "avatar": "AP",
+      "color": "#d97706",
+      "accessLevel": "employee"
+    },
+    {
+      "id": 6,
+      "name": "Dmytro Savchuk",
+      "email": "d.savchuk@mrowki.com",
+      "role": "Админ",
+      "avatar": "DS",
+      "color": "#0891b2",
+      "accessLevel": "director"
+    },
+    {
+      "id": 7,
+      "name": "Maria Kovalenko",
+      "email": "m.kovalenko@mrowki.com",
+      "role": "HR-менеджер",
+      "avatar": "MK",
+      "color": "#be185d",
+      "accessLevel": "employee"
+    },
+    {
+      "id": 8,
+      "name": "Igor Bondarenko",
+      "email": "i.bondarenko@mrowki.com",
+      "role": "Координатор",
+      "avatar": "IB",
+      "color": "#4f46e5",
+      "accessLevel": "manager"
+    }
+  ],
+  "departments": [
+    {
+      "id": "hr",
+      "name": "HR отдел",
+      "memberIds": [
+        3,
+        5,
+        7
+      ],
+      "color": "#7c3aed"
+    },
+    {
+      "id": "sales",
+      "name": "Продажи",
+      "memberIds": [
+        2,
+        4
+      ],
+      "color": "#2563eb"
+    },
+    {
+      "id": "admin",
+      "name": "Администрация",
+      "memberIds": [
+        1,
+        6
+      ],
+      "color": "#dc2626"
+    },
+    {
+      "id": "logistics",
+      "name": "Логистика",
+      "memberIds": [
+        4,
+        8
+      ],
+      "color": "#d97706"
+    },
+    {
+      "id": "coordination",
+      "name": "Координация",
+      "memberIds": [
+        2,
+        4,
+        8
+      ],
+      "color": "#059669"
+    }
+  ],
+  "statuses": [
+    {
+      "id": "new",
+      "label": "Новая",
+      "color": "#6b7280",
+      "bg": "#f3f4f6"
+    },
+    {
+      "id": "in_progress",
+      "label": "В работе",
+      "color": "#2563eb",
+      "bg": "#dbeafe"
+    },
+    {
+      "id": "review",
+      "label": "На проверке",
+      "color": "#d97706",
+      "bg": "#fef3c7"
+    },
+    {
+      "id": "done",
+      "label": "Выполнена",
+      "color": "#059669",
+      "bg": "#d1fae5"
+    }
+  ],
+  "priorities": [
+    {
+      "id": "low",
+      "label": "Низкий",
+      "color": "#6b7280",
+      "bg": "#f3f4f6",
+      "icon": "↓"
+    },
+    {
+      "id": "medium",
+      "label": "Средний",
+      "color": "#2563eb",
+      "bg": "#dbeafe",
+      "icon": "→"
+    },
+    {
+      "id": "high",
+      "label": "Высокий",
+      "color": "#d97706",
+      "bg": "#fef3c7",
+      "icon": "↑"
+    },
+    {
+      "id": "critical",
+      "label": "Критический",
+      "color": "#dc2626",
+      "bg": "#fee2e2",
+      "icon": "⚡"
+    }
+  ],
+  "categories": [
+    {
+      "id": "hr",
+      "label": "HR",
+      "color": "#7c3aed"
+    },
+    {
+      "id": "sales",
+      "label": "Продажи",
+      "color": "#2563eb"
+    },
+    {
+      "id": "recruitment",
+      "label": "Рекрутинг",
+      "color": "#059669"
+    },
+    {
+      "id": "admin",
+      "label": "Администрация",
+      "color": "#dc2626"
+    },
+    {
+      "id": "logistics",
+      "label": "Логистика",
+      "color": "#d97706"
+    },
+    {
+      "id": "finance",
+      "label": "Финансы",
+      "color": "#0891b2"
+    },
+    {
+      "id": "it",
+      "label": "IT",
+      "color": "#4f46e5"
+    },
+    {
+      "id": "other",
+      "label": "Другое",
+      "color": "#6b7280"
+    }
+  ],
+  "tags": [
+    {
+      "label": "срочно",
+      "color": "#dc2626"
+    },
+    {
+      "label": "документы",
+      "color": "#2563eb"
+    },
+    {
+      "label": "рекрутинг",
+      "color": "#7c3aed"
+    },
+    {
+      "label": "onboarding",
+      "color": "#059669"
+    },
+    {
+      "label": "финансы",
+      "color": "#d97706"
+    },
+    {
+      "label": "коммуникация",
+      "color": "#0891b2"
+    },
+    {
+      "label": "проверка",
+      "color": "#be185d"
+    },
+    {
+      "label": "ожидание",
+      "color": "#6b7280"
+    }
+  ],
+  "relation_types": [
+    {
+      "id": "blocks",
+      "label": "Блокирует",
+      "icon": "🚫",
+      "inverse": "blocked_by",
+      "color": "#dc2626"
+    },
+    {
+      "id": "blocked_by",
+      "label": "Заблокирована",
+      "icon": "⛔",
+      "inverse": "blocks",
+      "color": "#f97316"
+    },
+    {
+      "id": "related",
+      "label": "Связана с",
+      "icon": "🔗",
+      "inverse": "related",
+      "color": "#2563eb"
+    },
+    {
+      "id": "duplicate",
+      "label": "Дубликат",
+      "icon": "📋",
+      "inverse": "duplicate",
+      "color": "#6b7280"
+    }
+  ],
+  "templates": [
+    {
+      "id": "new-worker",
+      "name": "👤 Новый работник",
+      "description": "Набор задач для оформления нового работника на подряд",
+      "icon": "👤",
+      "color": "#059669",
+      "tasks": [
+        {
+          "title": "Получить документы от работника",
+          "category": "hr",
+          "priority": "high"
+        },
+        {
+          "title": "Проверить разрешение на работу",
+          "category": "hr",
+          "priority": "critical"
+        },
+        {
+          "title": "Оформить договор / umowa",
+          "category": "hr",
+          "priority": "high"
+        },
+        {
+          "title": "Добавить работника в систему",
+          "category": "admin",
+          "priority": "medium"
+        },
+        {
+          "title": "Провести инструктаж по безопасности",
+          "category": "logistics",
+          "priority": "high"
+        },
+        {
+          "title": "Организовать транспорт на объект",
+          "category": "logistics",
+          "priority": "medium"
+        }
+      ]
+    },
+    {
+      "id": "new-contract",
+      "name": "📋 Новый подряд",
+      "description": "Задачи при запуске нового подряда с работодателем",
+      "icon": "📋",
+      "color": "#2563eb",
+      "tasks": [
+        {
+          "title": "Подготовить и подписать NDA",
+          "category": "sales",
+          "priority": "high"
+        },
+        {
+          "title": "Составить и согласовать контракт",
+          "category": "sales",
+          "priority": "critical"
+        },
+        {
+          "title": "Определить ставки и условия",
+          "category": "sales",
+          "priority": "high"
+        },
+        {
+          "title": "Назначить координатора",
+          "category": "admin",
+          "priority": "medium"
+        },
+        {
+          "title": "Начать рекрутинг на вакансии",
+          "category": "recruitment",
+          "priority": "high"
+        }
+      ]
+    },
+    {
+      "id": "vacancy-recruitment",
+      "name": "🔍 Рекрутинг на вакансию",
+      "description": "Стандартный процесс набора людей на вакансию",
+      "icon": "🔍",
+      "color": "#7c3aed",
+      "tasks": [
+        {
+          "title": "Разместить вакансию на площадках",
+          "category": "recruitment",
+          "priority": "high"
+        },
+        {
+          "title": "Провести первичный отбор резюме",
+          "category": "recruitment",
+          "priority": "medium"
+        },
+        {
+          "title": "Провести собеседования",
+          "category": "recruitment",
+          "priority": "medium"
+        },
+        {
+          "title": "Отправить оффер кандидатам",
+          "category": "recruitment",
+          "priority": "high"
+        }
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "proj-doppelt",
+      "name": "DOPPELT",
+      "description": "Подряд с разделением на дневные и ночные смены",
+      "status": "active",
+      "type": "contract",
+      "color": "#2563eb",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "DOPPELT",
+      "contractorId": null,
+      "createdAt": "2025-06-01T10:00:00"
+    },
+    {
+      "id": "proj-netbox",
+      "name": "NETBOX",
+      "description": "Крупнейший подряд — 27 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#059669",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "NETBOX",
+      "contractorId": null,
+      "createdAt": "2025-03-15T10:00:00"
+    },
+    {
+      "id": "proj-switala",
+      "name": "Świtała International",
+      "description": "Подряд — 12 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#7c3aed",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "Świtała International",
+      "contractorId": null,
+      "createdAt": "2025-05-01T10:00:00"
+    },
+    {
+      "id": "proj-schnellecke",
+      "name": "SCHNELLECKE",
+      "description": "OWW и PM подразделения — 12 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#d97706",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "SCHNELLECKE",
+      "contractorId": null,
+      "createdAt": "2025-07-01T10:00:00"
+    },
+    {
+      "id": "proj-dromico",
+      "name": "DROMICO",
+      "description": "Подряд — 9 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#dc2626",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "DROMICO",
+      "contractorId": null,
+      "createdAt": "2025-08-01T10:00:00"
+    },
+    {
+      "id": "proj-cheko",
+      "name": "CHEKO",
+      "description": "Подряд — 6 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#0891b2",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "CHEKO",
+      "contractorId": null,
+      "createdAt": "2025-09-01T10:00:00"
+    },
+    {
+      "id": "proj-plastrol",
+      "name": "PLASTROL",
+      "description": "Подряд — 5 работников включая OWW",
+      "status": "active",
+      "type": "contract",
+      "color": "#be185d",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "PLASTROL",
+      "contractorId": null,
+      "createdAt": "2025-04-01T10:00:00"
+    },
+    {
+      "id": "proj-zbychpol",
+      "name": "ZBYCH-POL",
+      "description": "Подряд — 4 работника",
+      "status": "active",
+      "type": "contract",
+      "color": "#4f46e5",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "ZBYCH-POL",
+      "contractorId": null,
+      "createdAt": "2025-10-01T10:00:00"
+    },
+    {
+      "id": "proj-ekipa",
+      "name": "EKIPA MONTAŻOWA",
+      "description": "Монтажная бригада — 4 работника",
+      "status": "active",
+      "type": "contract",
+      "color": "#0d9488",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "EKIPA MONTAŻOWA",
+      "contractorId": null,
+      "createdAt": "2025-11-01T10:00:00"
+    },
+    {
+      "id": "proj-brovaria",
+      "name": "BROVARIA",
+      "description": "Подряд pomoc/zmyw — 4 работника",
+      "status": "active",
+      "type": "contract",
+      "color": "#b45309",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "BROVARIA",
+      "contractorId": null,
+      "createdAt": "2025-12-01T10:00:00"
+    },
+    {
+      "id": "proj-pekabex",
+      "name": "PEKABEX",
+      "description": "Подряд — 3 работника, высокие ставки",
+      "status": "active",
+      "type": "contract",
+      "color": "#6366f1",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "PEKABEX",
+      "contractorId": null,
+      "createdAt": "2025-06-15T10:00:00"
+    },
+    {
+      "id": "proj-komplexdom",
+      "name": "KOMPLEX-DOM",
+      "description": "Подряд — 3 работника",
+      "status": "active",
+      "type": "contract",
+      "color": "#ec4899",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "KOMPLEX-DOM",
+      "contractorId": null,
+      "createdAt": "2025-07-15T10:00:00"
+    },
+    {
+      "id": "proj-amokna",
+      "name": "AM OKNA 1",
+      "description": "Подряд — 1 работник",
+      "status": "active",
+      "type": "contract",
+      "color": "#14b8a6",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "AM OKNA 1",
+      "contractorId": null,
+      "createdAt": "2026-01-01T10:00:00"
+    },
+    {
+      "id": "proj-polraj",
+      "name": "POLRAJ",
+      "description": "Подряд — 1 работник",
+      "status": "active",
+      "type": "contract",
+      "color": "#f59e0b",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "POLRAJ",
+      "contractorId": null,
+      "createdAt": "2026-01-15T10:00:00"
+    },
+    {
+      "id": "proj-gembiak",
+      "name": "GEMBIAK MIKSTACKI",
+      "description": "Подряд — 20 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#a855f7",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "GEMBIAK MIKSTACKI",
+      "contractorId": null,
+      "createdAt": "2025-04-01T10:00:00"
+    },
+    {
+      "id": "proj-brokelmann",
+      "name": "BROKELMANN",
+      "description": "Подряд — 17 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#f97316",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "BROKELMANN",
+      "contractorId": null,
+      "createdAt": "2025-05-01T10:00:00"
+    },
+    {
+      "id": "proj-blaszki",
+      "name": "BŁASZKI",
+      "description": "Подряд — 2 работника",
+      "status": "active",
+      "type": "contract",
+      "color": "#84cc16",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "BŁASZKI",
+      "contractorId": null,
+      "createdAt": "2025-06-01T10:00:00"
+    },
+    {
+      "id": "proj-vipak",
+      "name": "VIPAK",
+      "description": "Подряд — 5 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#06b6d4",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "VIPAK",
+      "contractorId": null,
+      "createdAt": "2025-07-01T10:00:00"
+    },
+    {
+      "id": "proj-fugor",
+      "name": "FUGOR",
+      "description": "Подряд — 2 работника",
+      "status": "active",
+      "type": "contract",
+      "color": "#e11d48",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "FUGOR",
+      "contractorId": null,
+      "createdAt": "2025-08-01T10:00:00"
+    },
+    {
+      "id": "proj-florentyna",
+      "name": "FLORENTYNA",
+      "description": "Подряд — 8 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#8b5cf6",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "FLORENTYNA",
+      "contractorId": null,
+      "createdAt": "2025-09-01T10:00:00"
+    },
+    {
+      "id": "proj-bodychief",
+      "name": "BodyChief",
+      "description": "Подряд — 20 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#10b981",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "BodyChief",
+      "contractorId": null,
+      "createdAt": "2025-10-01T10:00:00"
+    },
+    {
+      "id": "proj-mdmdruk",
+      "name": "MDM Druk",
+      "description": "Подряд (все филиалы) — 35 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#ef4444",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "MDM Druk",
+      "contractorId": null,
+      "createdAt": "2025-06-15T10:00:00"
+    },
+    {
+      "id": "proj-htl",
+      "name": "HT&L Fitting Polska",
+      "description": "Подряд — 1 работник",
+      "status": "active",
+      "type": "contract",
+      "color": "#64748b",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "HT&L Fitting Polska",
+      "contractorId": null,
+      "createdAt": "2025-11-01T10:00:00"
+    },
+    {
+      "id": "proj-rolf",
+      "name": "ROLF",
+      "description": "Подряд — 8 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#ea580c",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "ROLF",
+      "contractorId": null,
+      "createdAt": "2025-07-15T10:00:00"
+    },
+    {
+      "id": "proj-miedzychod",
+      "name": "MIEDZYCHOD",
+      "description": "Подряд — 4 работника",
+      "status": "active",
+      "type": "contract",
+      "color": "#0284c7",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "MIEDZYCHOD",
+      "contractorId": null,
+      "createdAt": "2025-12-01T10:00:00"
+    },
+    {
+      "id": "proj-klafs",
+      "name": "KLAFS",
+      "description": "Подряд — 2 работника",
+      "status": "active",
+      "type": "contract",
+      "color": "#16a34a",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "KLAFS",
+      "contractorId": null,
+      "createdAt": "2026-01-01T10:00:00"
+    },
+    {
+      "id": "proj-garte",
+      "name": "GARTE",
+      "description": "Подряд — 1 работник",
+      "status": "active",
+      "type": "contract",
+      "color": "#ca8a04",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "GARTE",
+      "contractorId": null,
+      "createdAt": "2026-01-15T10:00:00"
+    },
+    {
+      "id": "proj-compact",
+      "name": "Compact",
+      "description": "Группа Compact — 3 работника",
+      "status": "active",
+      "type": "contract",
+      "color": "#9333ea",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "Compact",
+      "contractorId": null,
+      "createdAt": "2025-08-15T10:00:00"
+    },
+    {
+      "id": "proj-gpf",
+      "name": "GPF",
+      "description": "Подряд GPF + operator — 6 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#0e7490",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "GPF",
+      "contractorId": null,
+      "createdAt": "2025-09-15T10:00:00"
+    },
+    {
+      "id": "proj-gpfmiesz",
+      "name": "GPF Mieszalnia",
+      "description": "Подряд GPF Mieszalnia — 9 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#c026d3",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "GPF Mieszalnia",
+      "contractorId": null,
+      "createdAt": "2025-10-15T10:00:00"
+    },
+    {
+      "id": "proj-kierowcy",
+      "name": "MRÓWKI KIEROWCY",
+      "description": "Водители — 2 работника",
+      "status": "active",
+      "type": "contract",
+      "color": "#475569",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "MRÓWKI KIEROWCY",
+      "contractorId": null,
+      "createdAt": "2025-03-01T10:00:00"
+    },
+    {
+      "id": "proj-anteholz",
+      "name": "Ante - Holz",
+      "description": "Подряд — 7 работников",
+      "status": "active",
+      "type": "contract",
+      "color": "#65a30d",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "Ante - Holz",
+      "contractorId": null,
+      "createdAt": "2026-03-01T10:00:00"
+    },
+    {
+      "id": "proj-unibike",
+      "name": "Unibike",
+      "description": "Подряд — 2 работника",
+      "status": "active",
+      "type": "contract",
+      "color": "#d946ef",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "Unibike",
+      "contractorId": null,
+      "createdAt": "2026-03-01T10:00:00"
+    },
+    {
+      "id": "proj-mleczarnia",
+      "name": "Mleczarnia \"Turek\"",
+      "description": "Молочный завод — 34 работника",
+      "status": "active",
+      "type": "contract",
+      "color": "#0369a1",
+      "creatorId": 1,
+      "coordinatorId": 4,
+      "contractorName": "Mleczarnia Turek",
+      "contractorId": null,
+      "createdAt": "2026-03-01T10:00:00"
+    },
+    {
+      "id": "proj-ksh",
+      "name": "KSH",
+      "description": "Слесари и сварщики — 3 работника",
+      "status": "active",
+      "type": "contract",
+      "color": "#b91c1c",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "KSH",
+      "contractorId": null,
+      "createdAt": "2026-03-01T10:00:00"
+    },
+    {
+      "id": "proj-eurodruk",
+      "name": "EURODRUK",
+      "description": "Подряд — 3 работника",
+      "status": "active",
+      "type": "contract",
+      "color": "#4338ca",
+      "creatorId": 1,
+      "coordinatorId": 2,
+      "contractorName": "EURODRUK",
+      "contractorId": null,
+      "createdAt": "2026-03-01T10:00:00"
+    }
+  ],
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Подготовить документы для нового контрагента Delta Sp.J.",
+      "description": "Необходимо подготовить полный пакет документов для заключения договора с контрагентом Delta Sp.J. Jankowski Plucińsk. Включает NDA, основной договор и приложения.",
+      "status": "in_progress",
+      "priority": "high",
+      "category": "sales",
+      "assigneeId": null,
+      "assigneeIds": [
+        2,
+        4
+      ],
+      "assigneeType": "team",
+      "creatorId": 1,
+      "projectId": "proj-1",
+      "deadline": "2026-03-28T17:00",
+      "createdAt": "2026-03-20T10:00:00",
+      "updatedAt": "2026-03-25T14:30:00",
+      "subtasks": [
+        {
+          "id": 1,
+          "text": "Подготовить NDA",
+          "done": true
+        },
+        {
+          "id": 2,
+          "text": "Составить основной договор",
+          "done": true
+        },
+        {
+          "id": 3,
+          "text": "Подготовить приложения к договору",
+          "done": false
+        },
+        {
+          "id": 4,
+          "text": "Согласовать с юристом",
+          "done": false
+        }
+      ],
+      "comments": [
+        {
+          "id": 1,
+          "userId": 1,
+          "text": "Прошу подготовить до конца недели",
+          "createdAt": "2026-03-20T10:05:00"
+        },
+        {
+          "id": 2,
+          "userId": 2,
+          "text": "NDA готов, приступаю к основному договору",
+          "createdAt": "2026-03-22T09:15:00"
+        },
+        {
+          "id": 3,
+          "userId": 2,
+          "text": "Основной договор готов, нужно согласование юриста",
+          "createdAt": "2026-03-24T16:40:00"
+        }
+      ],
+      "linkedEntity": {
+        "type": "contractor",
+        "name": "Delta Sp.J. Jankowski Plucińsk"
+      },
+      "tags": [
+        "документы",
+        "срочно"
+      ],
+      "attachments": [
+        {
+          "id": 1,
+          "name": "NDA_Delta_2026.pdf",
+          "type": "pdf",
+          "size": "245 KB",
+          "addedAt": "2026-03-22T09:00:00",
+          "addedBy": 2
+        },
+        {
+          "id": 2,
+          "name": "Паспорт_копия.jpg",
+          "type": "image",
+          "size": "1.2 MB",
+          "addedAt": "2026-03-24T11:00:00",
+          "addedBy": 2
+        }
+      ],
+      "links": [
+        {
+          "id": 1,
+          "title": "Шаблон NDA",
+          "url": "https://docs.google.com/doc/nda-template",
+          "addedBy": 1
+        }
+      ],
+      "contacts": [
+        {
+          "id": 1,
+          "name": "Jan Kowalski",
+          "phone": "+48 501 234 567",
+          "email": "jan@delta.pl",
+          "role": "Менеджер Delta"
+        }
+      ],
+      "relations": [
+        {
+          "taskId": 2,
+          "type": "blocks"
+        },
+        {
+          "taskId": 3,
+          "type": "related"
+        }
+      ],
+      "history": [
+        {
+          "field": "status",
+          "oldValue": "Новая",
+          "newValue": "В работе",
+          "userId": 2,
+          "timestamp": "2026-03-21T09:30:00"
+        },
+        {
+          "field": "priority",
+          "oldValue": "Средний",
+          "newValue": "Высокий",
+          "userId": 1,
+          "timestamp": "2026-03-22T10:15:00"
+        },
+        {
+          "field": "assigneeIds",
+          "oldValue": "Viktor Kosmin",
+          "newValue": "Viktor Kosmin, Valentyn Korzhov",
+          "userId": 1,
+          "timestamp": "2026-03-23T14:00:00"
+        },
+        {
+          "field": "deadline",
+          "oldValue": "2026-03-30 17:00",
+          "newValue": "2026-03-28 17:00",
+          "userId": 1,
+          "timestamp": "2026-03-24T11:00:00"
+        }
+      ],
+      "timeEntries": [
+        {
+          "id": 1,
+          "userId": 2,
+          "minutes": 120,
+          "description": "Подготовка пакета документов",
+          "date": "2026-03-21"
+        },
+        {
+          "id": 2,
+          "userId": 2,
+          "minutes": 60,
+          "description": "Оформление NDA",
+          "date": "2026-03-22"
+        },
+        {
+          "id": 3,
+          "userId": 4,
+          "minutes": 30,
+          "description": "Обсуждение условий с контрагентом",
+          "date": "2026-03-23"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Разместить вакансию \"Електрик\" на 3 площадках",
+      "description": "Опубликовать вакансию электрика на OLX, Pracuj.pl и Indeed. Зарплата 25/6000. Контрагент INSTALCOMPACT.",
+      "status": "new",
+      "priority": "medium",
+      "category": "recruitment",
+      "assigneeId": 3,
+      "creatorId": 1,
+      "projectId": "proj-1",
+      "deadline": "2026-03-27",
+      "createdAt": "2026-03-24T09:00:00",
+      "updatedAt": "2026-03-24T09:00:00",
+      "subtasks": [
+        {
+          "id": 1,
+          "text": "Подготовить описание вакансии",
+          "done": false
+        },
+        {
+          "id": 2,
+          "text": "Разместить на OLX",
+          "done": false
+        },
+        {
+          "id": 3,
+          "text": "Разместить на Pracuj.pl",
+          "done": false
+        },
+        {
+          "id": 4,
+          "text": "Разместить на Indeed",
+          "done": false
+        }
+      ],
+      "comments": [
+        {
+          "id": 1,
+          "userId": 1,
+          "text": "Приоритетная вакансия, нужно быстро закрыть",
+          "createdAt": "2026-03-24T09:05:00"
+        }
+      ],
+      "linkedEntity": {
+        "type": "vacancy",
+        "name": "Електрик — INSTALCOMPACT"
+      }
+    },
+    {
+      "id": 3,
+      "title": "Провести собеседования с кандидатами на \"Офіціант\"",
+      "description": "Запланировать и провести собеседования с 5 кандидатами на должность официанта в HOTEL KORMORAN Resort.",
+      "status": "in_progress",
+      "priority": "high",
+      "category": "hr",
+      "assigneeId": 3,
+      "creatorId": 1,
+      "projectId": "proj-2",
+      "deadline": "2026-03-29T16:00",
+      "createdAt": "2026-03-22T11:00:00",
+      "updatedAt": "2026-03-25T10:20:00",
+      "subtasks": [
+        {
+          "id": 1,
+          "text": "Отобрать резюме",
+          "done": true
+        },
+        {
+          "id": 2,
+          "text": "Связаться с кандидатами",
+          "done": true
+        },
+        {
+          "id": 3,
+          "text": "Провести собеседования",
+          "done": false
+        },
+        {
+          "id": 4,
+          "text": "Подготовить отчёт",
+          "done": false
+        }
+      ],
+      "comments": [
+        {
+          "id": 1,
+          "userId": 3,
+          "text": "Отобрала 5 подходящих кандидатов",
+          "createdAt": "2026-03-23T14:00:00"
+        },
+        {
+          "id": 2,
+          "userId": 3,
+          "text": "Собеседования запланированы на 27-28 марта",
+          "createdAt": "2026-03-25T10:20:00"
+        }
+      ],
+      "linkedEntity": {
+        "type": "vacancy",
+        "name": "Офіціант — HOTEL KORMORAN"
+      }
+    },
+    {
+      "id": 4,
+      "title": "Обновить зарплатную ведомость за март",
+      "description": "Подготовить и обновить зарплатную ведомость для всех работников за март 2026.",
+      "status": "new",
+      "priority": "critical",
+      "category": "finance",
+      "assigneeId": 5,
+      "creatorId": 1,
+      "deadline": "2026-03-31",
+      "createdAt": "2026-03-25T08:00:00",
+      "updatedAt": "2026-03-25T08:00:00",
+      "subtasks": [
+        {
+          "id": 1,
+          "text": "Собрать данные по отработанным часам",
+          "done": false
+        },
+        {
+          "id": 2,
+          "text": "Рассчитать зарплаты",
+          "done": false
+        },
+        {
+          "id": 3,
+          "text": "Подготовить ведомость",
+          "done": false
+        },
+        {
+          "id": 4,
+          "text": "Согласовать с руководством",
+          "done": false
+        }
+      ],
+      "comments": [],
+      "linkedEntity": null
+    },
+    {
+      "id": 5,
+      "title": "Организовать транспорт для работников на объект Zbych-Pol",
+      "description": "Организовать ежедневный транспорт для 11 работников на объект Zbych-Pol & Mobet Spółka. Начало работ с 1 апреля.",
+      "status": "in_progress",
+      "priority": "high",
+      "category": "logistics",
+      "assigneeId": 4,
+      "creatorId": 6,
+      "deadline": "2026-03-30T09:00",
+      "createdAt": "2026-03-21T15:00:00",
+      "updatedAt": "2026-03-25T11:00:00",
+      "subtasks": [
+        {
+          "id": 1,
+          "text": "Определить маршрут",
+          "done": true
+        },
+        {
+          "id": 2,
+          "text": "Найти транспортную компанию",
+          "done": true
+        },
+        {
+          "id": 3,
+          "text": "Заключить договор",
+          "done": false
+        },
+        {
+          "id": 4,
+          "text": "Уведомить работников",
+          "done": false
+        }
+      ],
+      "comments": [
+        {
+          "id": 1,
+          "userId": 6,
+          "text": "Нужно организовать до 1 апреля",
+          "createdAt": "2026-03-21T15:05:00"
+        },
+        {
+          "id": 2,
+          "userId": 4,
+          "text": "Нашёл 2 варианта транспорта, жду согласования цен",
+          "createdAt": "2026-03-24T13:30:00"
+        }
+      ],
+      "linkedEntity": {
+        "type": "contractor",
+        "name": "Zbych-Pol & Mobet Spółka"
+      }
+    },
+    {
+      "id": 6,
+      "title": "Проверить документы 5 новых кандидатов",
+      "description": "Проверить полноту и правильность документов у 5 новых кандидатов, зарегистрированных на прошлой неделе.",
+      "status": "review",
+      "priority": "medium",
+      "category": "hr",
+      "assigneeId": 7,
+      "creatorId": 3,
+      "deadline": "2026-03-26T14:00",
+      "createdAt": "2026-03-23T10:00:00",
+      "updatedAt": "2026-03-25T16:00:00",
+      "subtasks": [
+        {
+          "id": 1,
+          "text": "Проверить паспорта",
+          "done": true
+        },
+        {
+          "id": 2,
+          "text": "Проверить разрешения на работу",
+          "done": true
+        },
+        {
+          "id": 3,
+          "text": "Проверить медицинские справки",
+          "done": true
+        },
+        {
+          "id": 4,
+          "text": "Составить отчёт о проверке",
+          "done": false
+        }
+      ],
+      "comments": [
+        {
+          "id": 1,
+          "userId": 7,
+          "text": "Все документы проверены, осталось составить отчёт",
+          "createdAt": "2026-03-25T16:00:00"
+        }
+      ],
+      "linkedEntity": null
+    },
+    {
+      "id": 7,
+      "title": "Настроить автоматическую рассылку вакансий",
+      "description": "Настроить систему автоматической публикации новых вакансий на внешние площадки при создании в CRM.",
+      "status": "new",
+      "priority": "low",
+      "category": "it",
+      "assigneeId": 6,
+      "creatorId": 1,
+      "projectId": "proj-3",
+      "deadline": "2026-04-10T17:00",
+      "createdAt": "2026-03-25T12:00:00",
+      "updatedAt": "2026-03-25T12:00:00",
+      "subtasks": [
+        {
+          "id": 1,
+          "text": "Изучить API площадок",
+          "done": false
+        },
+        {
+          "id": 2,
+          "text": "Разработать интеграцию",
+          "done": false
+        },
+        {
+          "id": 3,
+          "text": "Протестировать",
+          "done": false
+        }
+      ],
+      "comments": [],
+      "linkedEntity": null
+    },
+    {
+      "id": 8,
+      "title": "Подготовить отчёт по лидам за Q1 2026",
+      "description": "Собрать аналитику по всем лидам за первый квартал 2026 года. Включить воронку конверсии, источники и рекомендации.",
+      "status": "done",
+      "priority": "medium",
+      "category": "sales",
+      "assigneeId": 2,
+      "creatorId": 1,
+      "deadline": "2026-03-25T17:00",
+      "createdAt": "2026-03-18T09:00:00",
+      "updatedAt": "2026-03-25T09:30:00",
+      "subtasks": [
+        {
+          "id": 1,
+          "text": "Собрать данные из CRM",
+          "done": true
+        },
+        {
+          "id": 2,
+          "text": "Подготовить графики",
+          "done": true
+        },
+        {
+          "id": 3,
+          "text": "Написать рекомендации",
+          "done": true
+        },
+        {
+          "id": 4,
+          "text": "Отправить руководству",
+          "done": true
+        }
+      ],
+      "comments": [
+        {
+          "id": 1,
+          "userId": 2,
+          "text": "Отчёт готов и отправлен на почту",
+          "createdAt": "2026-03-25T09:30:00"
+        },
+        {
+          "id": 2,
+          "userId": 1,
+          "text": "Отлично, спасибо! Всё по плану.",
+          "createdAt": "2026-03-25T09:45:00"
+        }
+      ],
+      "linkedEntity": null
+    },
+    {
+      "id": 9,
+      "title": "Обновить контактные данные филиалов",
+      "description": "Актуализировать адреса, телефоны и email всех филиалов в системе CRM.",
+      "status": "done",
+      "priority": "low",
+      "category": "admin",
+      "assigneeId": 5,
+      "creatorId": 1,
+      "deadline": "2026-03-22T12:00",
+      "createdAt": "2026-03-15T14:00:00",
+      "updatedAt": "2026-03-22T11:00:00",
+      "subtasks": [
+        {
+          "id": 1,
+          "text": "Связаться с каждым филиалом",
+          "done": true
+        },
+        {
+          "id": 2,
+          "text": "Обновить данные в CRM",
+          "done": true
+        },
+        {
+          "id": 3,
+          "text": "Проверить корректность",
+          "done": true
+        }
+      ],
+      "comments": [
+        {
+          "id": 1,
+          "userId": 5,
+          "text": "Все данные обновлены",
+          "createdAt": "2026-03-22T11:00:00"
+        }
+      ],
+      "linkedEntity": null
+    },
+    {
+      "id": 10,
+      "title": "Провести onboarding нового координатора",
+      "description": "Организовать и провести процесс адаптации нового координатора Игоря Бондаренко. Включает обучение системе CRM, знакомство с командой и процессами.",
+      "status": "in_progress",
+      "priority": "medium",
+      "category": "hr",
+      "assigneeId": 3,
+      "creatorId": 1,
+      "deadline": "2026-04-01T10:00",
+      "createdAt": "2026-03-24T08:00:00",
+      "updatedAt": "2026-03-25T15:00:00",
+      "subtasks": [
+        {
+          "id": 1,
+          "text": "Подготовить рабочее место",
+          "done": true
+        },
+        {
+          "id": 2,
+          "text": "Создать учётные записи",
+          "done": true
+        },
+        {
+          "id": 3,
+          "text": "Провести обучение CRM",
+          "done": false
+        },
+        {
+          "id": 4,
+          "text": "Представить команде",
+          "done": false
+        },
+        {
+          "id": 5,
+          "text": "Назначить наставника",
+          "done": true
+        }
+      ],
+      "comments": [
+        {
+          "id": 1,
+          "userId": 3,
+          "text": "Рабочее место и аккаунты готовы",
+          "createdAt": "2026-03-24T17:00:00"
+        },
+        {
+          "id": 2,
+          "userId": 8,
+          "text": "Спасибо за быструю подготовку!",
+          "createdAt": "2026-03-25T09:00:00"
+        }
+      ],
+      "linkedEntity": null
+    },
+    {
+      "id": 11,
+      "title": "Заключить контракт с ZAKŁADY WYTWÓRCZE \"CHE...\"",
+      "description": "Финализировать переговоры и подписать контракт на поставку работников для ZAKŁADY WYTWÓRCZE. Условия: 15 работников, ставка 25 PLN/час.",
+      "status": "review",
+      "priority": "critical",
+      "category": "sales",
+      "assigneeId": 4,
+      "creatorId": 1,
+      "deadline": "2026-03-27",
+      "createdAt": "2026-03-19T10:00:00",
+      "updatedAt": "2026-03-25T14:00:00",
+      "subtasks": [
+        {
+          "id": 1,
+          "text": "Согласовать финальные условия",
+          "done": true
+        },
+        {
+          "id": 2,
+          "text": "Подготовить проект контракта",
+          "done": true
+        },
+        {
+          "id": 3,
+          "text": "Отправить на подпись",
+          "done": true
+        },
+        {
+          "id": 4,
+          "text": "Получить подписанный экземпляр",
+          "done": false
+        }
+      ],
+      "comments": [
+        {
+          "id": 1,
+          "userId": 4,
+          "text": "Контракт отправлен на подпись клиенту",
+          "createdAt": "2026-03-25T14:00:00"
+        },
+        {
+          "id": 2,
+          "userId": 1,
+          "text": "Когда ожидаем ответ?",
+          "createdAt": "2026-03-25T14:30:00"
+        },
+        {
+          "id": 3,
+          "userId": 4,
+          "text": "Обещали подписать до 27 марта",
+          "createdAt": "2026-03-25T14:35:00"
+        }
+      ],
+      "linkedEntity": {
+        "type": "contractor",
+        "name": "ZAKŁADY WYTWÓRCZE \"CHE...\""
+      }
+    },
+    {
+      "id": 12,
+      "title": "Обновить должностные инструкции для вакансий",
+      "description": "Пересмотреть и обновить описания обязанностей для 10 активных вакансий. Добавить требования по безопасности.",
+      "status": "done",
+      "priority": "medium",
+      "category": "hr",
+      "assigneeId": 7,
+      "creatorId": 3,
+      "deadline": "2026-03-23T17:00",
+      "createdAt": "2026-03-17T10:00:00",
+      "updatedAt": "2026-03-23T15:30:00",
+      "subtasks": [
+        {
+          "id": 1,
+          "text": "Пересмотреть текущие описания",
+          "done": true
+        },
+        {
+          "id": 2,
+          "text": "Добавить требования безопасности",
+          "done": true
+        },
+        {
+          "id": 3,
+          "text": "Согласовать с руководителями",
+          "done": true
+        },
+        {
+          "id": 4,
+          "text": "Обновить в системе",
+          "done": true
+        }
+      ],
+      "comments": [
+        {
+          "id": 1,
+          "userId": 7,
+          "text": "Все инструкции обновлены и загружены",
+          "createdAt": "2026-03-23T15:30:00"
+        }
+      ],
+      "linkedEntity": null
+    },
+    {
+      "id": 13,
+      "title": "Убрать на рабочих местах перед проверкой",
+      "description": "Завтра проверка от контрагента. Нужно навести порядок на рабочих местах. Кто первый увидит — убирает.",
+      "status": "new",
+      "priority": "medium",
+      "category": "admin",
+      "assigneeId": null,
+      "creatorId": 1,
+      "deadline": "2026-03-27T08:00",
+      "createdAt": "2026-03-26T08:00:00",
+      "updatedAt": "2026-03-26T08:00:00",
+      "subtasks": [],
+      "comments": [],
+      "linkedEntity": null,
+      "watcherIds": [
+        1
+      ],
+      "assigneeType": "department",
+      "departmentIds": [
+        "admin"
+      ],
+      "groupType": "first_done",
+      "completedBy": [],
+      "reminderMinutes": 60,
+      "reminderChannels": [
+        "push"
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Составить план работ на апрель",
+      "description": "Каждый сотрудник отдела координации и HR должен составить свой индивидуальный план работ на апрель и прикрепить в комментариях.",
+      "status": "new",
+      "priority": "high",
+      "category": "admin",
+      "assigneeId": null,
+      "creatorId": 1,
+      "deadline": "2026-03-31T12:00",
+      "createdAt": "2026-03-26T09:00:00",
+      "updatedAt": "2026-03-26T09:00:00",
+      "subtasks": [],
+      "comments": [],
+      "linkedEntity": null,
+      "watcherIds": [
+        1
+      ],
+      "assigneeType": "department",
+      "departmentIds": [
+        "coordination",
+        "hr"
+      ],
+      "groupType": "each_done",
+      "completedBy": [],
+      "reminderMinutes": 1440,
+      "reminderChannels": [
+        "telegram",
+        "push"
+      ]
+    }
+  ]
+}

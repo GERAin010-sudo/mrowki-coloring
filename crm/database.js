@@ -109,18 +109,67 @@ class CRMDatabase {
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
 
-      -- Tasks per deal
+      -- Task statuses (colored)
+      CREATE TABLE IF NOT EXISTS task_statusy (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nazwa TEXT NOT NULL,
+        kolor TEXT NOT NULL DEFAULT '#999999',
+        ikona TEXT DEFAULT '',
+        kolejnosc INTEGER DEFAULT 0,
+        domyslny INTEGER DEFAULT 0
+      );
+
+      -- Task categories
+      CREATE TABLE IF NOT EXISTS task_kategorie (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nazwa TEXT NOT NULL,
+        kolor TEXT NOT NULL DEFAULT '#999999',
+        ikona TEXT DEFAULT '',
+        kolejnosc INTEGER DEFAULT 0
+      );
+
+      -- Task templates
+      CREATE TABLE IF NOT EXISTS task_szablony (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nazwa TEXT NOT NULL,
+        opis TEXT,
+        kategoria_id INTEGER REFERENCES task_kategorie(id) ON DELETE SET NULL,
+        priorytet TEXT DEFAULT 'normalny',
+        podzadania_json TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Tasks (transakcja_id nullable = standalone tasks)
       CREATE TABLE IF NOT EXISTS zadania (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        transakcja_id INTEGER NOT NULL REFERENCES transakcje(id) ON DELETE CASCADE,
+        transakcja_id INTEGER REFERENCES transakcje(id) ON DELETE CASCADE,
         tresc TEXT NOT NULL,
         opis TEXT,
         wykonane INTEGER DEFAULT 0,
+        status_id INTEGER REFERENCES task_statusy(id) ON DELETE SET NULL,
+        kategoria_id INTEGER REFERENCES task_kategorie(id) ON DELETE SET NULL,
         przypisany_id INTEGER REFERENCES uzytkownicy(id) ON DELETE SET NULL,
         termin DATE,
         adres TEXT,
         lat REAL,
         lng REAL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Task multiple assignees (pivot)
+      CREATE TABLE IF NOT EXISTS task_przypisani (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        zadanie_id INTEGER NOT NULL REFERENCES zadania(id) ON DELETE CASCADE,
+        user_id INTEGER NOT NULL REFERENCES uzytkownicy(id) ON DELETE CASCADE,
+        UNIQUE(zadanie_id, user_id)
+      );
+
+      -- Task relations
+      CREATE TABLE IF NOT EXISTS task_relacje (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        zadanie_id INTEGER NOT NULL REFERENCES zadania(id) ON DELETE CASCADE,
+        powiazane_id INTEGER NOT NULL REFERENCES zadania(id) ON DELETE CASCADE,
+        typ TEXT NOT NULL DEFAULT 'related',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
 
@@ -268,6 +317,168 @@ class CRMDatabase {
         aktywny INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
+
+      -- ===== TASK MODULE (tm_*) =====
+      CREATE TABLE IF NOT EXISTS tm_users (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT,
+        role TEXT,
+        avatar TEXT,
+        color TEXT,
+        access_level TEXT DEFAULT 'employee'
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_departments (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        color TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_department_members (
+        dept_id TEXT NOT NULL REFERENCES tm_departments(id) ON DELETE CASCADE,
+        user_id INTEGER NOT NULL,
+        PRIMARY KEY (dept_id, user_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_projects (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        status TEXT DEFAULT 'active',
+        type TEXT,
+        color TEXT,
+        creator_id INTEGER,
+        coordinator_id INTEGER,
+        contractor_name TEXT,
+        contractor_id INTEGER,
+        archived_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_tasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT,
+        status TEXT DEFAULT 'new',
+        priority TEXT DEFAULT 'medium',
+        category TEXT,
+        assignee_id INTEGER,
+        assignee_type TEXT DEFAULT 'single',
+        creator_id INTEGER,
+        project_id TEXT,
+        deadline TEXT,
+        linked_entity_json TEXT,
+        reminder_minutes INTEGER DEFAULT 0,
+        reminder_channels TEXT,
+        completed_at DATETIME,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_task_assignees (
+        task_id INTEGER NOT NULL REFERENCES tm_tasks(id) ON DELETE CASCADE,
+        user_id INTEGER NOT NULL,
+        PRIMARY KEY (task_id, user_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_task_departments (
+        task_id INTEGER NOT NULL REFERENCES tm_tasks(id) ON DELETE CASCADE,
+        dept_id TEXT NOT NULL,
+        PRIMARY KEY (task_id, dept_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_task_watchers (
+        task_id INTEGER NOT NULL REFERENCES tm_tasks(id) ON DELETE CASCADE,
+        user_id INTEGER NOT NULL,
+        PRIMARY KEY (task_id, user_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_task_subtasks (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task_id INTEGER NOT NULL REFERENCES tm_tasks(id) ON DELETE CASCADE,
+        text TEXT NOT NULL,
+        done INTEGER DEFAULT 0,
+        position INTEGER DEFAULT 0
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_task_comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task_id INTEGER NOT NULL REFERENCES tm_tasks(id) ON DELETE CASCADE,
+        user_id INTEGER,
+        text TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_task_attachments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task_id INTEGER NOT NULL REFERENCES tm_tasks(id) ON DELETE CASCADE,
+        name TEXT NOT NULL,
+        type TEXT,
+        size TEXT,
+        url TEXT,
+        added_by INTEGER,
+        added_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_task_links (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task_id INTEGER NOT NULL REFERENCES tm_tasks(id) ON DELETE CASCADE,
+        title TEXT,
+        url TEXT NOT NULL,
+        added_by INTEGER,
+        added_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_task_contacts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task_id INTEGER NOT NULL REFERENCES tm_tasks(id) ON DELETE CASCADE,
+        name TEXT,
+        phone TEXT,
+        email TEXT,
+        role TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_task_tags (
+        task_id INTEGER NOT NULL REFERENCES tm_tasks(id) ON DELETE CASCADE,
+        tag TEXT NOT NULL,
+        PRIMARY KEY (task_id, tag)
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_task_relations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task_id INTEGER NOT NULL REFERENCES tm_tasks(id) ON DELETE CASCADE,
+        target_id INTEGER NOT NULL,
+        type TEXT NOT NULL DEFAULT 'related'
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_task_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task_id INTEGER NOT NULL REFERENCES tm_tasks(id) ON DELETE CASCADE,
+        field TEXT,
+        old_value TEXT,
+        new_value TEXT,
+        user_id INTEGER,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_task_time_entries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task_id INTEGER NOT NULL REFERENCES tm_tasks(id) ON DELETE CASCADE,
+        user_id INTEGER,
+        minutes INTEGER DEFAULT 0,
+        description TEXT,
+        date DATE
+      );
+
+      CREATE TABLE IF NOT EXISTS tm_templates (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        icon TEXT,
+        color TEXT,
+        tasks_json TEXT
+      );
     `);
 
     // Migrations
@@ -293,6 +504,11 @@ class CRMDatabase {
       `ALTER TABLE zadania ADD COLUMN timer_start TEXT`,
       `ALTER TABLE zakupy ADD COLUMN transakcja_id INTEGER REFERENCES transakcje(id) ON DELETE SET NULL`,
       `ALTER TABLE zakupy ADD COLUMN dostawca TEXT`,
+      `ALTER TABLE realizacje ADD COLUMN transakcja_id INTEGER REFERENCES transakcje(id) ON DELETE SET NULL`,
+      `ALTER TABLE uzytkownicy ADD COLUMN jezyk TEXT DEFAULT 'pl'`,
+      // Task system migrations
+      `ALTER TABLE zadania ADD COLUMN status_id INTEGER REFERENCES task_statusy(id) ON DELETE SET NULL`,
+      `ALTER TABLE zadania ADD COLUMN kategoria_id INTEGER REFERENCES task_kategorie(id) ON DELETE SET NULL`,
     ];
     for (const sql of migrations) {
       try { this.db.exec(sql); } catch(e) { /* column already exists */ }
@@ -300,6 +516,61 @@ class CRMDatabase {
 
     // Migrate old 'pracownik' role to 'wykonawca'
     this.db.prepare("UPDATE uzytkownicy SET rola = 'wykonawca' WHERE rola = 'pracownik'").run();
+
+    // Make transakcja_id nullable (rebuild if NOT NULL)
+    try {
+      const schema = this.db.prepare("SELECT sql FROM sqlite_master WHERE name='zadania'").get();
+      if (schema && schema.sql && schema.sql.includes('transakcja_id INTEGER NOT NULL')) {
+        const cols = 'id, transakcja_id, tresc, opis, wykonane, status_id, kategoria_id, przypisany_id, termin, adres, lat, lng, priorytet, tagi, czas_szacowany, czas_spedzony, timer_start, created_at';
+        this.db.exec(`
+          CREATE TABLE zadania_nullable (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            transakcja_id INTEGER REFERENCES transakcje(id) ON DELETE CASCADE,
+            tresc TEXT NOT NULL, opis TEXT, wykonane INTEGER DEFAULT 0,
+            status_id INTEGER REFERENCES task_statusy(id) ON DELETE SET NULL,
+            kategoria_id INTEGER REFERENCES task_kategorie(id) ON DELETE SET NULL,
+            przypisany_id INTEGER REFERENCES uzytkownicy(id) ON DELETE SET NULL,
+            termin DATE, adres TEXT, lat REAL, lng REAL,
+            priorytet TEXT DEFAULT 'normalny', tagi TEXT,
+            czas_szacowany REAL, czas_spedzony REAL DEFAULT 0, timer_start TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          );
+          INSERT INTO zadania_nullable (${cols}) SELECT ${cols} FROM zadania;
+          DROP TABLE zadania;
+          ALTER TABLE zadania_nullable RENAME TO zadania;
+        `);
+      }
+    } catch(e) { console.warn('zadania nullable migration:', e.message); }
+
+    // Seed default task statuses
+    const statusCount = this.db.prepare('SELECT COUNT(*) as cnt FROM task_statusy').get().cnt;
+    if (statusCount === 0) {
+      const statuses = [
+        { nazwa: 'Nowe', kolor: '#4A90D9', ikona: '🆕', kolejnosc: 1, domyslny: 1 },
+        { nazwa: 'W trakcie', kolor: '#F5A623', ikona: '🔧', kolejnosc: 2, domyslny: 0 },
+        { nazwa: 'Przegląd', kolor: '#9B59B6', ikona: '🔍', kolejnosc: 3, domyslny: 0 },
+        { nazwa: 'Gotowe', kolor: '#27AE60', ikona: '✅', kolejnosc: 4, domyslny: 0 },
+        { nazwa: 'Wstrzymane', kolor: '#95A5A6', ikona: '⏸', kolejnosc: 5, domyslny: 0 },
+      ];
+      const ins = this.db.prepare('INSERT INTO task_statusy (nazwa, kolor, ikona, kolejnosc, domyslny) VALUES (?, ?, ?, ?, ?)');
+      for (const s of statuses) ins.run(s.nazwa, s.kolor, s.ikona, s.kolejnosc, s.domyslny);
+    }
+
+    // Seed default task categories
+    const catCount = this.db.prepare('SELECT COUNT(*) as cnt FROM task_kategorie').get().cnt;
+    if (catCount === 0) {
+      const cats = [
+        { nazwa: 'Malowanie', kolor: '#E74C3C', ikona: '🎨', kolejnosc: 1 },
+        { nazwa: 'Przygotowanie', kolor: '#3498DB', ikona: '🔨', kolejnosc: 2 },
+        { nazwa: 'Transport', kolor: '#F39C12', ikona: '🚚', kolejnosc: 3 },
+        { nazwa: 'Zakupy', kolor: '#2ECC71', ikona: '🛒', kolejnosc: 4 },
+        { nazwa: 'Dokumenty', kolor: '#9B59B6', ikona: '📄', kolejnosc: 5 },
+        { nazwa: 'Spotkanie', kolor: '#1ABC9C', ikona: '🤝', kolejnosc: 6 },
+        { nazwa: 'Inne', kolor: '#95A5A6', ikona: '📌', kolejnosc: 7 },
+      ];
+      const ins = this.db.prepare('INSERT INTO task_kategorie (nazwa, kolor, ikona, kolejnosc) VALUES (?, ?, ?, ?)');
+      for (const c of cats) ins.run(c.nazwa, c.kolor, c.ikona, c.kolejnosc);
+    }
 
     // Fix FK: rebuild zadania table to reference uzytkownicy instead of zespol
     try {
@@ -321,6 +592,9 @@ class CRMDatabase {
         `);
       }
     } catch(e) { console.warn('zadania FK migration:', e.message); }
+
+    // Seed task module data on first run
+    try { this.tmSeedIfEmpty(); } catch(e) { console.warn('tm seed:', e.message); }
   }
 
   /* ===== COMPANIES ===== */
@@ -432,7 +706,13 @@ class CRMDatabase {
       WHERE t.id = ?
     `).get(id);
     if (!deal) return null;
-    deal.zadania = this.db.prepare('SELECT z.*, zs.imie as przypisany_imie, zs.kolor as przypisany_kolor FROM zadania z LEFT JOIN uzytkownicy zs ON z.przypisany_id = zs.id WHERE z.transakcja_id = ? ORDER BY z.wykonane ASC, z.termin IS NULL, z.termin ASC, z.created_at ASC').all(id);
+    deal.zadania = this.db.prepare(`SELECT z.*, zs.imie as przypisany_imie, zs.kolor as przypisany_kolor,
+      ts.nazwa as status_nazwa, ts.kolor as status_kolor, ts.ikona as status_ikona,
+      tk.nazwa as kategoria_nazwa, tk.kolor as kategoria_kolor
+      FROM zadania z LEFT JOIN uzytkownicy zs ON z.przypisany_id = zs.id
+      LEFT JOIN task_statusy ts ON z.status_id = ts.id
+      LEFT JOIN task_kategorie tk ON z.kategoria_id = tk.id
+      WHERE z.transakcja_id = ? ORDER BY z.wykonane ASC, z.termin IS NULL, z.termin ASC, z.created_at ASC`).all(id);
     deal.pliki = this.db.prepare('SELECT * FROM pliki WHERE transakcja_id = ? ORDER BY created_at DESC').all(id);
     deal.historia = this.db.prepare('SELECT * FROM historia WHERE transakcja_id = ? ORDER BY created_at DESC').all(id);
     deal.zuzycie = this.db.prepare(`
@@ -532,10 +812,15 @@ class CRMDatabase {
   }
 
   getAllTasksFiltered(filter, userId) {
-    let sql = `SELECT z.*, t.nazwa as deal_nazwa, t.voronka, t.etap, zs.imie as przypisany_imie, zs.kolor as przypisany_kolor
+    let sql = `SELECT z.*, t.nazwa as deal_nazwa, t.voronka, t.etap,
+      zs.imie as przypisany_imie, zs.kolor as przypisany_kolor,
+      ts.nazwa as status_nazwa, ts.kolor as status_kolor, ts.ikona as status_ikona,
+      tk.nazwa as kategoria_nazwa, tk.kolor as kategoria_kolor, tk.ikona as kategoria_ikona
       FROM zadania z
-      JOIN transakcje t ON z.transakcja_id = t.id
+      LEFT JOIN transakcje t ON z.transakcja_id = t.id
       LEFT JOIN uzytkownicy zs ON z.przypisany_id = zs.id
+      LEFT JOIN task_statusy ts ON z.status_id = ts.id
+      LEFT JOIN task_kategorie tk ON z.kategoria_id = tk.id
       WHERE z.przypisany_id = ?`;
     const params = [userId];
     if (filter?.status === 'open') { sql += ' AND z.wykonane = 0'; }
@@ -556,15 +841,129 @@ class CRMDatabase {
     return { deals, revenue, tasks, overdue };
   }
 
+  /* ===== TASK STATUSES ===== */
+  getTaskStatuses() {
+    return this.db.prepare('SELECT * FROM task_statusy ORDER BY kolejnosc ASC').all();
+  }
+  createTaskStatus(data) {
+    return this.db.prepare('INSERT INTO task_statusy (nazwa, kolor, ikona, kolejnosc) VALUES (?, ?, ?, ?)').run(data.nazwa, data.kolor || '#999', data.ikona || '', data.kolejnosc || 0);
+  }
+  updateTaskStatus(id, data) {
+    return this.db.prepare('UPDATE task_statusy SET nazwa=?, kolor=?, ikona=?, kolejnosc=? WHERE id=?').run(data.nazwa, data.kolor, data.ikona || '', data.kolejnosc || 0, id);
+  }
+  deleteTaskStatus(id) {
+    this.db.prepare('UPDATE zadania SET status_id = NULL WHERE status_id = ?').run(id);
+    return this.db.prepare('DELETE FROM task_statusy WHERE id = ?').run(id);
+  }
+
+  /* ===== TASK CATEGORIES ===== */
+  getTaskCategories() {
+    return this.db.prepare('SELECT * FROM task_kategorie ORDER BY kolejnosc ASC').all();
+  }
+  createTaskCategory(data) {
+    return this.db.prepare('INSERT INTO task_kategorie (nazwa, kolor, ikona, kolejnosc) VALUES (?, ?, ?, ?)').run(data.nazwa, data.kolor || '#999', data.ikona || '', data.kolejnosc || 0);
+  }
+  updateTaskCategory(id, data) {
+    return this.db.prepare('UPDATE task_kategorie SET nazwa=?, kolor=?, ikona=?, kolejnosc=? WHERE id=?').run(data.nazwa, data.kolor, data.ikona || '', data.kolejnosc || 0, id);
+  }
+  deleteTaskCategory(id) {
+    this.db.prepare('UPDATE zadania SET kategoria_id = NULL WHERE kategoria_id = ?').run(id);
+    return this.db.prepare('DELETE FROM task_kategorie WHERE id = ?').run(id);
+  }
+
+  /* ===== TASK TEMPLATES ===== */
+  getTaskTemplates() {
+    return this.db.prepare('SELECT s.*, k.nazwa as kategoria_nazwa, k.kolor as kategoria_kolor FROM task_szablony s LEFT JOIN task_kategorie k ON s.kategoria_id = k.id ORDER BY s.nazwa ASC').all();
+  }
+  createTaskTemplate(data) {
+    return this.db.prepare('INSERT INTO task_szablony (nazwa, opis, kategoria_id, priorytet, podzadania_json) VALUES (?, ?, ?, ?, ?)').run(
+      data.nazwa, data.opis || null, data.kategoria_id || null, data.priorytet || 'normalny', data.podzadania_json || '[]');
+  }
+  updateTaskTemplate(id, data) {
+    return this.db.prepare('UPDATE task_szablony SET nazwa=?, opis=?, kategoria_id=?, priorytet=?, podzadania_json=? WHERE id=?').run(
+      data.nazwa, data.opis || null, data.kategoria_id || null, data.priorytet || 'normalny', data.podzadania_json || '[]', id);
+  }
+  deleteTaskTemplate(id) {
+    return this.db.prepare('DELETE FROM task_szablony WHERE id = ?').run(id);
+  }
+  createTaskFromTemplate(templateId, transakcjaId, przypisanyId) {
+    const tmpl = this.db.prepare('SELECT * FROM task_szablony WHERE id = ?').get(templateId);
+    if (!tmpl) return null;
+    const defaultStatus = this.db.prepare('SELECT id FROM task_statusy WHERE domyslny = 1').get();
+    const result = this.db.prepare('INSERT INTO zadania (transakcja_id, tresc, opis, status_id, kategoria_id, priorytet, przypisany_id) VALUES (?, ?, ?, ?, ?, ?, ?)').run(
+      transakcjaId || null, tmpl.nazwa, tmpl.opis || null, defaultStatus?.id || null, tmpl.kategoria_id || null, tmpl.priorytet || 'normalny', przypisanyId || null);
+    try {
+      const subs = JSON.parse(tmpl.podzadania_json || '[]');
+      const subIns = this.db.prepare('INSERT INTO podzadania (zadanie_id, tresc) VALUES (?, ?)');
+      for (const s of subs) subIns.run(result.lastInsertRowid, s);
+    } catch(e) {}
+    return result;
+  }
+
+  /* ===== TASK RELATIONS ===== */
+  getTaskRelations(zadanieId) {
+    return this.db.prepare(`
+      SELECT r.*, z.tresc as powiazane_tresc, z.wykonane as powiazane_wykonane
+      FROM task_relacje r JOIN zadania z ON r.powiazane_id = z.id
+      WHERE r.zadanie_id = ?
+      UNION ALL
+      SELECT r.id, r.powiazane_id as zadanie_id, r.zadanie_id as powiazane_id,
+        CASE r.typ WHEN 'blocks' THEN 'blocked_by' WHEN 'blocked_by' THEN 'blocks' ELSE r.typ END as typ,
+        r.created_at, z.tresc as powiazane_tresc, z.wykonane as powiazane_wykonane
+      FROM task_relacje r JOIN zadania z ON r.zadanie_id = z.id
+      WHERE r.powiazane_id = ?
+    `).all(zadanieId, zadanieId);
+  }
+  addTaskRelation(zadanieId, powiazaneId, typ) {
+    return this.db.prepare('INSERT INTO task_relacje (zadanie_id, powiazane_id, typ) VALUES (?, ?, ?)').run(zadanieId, powiazaneId, typ || 'related');
+  }
+  deleteTaskRelation(id) {
+    return this.db.prepare('DELETE FROM task_relacje WHERE id = ?').run(id);
+  }
+
+  /* ===== TASK ASSIGNEES (multiple) ===== */
+  getTaskAssignees(zadanieId) {
+    return this.db.prepare('SELECT tp.*, u.imie, u.kolor FROM task_przypisani tp JOIN uzytkownicy u ON tp.user_id = u.id WHERE tp.zadanie_id = ?').all(zadanieId);
+  }
+  addTaskAssignee(zadanieId, userId) {
+    try { return this.db.prepare('INSERT INTO task_przypisani (zadanie_id, user_id) VALUES (?, ?)').run(zadanieId, userId); }
+    catch(e) { return null; }
+  }
+  removeTaskAssignee(zadanieId, userId) {
+    return this.db.prepare('DELETE FROM task_przypisani WHERE zadanie_id = ? AND user_id = ?').run(zadanieId, userId);
+  }
+
   /* ===== TASKS ===== */
   addTask(transakcjaId, tresc, przypisanyId, termin) {
-    return this.db.prepare('INSERT INTO zadania (transakcja_id, tresc, przypisany_id, termin) VALUES (?, ?, ?, ?)').run(transakcjaId, tresc, przypisanyId || null, termin || null);
+    const defaultStatus = this.db.prepare('SELECT id FROM task_statusy WHERE domyslny = 1').get();
+    return this.db.prepare('INSERT INTO zadania (transakcja_id, tresc, przypisany_id, termin, status_id) VALUES (?, ?, ?, ?, ?)').run(transakcjaId || null, tresc, przypisanyId || null, termin || null, defaultStatus?.id || null);
+  }
+
+  addStandaloneTask(data) {
+    const defaultStatus = this.db.prepare('SELECT id FROM task_statusy WHERE domyslny = 1').get();
+    const result = this.db.prepare('INSERT INTO zadania (transakcja_id, tresc, opis, status_id, kategoria_id, priorytet, przypisany_id, termin) VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(
+      data.transakcja_id || null, data.tresc, data.opis || null,
+      data.status_id || defaultStatus?.id || null, data.kategoria_id || null,
+      data.priorytet || 'normalny', data.przypisany_id || null, data.termin || null);
+    if (data.assignee_ids?.length) {
+      const ins = this.db.prepare('INSERT OR IGNORE INTO task_przypisani (zadanie_id, user_id) VALUES (?, ?)');
+      for (const uid of data.assignee_ids) ins.run(result.lastInsertRowid, uid);
+    }
+    return result;
   }
 
   getTaskDetail(id) {
-    const task = this.db.prepare(`SELECT z.*, t.nazwa as deal_nazwa, t.id as deal_id, t.voronka, zs.imie as przypisany_imie, zs.kolor as przypisany_kolor
-      FROM zadania z JOIN transakcje t ON z.transakcja_id = t.id
-      LEFT JOIN uzytkownicy zs ON z.przypisany_id = zs.id WHERE z.id = ?`).get(id);
+    const task = this.db.prepare(`SELECT z.*,
+      t.nazwa as deal_nazwa, t.id as deal_id, t.voronka,
+      zs.imie as przypisany_imie, zs.kolor as przypisany_kolor,
+      ts.nazwa as status_nazwa, ts.kolor as status_kolor, ts.ikona as status_ikona,
+      tk.nazwa as kategoria_nazwa, tk.kolor as kategoria_kolor, tk.ikona as kategoria_ikona
+      FROM zadania z
+      LEFT JOIN transakcje t ON z.transakcja_id = t.id
+      LEFT JOIN uzytkownicy zs ON z.przypisany_id = zs.id
+      LEFT JOIN task_statusy ts ON z.status_id = ts.id
+      LEFT JOIN task_kategorie tk ON z.kategoria_id = tk.id
+      WHERE z.id = ?`).get(id);
     if (!task) return null;
     task.podzadania = this.db.prepare('SELECT * FROM podzadania WHERE zadanie_id = ? ORDER BY created_at ASC').all(id);
     task.pliki = this.db.prepare('SELECT * FROM zadania_pliki WHERE zadanie_id = ? ORDER BY created_at DESC').all(id);
@@ -572,15 +971,21 @@ class CRMDatabase {
       FROM zadania_komentarze k LEFT JOIN uzytkownicy u ON k.autor_id = u.id
       WHERE k.zadanie_id = ? ORDER BY k.created_at ASC`).all(id);
     task.historia = this.db.prepare('SELECT * FROM zadania_historia WHERE zadanie_id = ? ORDER BY created_at DESC LIMIT 20').all(id);
+    task.przypisani = this.getTaskAssignees(id);
+    task.relacje = this.getTaskRelations(id);
     return task;
   }
 
   updateTaskFull(id, data) {
-    return this.db.prepare(`UPDATE zadania SET tresc=?, opis=?, przypisany_id=?, termin=?, adres=?, lat=?, lng=?,
-      priorytet=?, tagi=?, czas_szacowany=? WHERE id=?`)
-      .run(data.tresc, data.opis || null, data.przypisany_id || null, data.termin || null,
-        data.adres || null, data.lat || null, data.lng || null,
-        data.priorytet || 'normalny', data.tagi || null, data.czas_szacowany || null, id);
+    const fields = [];
+    const values = [];
+    const allowed = ['tresc','opis','przypisany_id','termin','adres','lat','lng','priorytet','tagi','czas_szacowany','status_id','kategoria_id','transakcja_id'];
+    for (const key of allowed) {
+      if (key in data) { fields.push(`${key}=?`); values.push(data[key] || null); }
+    }
+    if (fields.length === 0) return;
+    values.push(id);
+    return this.db.prepare(`UPDATE zadania SET ${fields.join(', ')} WHERE id=?`).run(...values);
   }
 
   addTaskHistory(zadanieId, opis) {
@@ -636,17 +1041,29 @@ class CRMDatabase {
   }
 
   getAllTasks(filter) {
-    let sql = `SELECT z.*, t.nazwa as deal_nazwa, t.voronka, t.etap, zs.imie as przypisany_imie, zs.kolor as przypisany_kolor
+    let sql = `SELECT z.*, t.nazwa as deal_nazwa, t.voronka, t.etap,
+      zs.imie as przypisany_imie, zs.kolor as przypisany_kolor,
+      ts.nazwa as status_nazwa, ts.kolor as status_kolor, ts.ikona as status_ikona,
+      tk.nazwa as kategoria_nazwa, tk.kolor as kategoria_kolor, tk.ikona as kategoria_ikona
       FROM zadania z
-      JOIN transakcje t ON z.transakcja_id = t.id
+      LEFT JOIN transakcje t ON z.transakcja_id = t.id
       LEFT JOIN uzytkownicy zs ON z.przypisany_id = zs.id
+      LEFT JOIN task_statusy ts ON z.status_id = ts.id
+      LEFT JOIN task_kategorie tk ON z.kategoria_id = tk.id
       WHERE 1=1`;
     const params = [];
     if (filter?.assignee) { sql += ' AND z.przypisany_id = ?'; params.push(filter.assignee); }
     if (filter?.status === 'open') { sql += ' AND z.wykonane = 0'; }
     if (filter?.status === 'done') { sql += ' AND z.wykonane = 1'; }
+    if (filter?.status_id) { sql += ' AND z.status_id = ?'; params.push(filter.status_id); }
+    if (filter?.kategoria_id) { sql += ' AND z.kategoria_id = ?'; params.push(filter.kategoria_id); }
+    if (filter?.standalone) { sql += ' AND z.transakcja_id IS NULL'; }
     sql += ' ORDER BY z.wykonane ASC, z.termin IS NULL, z.termin ASC, z.created_at DESC';
     return this.db.prepare(sql).all(...params);
+  }
+
+  searchTasks(query) {
+    return this.db.prepare('SELECT z.id, z.tresc, z.wykonane FROM zadania z WHERE z.tresc LIKE ? ORDER BY z.created_at DESC LIMIT 20').all(`%${query}%`);
   }
 
   /* ===== FILES ===== */
@@ -838,6 +1255,163 @@ class CRMDatabase {
     const stockValue = this.db.prepare('SELECT COALESCE(SUM(ilosc * cena_jedn), 0) as total FROM magazyn').get().total;
 
     return { totalDeals, salesDeals, execDeals, totalCompanies, totalContacts, totalPhotos, totalRevenue, salesSum, execSum, stockItems, stockValue };
+  }
+
+  /* ========== TASK MODULE (tm_*) ========== */
+
+  tmSeedIfEmpty() {
+    const hasUsers = this.db.prepare('SELECT COUNT(*) as c FROM tm_users').get().c;
+    if (hasUsers > 0) return false;
+    const fs = require('fs');
+    const path = require('path');
+    const seedPath = path.join(__dirname, 'tm_seed.json');
+    if (!fs.existsSync(seedPath)) return false;
+    const seed = JSON.parse(fs.readFileSync(seedPath, 'utf-8'));
+
+    const insUser = this.db.prepare('INSERT INTO tm_users (id, name, email, role, avatar, color, access_level) VALUES (?,?,?,?,?,?,?)');
+    seed.users.forEach(u => insUser.run(u.id, u.name, u.email, u.role, u.avatar, u.color, u.accessLevel));
+
+    const insDept = this.db.prepare('INSERT INTO tm_departments (id, name, color) VALUES (?,?,?)');
+    const insDeptM = this.db.prepare('INSERT INTO tm_department_members (dept_id, user_id) VALUES (?,?)');
+    seed.departments.forEach(d => {
+      insDept.run(d.id, d.name, d.color);
+      (d.memberIds || []).forEach(uid => insDeptM.run(d.id, uid));
+    });
+
+    const insProj = this.db.prepare(`INSERT INTO tm_projects (id, name, description, status, type, color, creator_id, coordinator_id, contractor_name, contractor_id, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)`);
+    seed.projects.forEach(p => insProj.run(p.id, p.name, p.description, p.status, p.type, p.color, p.creatorId, p.coordinatorId, p.contractorName, p.contractorId, p.createdAt));
+
+    const insTpl = this.db.prepare('INSERT INTO tm_templates (id, name, description, icon, color, tasks_json) VALUES (?,?,?,?,?,?)');
+    seed.templates.forEach(t => insTpl.run(t.id, t.name, t.description, t.icon, t.color, JSON.stringify(t.tasks || [])));
+
+    const insTask = this.db.prepare(`INSERT INTO tm_tasks (id, title, description, status, priority, category, assignee_id, assignee_type, creator_id, project_id, deadline, linked_entity_json, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+    const insAsg = this.db.prepare('INSERT INTO tm_task_assignees (task_id, user_id) VALUES (?,?)');
+    const insDep = this.db.prepare('INSERT OR IGNORE INTO tm_task_departments (task_id, dept_id) VALUES (?,?)');
+    const insW = this.db.prepare('INSERT OR IGNORE INTO tm_task_watchers (task_id, user_id) VALUES (?,?)');
+    const insSub = this.db.prepare('INSERT INTO tm_task_subtasks (task_id, text, done, position) VALUES (?,?,?,?)');
+    const insCm = this.db.prepare('INSERT INTO tm_task_comments (task_id, user_id, text, created_at) VALUES (?,?,?,?)');
+    const insAtt = this.db.prepare('INSERT INTO tm_task_attachments (task_id, name, type, size, added_by, added_at) VALUES (?,?,?,?,?,?)');
+    const insLnk = this.db.prepare('INSERT INTO tm_task_links (task_id, title, url, added_by) VALUES (?,?,?,?)');
+    const insCt = this.db.prepare('INSERT INTO tm_task_contacts (task_id, name, phone, email, role) VALUES (?,?,?,?,?)');
+    const insTag = this.db.prepare('INSERT OR IGNORE INTO tm_task_tags (task_id, tag) VALUES (?,?)');
+    const insRel = this.db.prepare('INSERT INTO tm_task_relations (task_id, target_id, type) VALUES (?,?,?)');
+    const insHist = this.db.prepare('INSERT INTO tm_task_history (task_id, field, old_value, new_value, user_id, timestamp) VALUES (?,?,?,?,?,?)');
+    const insTE = this.db.prepare('INSERT INTO tm_task_time_entries (task_id, user_id, minutes, description, date) VALUES (?,?,?,?,?)');
+
+    seed.tasks.forEach(t => {
+      insTask.run(t.id, t.title, t.description, t.status, t.priority, t.category, t.assigneeId || null, t.assigneeType || 'single', t.creatorId, t.projectId, t.deadline, JSON.stringify(t.linkedEntity || null), t.createdAt, t.updatedAt);
+      (t.assigneeIds || []).forEach(uid => insAsg.run(t.id, uid));
+      (t.departmentIds || []).forEach(did => insDep.run(t.id, did));
+      (t.watcherIds || []).forEach(uid => insW.run(t.id, uid));
+      (t.subtasks || []).forEach((s, i) => insSub.run(t.id, s.text, s.done ? 1 : 0, i));
+      (t.comments || []).forEach(c => insCm.run(t.id, c.userId, c.text, c.createdAt));
+      (t.attachments || []).forEach(a => insAtt.run(t.id, a.name, a.type, a.size, a.addedBy, a.addedAt));
+      (t.links || []).forEach(l => insLnk.run(t.id, l.title, l.url, l.addedBy));
+      (t.contacts || []).forEach(c => insCt.run(t.id, c.name, c.phone, c.email, c.role));
+      (t.tags || []).forEach(tag => insTag.run(t.id, tag));
+      (t.relations || []).forEach(r => insRel.run(t.id, r.taskId, r.type));
+      (t.history || []).forEach(h => insHist.run(t.id, h.field, h.oldValue, h.newValue, h.userId, h.timestamp));
+      (t.timeEntries || []).forEach(e => insTE.run(t.id, e.userId, e.minutes, e.description, e.date));
+    });
+
+    console.log(`✅ tm_* seeded: ${seed.users.length} users, ${seed.departments.length} depts, ${seed.projects.length} projects, ${seed.tasks.length} tasks, ${seed.templates.length} templates`);
+    return true;
+  }
+
+  tmGetBootstrap() {
+    const users = this.db.prepare('SELECT * FROM tm_users').all();
+    const departments = this.db.prepare('SELECT * FROM tm_departments').all().map(d => ({
+      ...d,
+      memberIds: this.db.prepare('SELECT user_id FROM tm_department_members WHERE dept_id = ?').all(d.id).map(r => r.user_id)
+    }));
+    const projects = this.db.prepare('SELECT * FROM tm_projects').all().map(p => ({
+      id: p.id, name: p.name, description: p.description, status: p.status, type: p.type, color: p.color,
+      creatorId: p.creator_id, coordinatorId: p.coordinator_id, contractorName: p.contractor_name, contractorId: p.contractor_id,
+      createdAt: p.created_at, archivedAt: p.archived_at
+    }));
+    const templates = this.db.prepare('SELECT * FROM tm_templates').all().map(t => ({
+      id: t.id, name: t.name, description: t.description, icon: t.icon, color: t.color,
+      tasks: JSON.parse(t.tasks_json || '[]')
+    }));
+    const tasks = this.db.prepare('SELECT * FROM tm_tasks').all().map(t => this._tmHydrateTask(t));
+    const users_mapped = users.map(u => ({ id: u.id, name: u.name, email: u.email, role: u.role, avatar: u.avatar, color: u.color, accessLevel: u.access_level }));
+    return { users: users_mapped, departments, projects, tasks, templates };
+  }
+
+  _tmHydrateTask(row) {
+    const id = row.id;
+    return {
+      id, title: row.title, description: row.description, status: row.status, priority: row.priority,
+      category: row.category, assigneeId: row.assignee_id, assigneeType: row.assignee_type,
+      creatorId: row.creator_id, projectId: row.project_id, deadline: row.deadline,
+      linkedEntity: row.linked_entity_json ? JSON.parse(row.linked_entity_json) : null,
+      reminderMinutes: row.reminder_minutes, reminderChannels: row.reminder_channels ? JSON.parse(row.reminder_channels) : [],
+      completedAt: row.completed_at, createdAt: row.created_at, updatedAt: row.updated_at,
+      assigneeIds: this.db.prepare('SELECT user_id FROM tm_task_assignees WHERE task_id = ?').all(id).map(r => r.user_id),
+      departmentIds: this.db.prepare('SELECT dept_id FROM tm_task_departments WHERE task_id = ?').all(id).map(r => r.dept_id),
+      watcherIds: this.db.prepare('SELECT user_id FROM tm_task_watchers WHERE task_id = ?').all(id).map(r => r.user_id),
+      subtasks: this.db.prepare('SELECT * FROM tm_task_subtasks WHERE task_id = ? ORDER BY position').all(id).map(s => ({ id: s.id, text: s.text, done: !!s.done })),
+      comments: this.db.prepare('SELECT * FROM tm_task_comments WHERE task_id = ? ORDER BY created_at').all(id).map(c => ({ id: c.id, userId: c.user_id, text: c.text, createdAt: c.created_at })),
+      attachments: this.db.prepare('SELECT * FROM tm_task_attachments WHERE task_id = ?').all(id).map(a => ({ id: a.id, name: a.name, type: a.type, size: a.size, url: a.url, addedBy: a.added_by, addedAt: a.added_at })),
+      links: this.db.prepare('SELECT * FROM tm_task_links WHERE task_id = ?').all(id).map(l => ({ id: l.id, title: l.title, url: l.url, addedBy: l.added_by })),
+      contacts: this.db.prepare('SELECT * FROM tm_task_contacts WHERE task_id = ?').all(id).map(c => ({ id: c.id, name: c.name, phone: c.phone, email: c.email, role: c.role })),
+      tags: this.db.prepare('SELECT tag FROM tm_task_tags WHERE task_id = ?').all(id).map(r => r.tag),
+      relations: this.db.prepare('SELECT * FROM tm_task_relations WHERE task_id = ?').all(id).map(r => ({ taskId: r.target_id, type: r.type })),
+      history: this.db.prepare('SELECT * FROM tm_task_history WHERE task_id = ? ORDER BY timestamp').all(id).map(h => ({ field: h.field, oldValue: h.old_value, newValue: h.new_value, userId: h.user_id, timestamp: h.timestamp })),
+      timeEntries: this.db.prepare('SELECT * FROM tm_task_time_entries WHERE task_id = ? ORDER BY date').all(id).map(e => ({ id: e.id, userId: e.user_id, minutes: e.minutes, description: e.description, date: e.date })),
+    };
+  }
+
+  tmSaveTasksBulk(tasks) {
+    const trx = this.db.transaction((list) => {
+      this.db.prepare('DELETE FROM tm_tasks').run();
+      const insT = this.db.prepare(`INSERT INTO tm_tasks (id, title, description, status, priority, category, assignee_id, assignee_type, creator_id, project_id, deadline, linked_entity_json, reminder_minutes, reminder_channels, completed_at, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+      const insA = this.db.prepare('INSERT INTO tm_task_assignees (task_id, user_id) VALUES (?,?)');
+      const insD = this.db.prepare('INSERT OR IGNORE INTO tm_task_departments (task_id, dept_id) VALUES (?,?)');
+      const insW = this.db.prepare('INSERT OR IGNORE INTO tm_task_watchers (task_id, user_id) VALUES (?,?)');
+      const insS = this.db.prepare('INSERT INTO tm_task_subtasks (task_id, text, done, position) VALUES (?,?,?,?)');
+      const insC = this.db.prepare('INSERT INTO tm_task_comments (task_id, user_id, text, created_at) VALUES (?,?,?,?)');
+      const insAt = this.db.prepare('INSERT INTO tm_task_attachments (task_id, name, type, size, url, added_by, added_at) VALUES (?,?,?,?,?,?,?)');
+      const insL = this.db.prepare('INSERT INTO tm_task_links (task_id, title, url, added_by) VALUES (?,?,?,?)');
+      const insCt = this.db.prepare('INSERT INTO tm_task_contacts (task_id, name, phone, email, role) VALUES (?,?,?,?,?)');
+      const insTg = this.db.prepare('INSERT OR IGNORE INTO tm_task_tags (task_id, tag) VALUES (?,?)');
+      const insR = this.db.prepare('INSERT INTO tm_task_relations (task_id, target_id, type) VALUES (?,?,?)');
+      const insH = this.db.prepare('INSERT INTO tm_task_history (task_id, field, old_value, new_value, user_id, timestamp) VALUES (?,?,?,?,?,?)');
+      const insTE = this.db.prepare('INSERT INTO tm_task_time_entries (task_id, user_id, minutes, description, date) VALUES (?,?,?,?,?)');
+
+      list.forEach(t => {
+        insT.run(t.id, t.title, t.description || null, t.status || 'new', t.priority || 'medium', t.category || null,
+          t.assigneeId || null, t.assigneeType || 'single', t.creatorId || null, t.projectId || null, t.deadline || null,
+          t.linkedEntity ? JSON.stringify(t.linkedEntity) : null,
+          t.reminderMinutes || 0, t.reminderChannels ? JSON.stringify(t.reminderChannels) : null,
+          t.completedAt || null, t.createdAt || new Date().toISOString(), t.updatedAt || new Date().toISOString());
+        (t.assigneeIds || []).forEach(uid => insA.run(t.id, uid));
+        (t.departmentIds || []).forEach(did => insD.run(t.id, did));
+        (t.watcherIds || []).forEach(uid => insW.run(t.id, uid));
+        (t.subtasks || []).forEach((s, i) => insS.run(t.id, s.text, s.done ? 1 : 0, i));
+        (t.comments || []).forEach(c => insC.run(t.id, c.userId || null, c.text, c.createdAt || new Date().toISOString()));
+        (t.attachments || []).forEach(a => insAt.run(t.id, a.name, a.type, a.size, a.url, a.addedBy, a.addedAt));
+        (t.links || []).forEach(l => insL.run(t.id, l.title, l.url, l.addedBy));
+        (t.contacts || []).forEach(c => insCt.run(t.id, c.name, c.phone, c.email, c.role));
+        (t.tags || []).forEach(tag => insTg.run(t.id, tag));
+        (t.relations || []).forEach(r => insR.run(t.id, r.taskId, r.type));
+        (t.history || []).forEach(h => insH.run(t.id, h.field, h.oldValue, h.newValue, h.userId, h.timestamp));
+        (t.timeEntries || []).forEach(e => insTE.run(t.id, e.userId, e.minutes, e.description, e.date));
+      });
+    });
+    trx(tasks);
+    return { ok: true, count: tasks.length };
+  }
+
+  tmSaveProjectsBulk(projects) {
+    const trx = this.db.transaction((list) => {
+      this.db.prepare('DELETE FROM tm_projects').run();
+      const ins = this.db.prepare(`INSERT INTO tm_projects (id, name, description, status, type, color, creator_id, coordinator_id, contractor_name, contractor_id, archived_at, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`);
+      list.forEach(p => ins.run(p.id, p.name, p.description || null, p.status || 'active', p.type || null, p.color || null,
+        p.creatorId || null, p.coordinatorId || null, p.contractorName || null, p.contractorId || null, p.archivedAt || null, p.createdAt || new Date().toISOString()));
+    });
+    trx(projects);
+    return { ok: true, count: projects.length };
   }
 
   close() {

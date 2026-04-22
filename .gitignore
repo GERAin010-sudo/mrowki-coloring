@@ -8,3 +8,18 @@ crm/uploads/
 .DS_Store
 *.log
 .claude/worktrees/
+.vercel
+
+# Data files (personal / company)
+crm/company-emails.json
+crm/contact-emails.json
+crm/crm-data-export.md
+entities.json
+mempalace.yaml
+
+# Uploaded media
+assets/uploads/
+mail/
+
+# Claude Code config
+.claude/launch.json

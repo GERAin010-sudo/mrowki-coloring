@@ -1,468 +1,549 @@
 /* ============================================
    MRÓWKI COLORING CRM — Bot Command Handlers
+   i18n (pl/ua/ru), linked to CRM data
+   Single-message UI (edit instead of new messages)
    ============================================ */
 
-const { KEYBOARDS, clientSelectKeyboard, orderSelectKeyboard, orderStatusChangeKeyboard } = require('./keyboards');
-
-const STATUS_LABELS = {
-  nowe: '🆕 Nowe', wycena: '💰 Wycena', zaakceptowane: '✅ Zaakceptowane',
-  w_trakcie: '🔧 W trakcie', zakonczone: '🏁 Zakończone', anulowane: '❌ Anulowane'
-};
+const KB = require('./keyboards');
+const { FUNNELS } = require('../database');
 
 const SERVICE_LABELS = {
-  okna: 'Stolarka okienna', drzwi: 'Drzwi aluminiowe', fasady: 'Fasady budynków',
-  bramy_windy: 'Bramy i windy', parapety: 'Parapety', poprawki: 'Poprawki lakiernicze', inne: 'Inne'
+  pl: { okna:'Okna', drzwi:'Drzwi', fasady:'Fasady', bramy_windy:'Bramy/Windy', parapety:'Parapety', poprawki:'Poprawki', inne:'Inne' },
+  ua: { okna:'Вікна', drzwi:'Двері', fasady:'Фасади', bramy_windy:'Ворота/Ліфти', parapety:'Підвіконня', poprawki:'Виправлення', inne:'Інше' },
+  ru: { okna:'Окна', drzwi:'Двери', fasady:'Фасады', bramy_windy:'Ворота/Лифты', parapety:'Подоконники', poprawki:'Исправления', inne:'Другое' }
 };
 
-const PRIORITY_LABELS = {
-  niski: '⚪ Niski', normalny: '🟢 Normalny', wysoki: '🟡 Wysoki', pilny: '🔴 Pilny'
+const PRIORITY_ICONS = { niski:'⚪', normalny:'🟢', wysoki:'🟡', pilny:'🔴' };
+
+const T = {
+  pl: {
+    welcome: (name) => `🏗️ *Mrówki Coloring CRM*\n\nWitaj, *${name}*!\n\nTo system zarządzania zamówieniami firmy Mrówki Coloring.\n\nUżyj przycisków poniżej lub /pomoc.`,
+    menu: '📋 *Menu główne*\nWybierz opcję:',
+    no_deals: '📋 Brak aktywnych transakcji.',
+    active_deals: (n) => `📋 *Aktywne transakcje (${n}):*`,
+    wykonanie_title: '🔧 *Wykonanie*',
+    sprzedaz_title: '🛒 *Sprzedaż*',
+    my_tasks: '📝 *Moje zadania*',
+    no_tasks: '📝 Brak otwartych zadań.',
+    task_line: (t, deal, date) => `• ${t}${deal ? `\n  _${deal}_` : ''}${date ? `\n  📅 ${date}` : ''}`,
+    no_companies: '👥 Brak kompanii w bazie.',
+    companies: (n) => `👥 *Kompanie (${n}):*`,
+    not_found: '❌ Nie znaleziono.',
+    cancelled: '❌ Operacja anulowana.',
+    report_title: '📊 *Raport — Mrówki Coloring*\n',
+    total_deals: 'Transakcje łącznie', sales: 'Sprzedaż', execution: 'Wykonanie',
+    companies_label: 'Kompanie', contacts: 'Kontakty', revenue: 'Przychód', stock: 'Magazyn',
+    help_title: '❓ *Pomoc — Mrówki Coloring CRM*',
+    help_cmds: '/start — Uruchom bota\n/menu — Menu główne\n/zlecenia — Transakcje\n/klienci — Kompanie\n/nowe\\_zlecenie — Nowa transakcja\n/dodaj\\_klienta — Nowa kompania\n/raporty — Statystyki\n/anuluj — Anuluj operację\n/pomoc — Ta wiadomość',
+    new_deal: '📋 *Nowa transakcja*\nWybierz kompanię:',
+    new_deal_no_company: '⚠️ Najpierw dodaj kompanię przez /dodaj\\_klienta',
+    new_company: '👥 *Nowa kompania*\nPodaj nazwę firmy:',
+    select_service: 'Wybierz typ usługi:', enter_desc: 'Podaj opis transakcji:',
+    enter_address: '📍 Podaj adres realizacji (lub \\- aby pominąć):',
+    select_priority: '⚡ Wybierz priorytet:',
+    enter_amount: '💰 Podaj kwotę (lub \\- aby pominąć):',
+    summary: '📋 *Podsumowanie:*\n', confirm_q: '\nCzy potwierdzasz?',
+    deal_created: (name) => `✅ *Transakcja utworzona!*\n\n*${name}*\nStatus: 🆕 Nowy lid`,
+    company_name: 'Nazwa', company_phone: 'Podaj telefon (lub \\- aby pominąć):', company_email: 'Podaj email (lub \\- aby pominąć):',
+    company_created: (name) => `✅ *Kompania dodana!*\n\nNazwa: *${name}*`,
+    deal_detail: 'Transakcja', stage: 'Etap', company: 'Kompania', service: 'Usługa', priority: 'Priorytet',
+    desc: 'Opis', address: 'Adres', amount: 'Kwota', created: 'Utworzono',
+    stage_changed: (name, stage) => `✅ Etap *${name}* zmieniony na:\n${stage}`,
+    lang_select: '🌐 Wybierz język:', lang_set: '✅ Język ustawiony!',
+    new_deal_notify: (name, company, user) => `🆕 Nowa transakcja *${name}*\nKompania: ${company}\nUtworzył: ${user}`,
+    stage_notify: (name, stage, user) => `🔄 *${name}* — status zmieniony na ${stage} przez ${user}`,
+    select_stage: '🔄 Wybierz nowy etap:',
+  },
+  ua: {
+    welcome: (name) => `🏗️ *Mrówki Coloring CRM*\n\nВітаємо, *${name}*!\n\nЦе система управління замовленнями Mrówki Coloring.\n\nВикористовуйте кнопки нижче або /pomoc.`,
+    menu: '📋 *Головне меню*\nОберіть опцію:',
+    no_deals: '📋 Немає активних угод.', active_deals: (n) => `📋 *Активні угоди (${n}):*`,
+    wykonanie_title: '🔧 *Виконання*', sprzedaz_title: '🛒 *Продажі*',
+    my_tasks: '📝 *Мої завдання*', no_tasks: '📝 Немає відкритих завдань.',
+    task_line: (t, deal, date) => `• ${t}${deal ? `\n  _${deal}_` : ''}${date ? `\n  📅 ${date}` : ''}`,
+    no_companies: '👥 Немає компаній в базі.', companies: (n) => `👥 *Компанії (${n}):*`,
+    not_found: '❌ Не знайдено.', cancelled: '❌ Операцію скасовано.',
+    report_title: '📊 *Звіт — Mrówki Coloring*\n',
+    total_deals: 'Угод усього', sales: 'Продажі', execution: 'Виконання',
+    companies_label: 'Компанії', contacts: 'Контакти', revenue: 'Дохід', stock: 'Склад',
+    help_title: '❓ *Допомога — Mrówki Coloring CRM*',
+    help_cmds: '/start — Запуск бота\n/menu — Головне меню\n/zlecenia — Угоди\n/klienci — Компанії\n/nowe\\_zlecenie — Нова угода\n/dodaj\\_klienta — Нова компанія\n/raporty — Статистика\n/anuluj — Скасувати\n/pomoc — Ця довідка',
+    new_deal: '📋 *Нова угода*\nОберіть компанію:', new_deal_no_company: '⚠️ Спочатку додайте компанію через /dodaj\\_klienta',
+    new_company: '👥 *Нова компанія*\nВведіть назву:', select_service: 'Оберіть тип послуги:',
+    enter_desc: 'Введіть опис угоди:', enter_address: '📍 Введіть адресу (або \\- щоб пропустити):',
+    select_priority: '⚡ Оберіть пріоритет:', enter_amount: '💰 Введіть суму (або \\- щоб пропустити):',
+    summary: '📋 *Підсумок:*\n', confirm_q: '\nПідтверджуєте?',
+    deal_created: (name) => `✅ *Угоду створено!*\n\n*${name}*\nСтатус: 🆕 Новий лід`,
+    company_name: 'Назва', company_phone: 'Введіть телефон (або \\- щоб пропустити):', company_email: 'Введіть email (або \\- щоб пропустити):',
+    company_created: (name) => `✅ *Компанію додано!*\n\nНазва: *${name}*`,
+    deal_detail: 'Угода', stage: 'Етап', company: 'Компанія', service: 'Послуга', priority: 'Пріоритет',
+    desc: 'Опис', address: 'Адреса', amount: 'Сума', created: 'Створено',
+    stage_changed: (name, stage) => `✅ Етап *${name}* змінено на:\n${stage}`,
+    lang_select: '🌐 Оберіть мову:', lang_set: '✅ Мову встановлено!',
+    new_deal_notify: (name, company, user) => `🆕 Нова угода *${name}*\nКомпанія: ${company}\nСтворив: ${user}`,
+    stage_notify: (name, stage, user) => `🔄 *${name}* — етап змінено на ${stage} (${user})`,
+    select_stage: '🔄 Оберіть новий етап:',
+  },
+  ru: {
+    welcome: (name) => `🏗️ *Mrówki Coloring CRM*\n\nДобро пожаловать, *${name}*!\n\nЭто система управления заказами Mrówki Coloring.\n\nИспользуйте кнопки ниже или /pomoc.`,
+    menu: '📋 *Главное меню*\nВыберите опцию:',
+    no_deals: '📋 Нет активных сделок.', active_deals: (n) => `📋 *Активные сделки (${n}):*`,
+    wykonanie_title: '🔧 *Исполнение*', sprzedaz_title: '🛒 *Продажи*',
+    my_tasks: '📝 *Мои задачи*', no_tasks: '📝 Нет открытых задач.',
+    task_line: (t, deal, date) => `• ${t}${deal ? `\n  _${deal}_` : ''}${date ? `\n  📅 ${date}` : ''}`,
+    no_companies: '👥 Нет компаний в базе.', companies: (n) => `👥 *Компании (${n}):*`,
+    not_found: '❌ Не найдено.', cancelled: '❌ Операция отменена.',
+    report_title: '📊 *Отчёт — Mrówki Coloring*\n',
+    total_deals: 'Сделок всего', sales: 'Продажи', execution: 'Исполнение',
+    companies_label: 'Компании', contacts: 'Контакты', revenue: 'Доход', stock: 'Склад',
+    help_title: '❓ *Помощь — Mrówki Coloring CRM*',
+    help_cmds: '/start — Запуск бота\n/menu — Главное меню\n/zlecenia — Сделки\n/klienci — Компании\n/nowe\\_zlecenie — Новая сделка\n/dodaj\\_klienta — Новая компания\n/raporty — Статистика\n/anuluj — Отмена\n/pomoc — Эта справка',
+    new_deal: '📋 *Новая сделка*\nВыберите компанию:', new_deal_no_company: '⚠️ Сначала добавьте компанию через /dodaj\\_klienta',
+    new_company: '👥 *Новая компания*\nВведите название:', select_service: 'Выберите тип услуги:',
+    enter_desc: 'Введите описание сделки:', enter_address: '📍 Введите адрес (или \\- чтобы пропустить):',
+    select_priority: '⚡ Выберите приоритет:', enter_amount: '💰 Введите сумму (или \\- чтобы пропустить):',
+    summary: '📋 *Итого:*\n', confirm_q: '\nПодтверждаете?',
+    deal_created: (name) => `✅ *Сделка создана!*\n\n*${name}*\nСтатус: 🆕 Новый лид`,
+    company_name: 'Название', company_phone: 'Введите телефон (или \\- чтобы пропустить):', company_email: 'Введите email (или \\- чтобы пропустить):',
+    company_created: (name) => `✅ *Компания добавлена!*\n\nНазвание: *${name}*`,
+    deal_detail: 'Сделка', stage: 'Этап', company: 'Компания', service: 'Услуга', priority: 'Приоритет',
+    desc: 'Описание', address: 'Адрес', amount: 'Сумма', created: 'Создано',
+    stage_changed: (name, stage) => `✅ Этап *${name}* изменён на:\n${stage}`,
+    lang_select: '🌐 Выберите язык:', lang_set: '✅ Язык установлен!',
+    new_deal_notify: (name, company, user) => `🆕 Новая сделка *${name}*\nКомпания: ${company}\nСоздал: ${user}`,
+    stage_notify: (name, stage, user) => `🔄 *${name}* — этап изменён на ${stage} (${user})`,
+    select_stage: '🔄 Выберите новый этап:',
+  }
 };
+
+function txt(lang, key) { return (T[lang] || T.pl)[key] || T.pl[key] || key; }
+function svc(lang, type) { return (SERVICE_LABELS[lang] || SERVICE_LABELS.pl)[type] || type; }
 
 class BotCommands {
   constructor(bot, db) {
     this.bot = bot;
     this.db = db;
+    this.setupMenuCommands();
     this.registerCommands();
     this.registerCallbacks();
     this.registerMessages();
+    console.log('[BOT] All handlers registered');
   }
 
-  /* ===== COMMAND HANDLERS ===== */
+  getLang(chatId) {
+    const user = this.db.getUserByTelegram(chatId);
+    return user?.jezyk || 'pl';
+  }
+
+  // Edit existing message (for callback navigation) — no message trail
+  edit(chatId, msgId, text, opts = {}) {
+    return this.bot.editMessageText(text, { chat_id: chatId, message_id: msgId, parse_mode: 'Markdown', ...opts }).catch(() => {
+      // fallback: if edit fails (e.g. same content), send new
+      return this.bot.sendMessage(chatId, text, { parse_mode: 'Markdown', ...opts });
+    });
+  }
+
+  // Send new message (for slash commands)
+  send(chatId, text, opts = {}) {
+    return this.bot.sendMessage(chatId, text, { parse_mode: 'Markdown', ...opts });
+  }
+
+  // Delete a message silently
+  del(chatId, msgId) {
+    return this.bot.deleteMessage(chatId, msgId).catch(() => {});
+  }
+
+  setupMenuCommands() {
+    this.bot.setMyCommands([
+      { command: 'start', description: 'Start / Старт' },
+      { command: 'menu', description: 'Menu / Меню' },
+      { command: 'zlecenia', description: 'Deals / Сделки / Угоди' },
+      { command: 'klienci', description: 'Companies / Компании / Компанії' },
+      { command: 'nowe_zlecenie', description: 'New deal / Новая сделка' },
+      { command: 'dodaj_klienta', description: 'New company / Новая компания' },
+      { command: 'raporty', description: 'Reports / Отчёты / Звіти' },
+      { command: 'pomoc', description: 'Help / Помощь / Допомога' },
+      { command: 'anuluj', description: 'Cancel / Отмена / Скасувати' },
+    ]).catch(() => {});
+  }
+
+  /* ===== COMMAND HANDLERS (slash commands — send new message) ===== */
   registerCommands() {
     this.bot.onText(/\/start/, (msg) => this.handleStart(msg));
     this.bot.onText(/\/menu/, (msg) => this.showMainMenu(msg.chat.id));
-    this.bot.onText(/\/zlecenia/, (msg) => this.handleOrders(msg));
-    this.bot.onText(/\/klienci/, (msg) => this.handleClients(msg));
-    this.bot.onText(/\/nowe_zlecenie/, (msg) => this.startNewOrder(msg));
-    this.bot.onText(/\/dodaj_klienta/, (msg) => this.startNewClient(msg));
-    this.bot.onText(/\/status (.+)/, (msg, match) => this.handleStatusCheck(msg, match[1]));
-    this.bot.onText(/\/raporty/, (msg) => this.handleReports(msg));
-    this.bot.onText(/\/pomoc/, (msg) => this.handleHelp(msg));
-    this.bot.onText(/\/anuluj/, (msg) => this.handleCancel(msg));
+    this.bot.onText(/\/zlecenia/, (msg) => this.handleDeals(msg.chat.id));
+    this.bot.onText(/\/klienci/, (msg) => this.handleCompanies(msg.chat.id));
+    this.bot.onText(/\/nowe_zlecenie/, (msg) => this.startNewDeal(msg.chat.id, msg.from));
+    this.bot.onText(/\/dodaj_klienta/, (msg) => this.startNewCompany(msg.chat.id));
+    this.bot.onText(/\/raporty/, (msg) => this.handleReports(msg.chat.id));
+    this.bot.onText(/\/pomoc/, (msg) => this.handleHelp(msg.chat.id));
+    this.bot.onText(/\/anuluj/, (msg) => this.handleCancel(msg.chat.id));
   }
 
-  /* ===== /start ===== */
   handleStart(msg) {
     const chatId = msg.chat.id;
-    const firstName = msg.from.first_name || 'Użytkownik';
-    
-    // Register user (default role: wykonawca)
+    const firstName = msg.from.first_name || 'User';
     this.db.createUser(msg.from.id, firstName, 'wykonawca');
-    
-    const text = `
-🏗️ *Mrówki Coloring CRM*
-
-Witaj, *${firstName}*!
-
-To system zarządzania zleceniami firmy Mrówki Coloring. Możesz tutaj:
-
-• Tworzyć i zarządzać zleceniami
-• Dodawać i edytować klientów
-• Śledzić statusy prac
-• Przeglądać raporty
-
-Użyj przycisków poniżej lub wpisz /pomoc aby zobaczyć listę komend.
-    `.trim();
-
-    this.bot.sendMessage(chatId, text, { parse_mode: 'Markdown', ...KEYBOARDS.mainMenu });
+    const lang = this.getLang(chatId);
+    this.send(chatId, txt(lang, 'welcome')(firstName), KB.mainMenu(lang));
   }
 
-  /* ===== Main Menu ===== */
-  showMainMenu(chatId) {
+  // msgId = null means slash command (send new), msgId = number means callback (edit existing)
+  showMainMenu(chatId, msgId) {
     this.db.clearConversation(chatId);
-    this.bot.sendMessage(chatId, '📋 *Menu główne*\nWybierz opcję:', {
-      parse_mode: 'Markdown', ...KEYBOARDS.mainMenu
-    });
+    const lang = this.getLang(chatId);
+    if (msgId) this.edit(chatId, msgId, txt(lang, 'menu'), KB.mainMenu(lang));
+    else this.send(chatId, txt(lang, 'menu'), KB.mainMenu(lang));
   }
 
-  /* ===== /zlecenia ===== */
-  handleOrders(msg) {
-    const orders = this.db.getActiveOrders();
-    if (orders.length === 0) {
-      return this.bot.sendMessage(msg.chat.id, '📋 Brak aktywnych zleceń.', KEYBOARDS.back);
-    }
-    this.bot.sendMessage(msg.chat.id, `📋 *Aktywne zlecenia (${orders.length}):*`, {
-      parse_mode: 'Markdown',
-      ...orderSelectKeyboard(orders)
-    });
+  handleDeals(chatId, msgId) {
+    const lang = this.getLang(chatId);
+    const deals = this.db.getActiveDeals();
+    const text = deals.length ? txt(lang, 'active_deals')(deals.length) : txt(lang, 'no_deals');
+    const kb = deals.length ? KB.dealSelectKeyboard(deals, lang) : KB.back(lang);
+    if (msgId) this.edit(chatId, msgId, text, kb);
+    else this.send(chatId, text, kb);
   }
 
-  /* ===== /klienci ===== */
-  handleClients(msg) {
-    const clients = this.db.getAllClients();
-    if (clients.length === 0) {
-      return this.bot.sendMessage(msg.chat.id, '👥 Brak klientów w bazie.', KEYBOARDS.back);
-    }
+  handleWykonanie(chatId, msgId) {
+    const lang = this.getLang(chatId);
+    const deals = this.db.getActiveDeals('wykonanie');
+    const title = txt(lang, 'wykonanie_title');
+    const text = deals.length ? `${title}\n\n${txt(lang, 'active_deals')(deals.length)}` : `${title}\n\n${txt(lang, 'no_deals')}`;
+    const kb = deals.length ? KB.dealSelectKeyboard(deals, lang, 'menu_main') : KB.back(lang);
+    if (msgId) this.edit(chatId, msgId, text, kb);
+    else this.send(chatId, text, kb);
+  }
 
-    let text = `👥 *Klienci (${clients.length}):*\n\n`;
-    clients.slice(0, 15).forEach((c, i) => {
+  handleSprzedaz(chatId, msgId) {
+    const lang = this.getLang(chatId);
+    const deals = this.db.getActiveDeals('sprzedaz');
+    const title = txt(lang, 'sprzedaz_title');
+    const text = deals.length ? `${title}\n\n${txt(lang, 'active_deals')(deals.length)}` : `${title}\n\n${txt(lang, 'no_deals')}`;
+    const kb = deals.length ? KB.dealSelectKeyboard(deals, lang, 'menu_main') : KB.back(lang);
+    if (msgId) this.edit(chatId, msgId, text, kb);
+    else this.send(chatId, text, kb);
+  }
+
+  handleTasks(chatId, msgId) {
+    const lang = this.getLang(chatId);
+    const tasks = this.db.getTasksForUser(chatId);
+    if (!tasks || !tasks.length) {
+      const text = txt(lang, 'my_tasks') + '\n\n' + txt(lang, 'no_tasks');
+      if (msgId) return this.edit(chatId, msgId, text, KB.back(lang));
+      return this.send(chatId, text, KB.back(lang));
+    }
+    let text = txt(lang, 'my_tasks') + `\n\n`;
+    tasks.forEach(task => {
+      const deadline = task.termin ? task.termin.split('T')[0] : null;
+      text += txt(lang, 'task_line')(task.tresc, task.deal_nazwa, deadline) + '\n';
+    });
+    if (msgId) this.edit(chatId, msgId, text, KB.back(lang));
+    else this.send(chatId, text, KB.back(lang));
+  }
+
+  handleCompanies(chatId, msgId) {
+    const lang = this.getLang(chatId);
+    const companies = this.db.getAllCompanies();
+    if (!companies.length) {
+      const text = txt(lang, 'no_companies');
+      if (msgId) return this.edit(chatId, msgId, text, KB.back(lang));
+      return this.send(chatId, text, KB.back(lang));
+    }
+    let text = txt(lang, 'companies')(companies.length) + '\n\n';
+    companies.slice(0, 15).forEach((c, i) => {
       text += `${i + 1}. *${c.nazwa}*`;
-      if (c.typ) text += ` (${c.typ})`;
       if (c.telefon) text += `\n   📞 ${c.telefon}`;
+      if (c.email) text += `\n   📧 ${c.email}`;
       text += '\n\n';
     });
-
-    this.bot.sendMessage(msg.chat.id, text, { parse_mode: 'Markdown', ...KEYBOARDS.back });
+    if (msgId) this.edit(chatId, msgId, text, KB.back(lang));
+    else this.send(chatId, text, KB.back(lang));
   }
 
-  /* ===== /status <numer> ===== */
-  handleStatusCheck(msg, query) {
-    const order = this.db.getOrderByNumber(query.toUpperCase());
-    if (!order) {
-      return this.bot.sendMessage(msg.chat.id, `❌ Nie znaleziono zlecenia: ${query}`);
+  handleReports(chatId, msgId) {
+    const lang = this.getLang(chatId);
+    const s = this.db.getStats();
+    let text = txt(lang, 'report_title') + '\n';
+    text += `📋 ${txt(lang, 'total_deals')}: *${s.totalDeals}*\n`;
+    text += `🛒 ${txt(lang, 'sales')}: *${s.salesDeals}* (${s.salesSum.toLocaleString()} PLN)\n`;
+    text += `🔧 ${txt(lang, 'execution')}: *${s.execDeals}* (${s.execSum.toLocaleString()} PLN)\n`;
+    text += `👥 ${txt(lang, 'companies_label')}: *${s.totalCompanies}*\n`;
+    text += `📇 ${txt(lang, 'contacts')}: *${s.totalContacts}*\n`;
+    text += `💰 ${txt(lang, 'revenue')}: *${s.totalRevenue.toLocaleString()} PLN*\n`;
+    text += `📦 ${txt(lang, 'stock')}: *${s.stockItems}* (${s.stockValue.toLocaleString()} PLN)\n`;
+    if (msgId) this.edit(chatId, msgId, text, KB.back(lang));
+    else this.send(chatId, text, KB.back(lang));
+  }
+
+  handleHelp(chatId, msgId) {
+    const lang = this.getLang(chatId);
+    const text = txt(lang, 'help_title') + '\n\n' + txt(lang, 'help_cmds');
+    if (msgId) this.edit(chatId, msgId, text, KB.back(lang));
+    else this.send(chatId, text, KB.back(lang));
+  }
+
+  handleCancel(chatId, msgId) {
+    const lang = this.getLang(chatId);
+    this.db.clearConversation(chatId);
+    if (msgId) this.edit(chatId, msgId, txt(lang, 'cancelled'), KB.back(lang));
+    else this.send(chatId, txt(lang, 'cancelled'), KB.back(lang));
+  }
+
+  startNewDeal(chatId, from, msgId) {
+    const lang = this.getLang(chatId);
+    const companies = this.db.getAllCompanies();
+    if (!companies.length) {
+      if (msgId) return this.edit(chatId, msgId, txt(lang, 'new_deal_no_company'), KB.back(lang));
+      return this.send(chatId, txt(lang, 'new_deal_no_company'), KB.back(lang));
     }
-    this.sendOrderDetails(msg.chat.id, order);
+    this.db.setConversation(chatId, 'deal_select_company', { created_by: from?.first_name || 'Bot' });
+    if (msgId) this.edit(chatId, msgId, txt(lang, 'new_deal'), KB.companySelectKeyboard(companies, lang));
+    else this.send(chatId, txt(lang, 'new_deal'), KB.companySelectKeyboard(companies, lang));
   }
 
-  /* ===== /raporty ===== */
-  handleReports(msg) {
-    const stats = this.db.getStats();
-    
-    let text = `📊 *Raport — Mrówki Coloring*\n\n`;
-    text += `📋 Łączna liczba zleceń: *${stats.totalOrders}*\n`;
-    text += `🔄 Aktywne zlecenia: *${stats.activeOrders}*\n`;
-    text += `✅ Zakończone: *${stats.completedOrders}*\n`;
-    text += `👥 Klienci: *${stats.totalClients}*\n`;
-    text += `💰 Przychód (zakończone): *${stats.totalRevenue.toFixed(2)} PLN*\n\n`;
-
-    if (stats.byStatus.length > 0) {
-      text += `*Wg statusu:*\n`;
-      stats.byStatus.forEach(s => {
-        text += `  ${STATUS_LABELS[s.status] || s.status}: ${s.cnt}\n`;
-      });
-      text += '\n';
-    }
-
-    if (stats.byType.length > 0) {
-      text += `*Wg typu usługi:*\n`;
-      stats.byType.forEach(t => {
-        text += `  ${SERVICE_LABELS[t.typ_uslugi] || t.typ_uslugi}: ${t.cnt}\n`;
-      });
-    }
-
-    this.bot.sendMessage(msg.chat.id, text, { parse_mode: 'Markdown', ...KEYBOARDS.back });
+  startNewCompany(chatId, msgId) {
+    const lang = this.getLang(chatId);
+    this.db.setConversation(chatId, 'company_name', {});
+    if (msgId) this.edit(chatId, msgId, txt(lang, 'new_company'));
+    else this.send(chatId, txt(lang, 'new_company'));
   }
 
-  /* ===== /pomoc ===== */
-  handleHelp(msg) {
-    const text = `
-❓ *Pomoc — Mrówki Coloring CRM*
-
-*Komendy:*
-/start — Uruchom bota
-/menu — Menu główne
-/zlecenia — Lista aktywnych zleceń
-/klienci — Lista klientów
-/nowe\\_zlecenie — Utwórz nowe zlecenie
-/dodaj\\_klienta — Dodaj nowego klienta
-/status MC-XXXX-XXXX — Sprawdź status zlecenia
-/raporty — Podsumowanie i statystyki
-/anuluj — Anuluj bieżącą operację
-/pomoc — Ta wiadomość
-
-Możesz również używać przycisków w menu.
-    `.trim();
-
-    this.bot.sendMessage(msg.chat.id, text, { parse_mode: 'Markdown', ...KEYBOARDS.back });
-  }
-
-  /* ===== /anuluj ===== */
-  handleCancel(msg) {
-    this.db.clearConversation(msg.chat.id);
-    this.bot.sendMessage(msg.chat.id, '❌ Operacja anulowana.', KEYBOARDS.back);
-  }
-
-  /* ===== NEW ORDER FLOW ===== */
-  startNewOrder(msg) {
-    const clients = this.db.getAllClients();
-    if (clients.length === 0) {
-      return this.bot.sendMessage(msg.chat.id, 
-        '⚠️ Najpierw dodaj klienta za pomocą /dodaj\\_klienta', 
-        { parse_mode: 'Markdown', ...KEYBOARDS.back });
-    }
-
-    this.db.setConversation(msg.chat.id, 'order_select_client', {});
-    this.bot.sendMessage(msg.chat.id, '📋 *Nowe zlecenie*\nWybierz klienta:', {
-      parse_mode: 'Markdown',
-      ...clientSelectKeyboard(clients)
-    });
-  }
-
-  /* ===== NEW CLIENT FLOW ===== */
-  startNewClient(msg) {
-    this.db.setConversation(msg.chat.id, 'client_name', {});
-    this.bot.sendMessage(msg.chat.id, 
-      '👥 *Nowy klient*\nPodaj nazwę firmy/klienta:', 
-      { parse_mode: 'Markdown' });
-  }
-
-  /* ===== CALLBACK QUERY HANDLERS ===== */
+  /* ===== CALLBACKS (edit existing message — no trail) ===== */
   registerCallbacks() {
     this.bot.on('callback_query', (query) => {
       const chatId = query.message.chat.id;
+      const msgId = query.message.message_id;
       const data = query.data;
-      
-      this.bot.answerCallbackQuery(query.id);
+      this.bot.answerCallbackQuery(query.id).catch(() => {});
 
-      // Main menu navigation
-      if (data === 'menu_main') return this.showMainMenu(chatId);
-      if (data === 'menu_zlecenia') return this.handleOrders({ chat: { id: chatId } });
-      if (data === 'menu_klienci') return this.handleClients({ chat: { id: chatId } });
-      if (data === 'menu_raporty') return this.handleReports({ chat: { id: chatId } });
-      if (data === 'menu_pomoc') return this.handleHelp({ chat: { id: chatId } });
-      if (data === 'nowe_zlecenie') return this.startNewOrder({ chat: { id: chatId }, from: query.from });
-      if (data === 'nowy_klient') return this.startNewClient({ chat: { id: chatId }, from: query.from });
+      // Menu navigation — all edit the same message
+      if (data === 'menu_main') return this.showMainMenu(chatId, msgId);
+      if (data === 'menu_zlecenia') return this.handleDeals(chatId, msgId);
+      if (data === 'menu_wykonanie') return this.handleWykonanie(chatId, msgId);
+      if (data === 'menu_sprzedaz') return this.handleSprzedaz(chatId, msgId);
+      if (data === 'menu_zadania') return this.handleTasks(chatId, msgId);
+      if (data === 'menu_klienci') return this.handleCompanies(chatId, msgId);
+      if (data === 'menu_raporty') return this.handleReports(chatId, msgId);
+      if (data === 'menu_pomoc') return this.handleHelp(chatId, msgId);
+      if (data === 'nowe_zlecenie') return this.startNewDeal(chatId, query.from, msgId);
+      if (data === 'nowy_klient') return this.startNewCompany(chatId, msgId);
 
-      // Client selection for new order
-      if (data.startsWith('select_client_')) {
-        const clientId = parseInt(data.replace('select_client_', ''));
-        return this.handleClientSelected(chatId, clientId, query.from);
+      // Language
+      if (data === 'menu_lang') {
+        const lang = this.getLang(chatId);
+        return this.edit(chatId, msgId, txt(lang, 'lang_select'), KB.langSelect());
+      }
+      if (data.startsWith('setlang_')) {
+        const newLang = data.replace('setlang_', '');
+        this.db.setUserLang(chatId, newLang);
+        return this.edit(chatId, msgId, txt(newLang, 'lang_set'), KB.mainMenu(newLang));
       }
 
-      // Service type selection
-      if (data.startsWith('service_')) {
-        const serviceType = data.replace('service_', '');
-        return this.handleServiceSelected(chatId, serviceType);
+      // Company selection for new deal
+      if (data.startsWith('select_company_')) {
+        const companyId = parseInt(data.replace('select_company_', ''));
+        return this.handleCompanySelected(chatId, msgId, companyId, query.from);
       }
 
-      // Priority selection
-      if (data.startsWith('prio_')) {
-        const priority = data.replace('prio_', '');
-        return this.handlePrioritySelected(chatId, priority);
+      // Service type
+      if (data.startsWith('service_')) return this.handleServiceSelected(chatId, msgId, data.replace('service_', ''));
+
+      // Priority
+      if (data.startsWith('prio_')) return this.handlePrioritySelected(chatId, msgId, data.replace('prio_', ''));
+
+      // Deal selection
+      if (data.startsWith('select_deal_')) {
+        const dealId = parseInt(data.replace('select_deal_', ''));
+        return this.handleDealSelected(chatId, msgId, dealId);
       }
 
-      // Client type selection
-      if (data.startsWith('ctype_')) {
-        const clientType = data.replace('ctype_', '');
-        return this.handleClientTypeSelected(chatId, clientType);
+      // Stage change screen
+      if (data.startsWith('change_stage_')) {
+        const dealId = parseInt(data.replace('change_stage_', ''));
+        const deal = this.db.getDeal(dealId);
+        if (!deal) return;
+        const lang = this.getLang(chatId);
+        return this.edit(chatId, msgId, txt(lang, 'select_stage'), KB.stageChangeKeyboard(dealId, deal.voronka, lang));
       }
 
-      // Order selection
-      if (data.startsWith('select_order_')) {
-        const orderId = parseInt(data.replace('select_order_', ''));
-        return this.handleOrderSelected(chatId, orderId);
+      // Apply stage change
+      if (data.startsWith('chstage_')) {
+        const parts = data.replace('chstage_', '').split('_');
+        const dealId = parseInt(parts[0]);
+        const newStage = parts.slice(1).join('_');
+        return this.handleStageChange(chatId, msgId, dealId, newStage, query.from);
       }
 
-      // Order status change
-      if (data.startsWith('chstatus_')) {
-        const parts = data.replace('chstatus_', '').split('_');
-        const orderId = parseInt(parts[0]);
-        const newStatus = parts.slice(1).join('_');
-        return this.handleStatusChange(chatId, orderId, newStatus, query.from);
-      }
-
-      // Change status button on order details
-      if (data.startsWith('change_status_')) {
-        const orderId = parseInt(data.replace('change_status_', ''));
-        return this.bot.sendMessage(chatId, '🔄 Wybierz nowy status:', orderStatusChangeKeyboard(orderId));
-      }
-
-      // Confirm order creation
-      if (data === 'confirm_yes') return this.handleConfirmOrder(chatId, query.from);
-      if (data === 'confirm_no') return this.handleCancel({ chat: { id: chatId } });
+      // Confirm deal
+      if (data === 'confirm_yes') return this.handleConfirmDeal(chatId, msgId, query.from);
+      if (data === 'confirm_no') return this.handleCancel(chatId, msgId);
     });
   }
 
-  /* === Order creation flow callbacks === */
-  handleClientSelected(chatId, clientId, from) {
-    const client = this.db.getClient(clientId);
-    if (!client) return this.bot.sendMessage(chatId, '❌ Klient nie znaleziony.');
+  /* === Deal creation flow === */
+  handleCompanySelected(chatId, msgId, companyId, from) {
+    const lang = this.getLang(chatId);
+    const company = this.db.getCompany(companyId);
+    if (!company) return this.edit(chatId, msgId, txt(lang, 'not_found'), KB.back(lang));
 
     const conv = this.db.getConversation(chatId);
-    this.db.setConversation(chatId, 'order_select_service', {
+    this.db.setConversation(chatId, 'deal_select_service', {
       ...((conv && conv.dane) || {}),
-      klient_id: clientId,
-      klient_nazwa: client.nazwa,
+      kompania_id: companyId,
+      kompania_nazwa: company.nazwa,
       created_by: from.first_name
     });
 
-    this.bot.sendMessage(chatId, `✅ Klient: *${client.nazwa}*\nWybierz typ usługi:`, {
-      parse_mode: 'Markdown',
-      ...KEYBOARDS.serviceTypes
-    });
+    this.edit(chatId, msgId, `✅ *${company.nazwa}*\n${txt(lang, 'select_service')}`, KB.serviceTypes(lang));
   }
 
-  handleServiceSelected(chatId, serviceType) {
+  handleServiceSelected(chatId, msgId, serviceType) {
+    const lang = this.getLang(chatId);
     const conv = this.db.getConversation(chatId);
-    if (!conv || conv.stan !== 'order_select_service') return;
+    if (!conv || conv.stan !== 'deal_select_service') return;
 
-    this.db.setConversation(chatId, 'order_description', {
-      ...conv.dane,
-      typ_uslugi: serviceType
-    });
-
-    this.bot.sendMessage(chatId, 
-      `✅ Usługa: *${SERVICE_LABELS[serviceType] || serviceType}*\nPodaj opis zlecenia:`, 
-      { parse_mode: 'Markdown' });
+    this.db.setConversation(chatId, 'deal_description', { ...conv.dane, typ_uslugi: serviceType });
+    // After this, user must type text — delete bot message, send prompt
+    this.del(chatId, msgId);
+    this.send(chatId, `✅ ${svc(lang, serviceType)}\n${txt(lang, 'enter_desc')}`);
   }
 
-  handlePrioritySelected(chatId, priority) {
+  handlePrioritySelected(chatId, msgId, priority) {
+    const lang = this.getLang(chatId);
     const conv = this.db.getConversation(chatId);
-    if (!conv || conv.stan !== 'order_priority') return;
+    if (!conv || conv.stan !== 'deal_priority') return;
 
-    const data = { ...conv.dane, priorytet: priority };
-    this.db.setConversation(chatId, 'order_confirm', data);
+    const d = { ...conv.dane, priorytet: priority };
+    this.db.setConversation(chatId, 'deal_confirm', d);
 
-    // Show summary
-    let text = `📋 *Podsumowanie zlecenia:*\n\n`;
-    text += `👤 Klient: *${data.klient_nazwa}*\n`;
-    text += `🔧 Usługa: *${SERVICE_LABELS[data.typ_uslugi] || data.typ_uslugi}*\n`;
-    text += `📝 Opis: ${data.opis || '—'}\n`;
-    text += `📍 Adres: ${data.adres_realizacji || '—'}\n`;
-    text += `⚡ Priorytet: *${PRIORITY_LABELS[priority] || priority}*\n\n`;
-    text += `Czy potwierdzasz utworzenie zlecenia?`;
-
-    this.bot.sendMessage(chatId, text, { parse_mode: 'Markdown', ...KEYBOARDS.confirm });
+    let text = txt(lang, 'summary') + '\n';
+    text += `👤 ${txt(lang, 'company')}: *${d.kompania_nazwa}*\n`;
+    text += `🔧 ${txt(lang, 'service')}: *${svc(lang, d.typ_uslugi)}*\n`;
+    text += `📝 ${txt(lang, 'desc')}: ${d.opis || '—'}\n`;
+    text += `📍 ${txt(lang, 'address')}: ${d.adres_realizacji || '—'}\n`;
+    text += `💰 ${txt(lang, 'amount')}: ${d.kwota || '—'}\n`;
+    text += `⚡ ${txt(lang, 'priority')}: ${PRIORITY_ICONS[priority] || ''} ${priority}\n`;
+    text += txt(lang, 'confirm_q');
+    this.edit(chatId, msgId, text, KB.confirm(lang));
   }
 
-  handleConfirmOrder(chatId, from) {
+  handleConfirmDeal(chatId, msgId, from) {
+    const lang = this.getLang(chatId);
     const conv = this.db.getConversation(chatId);
-    if (!conv || conv.stan !== 'order_confirm') return;
+    if (!conv || conv.stan !== 'deal_confirm') return;
 
-    const data = conv.dane;
-    const result = this.db.createOrder({
-      klient_id: data.klient_id,
-      typ_uslugi: data.typ_uslugi,
-      opis: data.opis,
-      adres_realizacji: data.adres_realizacji,
-      priorytet: data.priorytet,
-      created_by: from.first_name
+    const d = conv.dane;
+    const name = `${d.kompania_nazwa} — ${svc(lang, d.typ_uslugi)}`;
+    this.db.createDeal({
+      nazwa: name, kwota: d.kwota || 0,
+      voronka: 'sprzedaz', etap: 'nowy_lid',
+      kompania_id: d.kompania_id, typ_uslugi: d.typ_uslugi,
+      opis: d.opis, adres_realizacji: d.adres_realizacji,
+      priorytet: d.priorytet, created_by: from.first_name
     });
 
     this.db.clearConversation(chatId);
-
-    this.bot.sendMessage(chatId, 
-      `✅ *Zlecenie utworzone!*\n\nNumer: *${result.numer}*\nStatus: 🆕 Nowe\n\nUżyj /status ${result.numer} aby sprawdzić szczegóły.`, 
-      { parse_mode: 'Markdown', ...KEYBOARDS.back });
-
-    // Notify all admins
-    this.notifyAdmins(chatId, `🆕 Nowe zlecenie *${result.numer}*\nKlient: ${data.klient_nazwa}\nUsługa: ${SERVICE_LABELS[data.typ_uslugi]}\nUtworzył: ${from.first_name}`);
+    this.edit(chatId, msgId, txt(lang, 'deal_created')(name), KB.back(lang));
+    this.notifyAdmins(chatId, txt(lang, 'new_deal_notify')(name, d.kompania_nazwa, from.first_name));
   }
 
-  /* === Client creation flow callbacks === */
-  handleClientTypeSelected(chatId, clientType) {
-    const conv = this.db.getConversation(chatId);
-    if (!conv || conv.stan !== 'client_type') return;
-
-    this.db.setConversation(chatId, 'client_phone', {
-      ...conv.dane,
-      typ: clientType
-    });
-
-    this.bot.sendMessage(chatId, `✅ Typ: *${clientType}*\nPodaj numer telefonu (lub wpisz \\- aby pominąć):`, {
-      parse_mode: 'Markdown'
-    });
+  /* === Deal details & stage change === */
+  handleDealSelected(chatId, msgId, dealId) {
+    const lang = this.getLang(chatId);
+    const deal = this.db.getDeal(dealId);
+    if (!deal) return this.edit(chatId, msgId, txt(lang, 'not_found'), KB.back(lang));
+    this.sendDealDetails(chatId, msgId, deal, lang);
   }
 
-  /* ===== MESSAGE HANDLERS (for multi-step flows) ===== */
+  sendDealDetails(chatId, msgId, deal, lang) {
+    const stageLabel = KB.stageLabel(lang, deal.etap);
+    let text = `📋 *${deal.nazwa}*\n\n`;
+    text += `${stageLabel}\n\n`;
+    if (deal.kompania_nazwa) text += `👤 ${txt(lang, 'company')}: *${deal.kompania_nazwa}*\n`;
+    if (deal.typ_uslugi) text += `🔧 ${txt(lang, 'service')}: ${svc(lang, deal.typ_uslugi)}\n`;
+    text += `⚡ ${txt(lang, 'priority')}: ${PRIORITY_ICONS[deal.priorytet] || ''} ${deal.priorytet || 'normalny'}\n`;
+    if (deal.opis) text += `📝 ${txt(lang, 'desc')}: ${deal.opis}\n`;
+    if (deal.adres_realizacji) text += `📍 ${txt(lang, 'address')}: ${deal.adres_realizacji}\n`;
+    if (deal.kwota) text += `💰 ${txt(lang, 'amount')}: ${deal.kwota.toLocaleString()} ${deal.waluta || 'PLN'}\n`;
+    text += `📅 ${txt(lang, 'created')}: ${deal.created_at}\n`;
+
+    const backTo = deal.voronka === 'wykonanie' ? 'menu_wykonanie' : deal.voronka === 'sprzedaz' ? 'menu_sprzedaz' : 'menu_main';
+    const keyboard = {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: KB.t(lang, 'zmien_status'), callback_data: `change_stage_${deal.id}` }],
+          [{ text: KB.t(lang, 'powrot'), callback_data: backTo }]
+        ]
+      }
+    };
+    if (msgId) this.edit(chatId, msgId, text, keyboard);
+    else this.send(chatId, text, keyboard);
+  }
+
+  handleStageChange(chatId, msgId, dealId, newStage, from) {
+    const lang = this.getLang(chatId);
+    this.db.updateDealStage(dealId, newStage, from.first_name);
+    const deal = this.db.getDeal(dealId);
+    const stageLabel = KB.stageLabel(lang, newStage);
+    this.edit(chatId, msgId, txt(lang, 'stage_changed')(deal.nazwa, stageLabel), KB.back(lang));
+    this.notifyAdmins(chatId, txt(lang, 'stage_notify')(deal.nazwa, stageLabel, from.first_name));
+  }
+
+  /* ===== MESSAGE HANDLERS (text input for forms) ===== */
   registerMessages() {
     this.bot.on('message', (msg) => {
-      if (msg.text && msg.text.startsWith('/')) return; // Skip commands
-      
+      if (msg.text && msg.text.startsWith('/')) return;
       const chatId = msg.chat.id;
       const conv = this.db.getConversation(chatId);
       if (!conv) return;
+      const lang = this.getLang(chatId);
 
       switch (conv.stan) {
-        // ORDER FLOW
-        case 'order_description':
-          this.db.setConversation(chatId, 'order_address', {
-            ...conv.dane,
-            opis: msg.text
-          });
-          this.bot.sendMessage(chatId, '📍 Podaj adres realizacji (lub wpisz - aby pominąć):');
+        case 'deal_description':
+          this.db.setConversation(chatId, 'deal_address', { ...conv.dane, opis: msg.text });
+          this.send(chatId, txt(lang, 'enter_address'));
           break;
 
-        case 'order_address':
-          this.db.setConversation(chatId, 'order_priority', {
-            ...conv.dane,
-            adres_realizacji: msg.text === '-' ? null : msg.text
+        case 'deal_address':
+          this.db.setConversation(chatId, 'deal_amount', {
+            ...conv.dane, adres_realizacji: msg.text === '-' ? null : msg.text
           });
-          this.bot.sendMessage(chatId, '⚡ Wybierz priorytet:', KEYBOARDS.priorities);
+          this.send(chatId, txt(lang, 'enter_amount'));
           break;
 
-        // CLIENT FLOW
-        case 'client_name':
-          this.db.setConversation(chatId, 'client_type', {
-            nazwa: msg.text,
-            created_by: msg.from.first_name
+        case 'deal_amount': {
+          this.db.setConversation(chatId, 'deal_priority', {
+            ...conv.dane, kwota: msg.text === '-' ? 0 : parseFloat(msg.text) || 0
           });
-          this.bot.sendMessage(chatId, `✅ Nazwa: *${msg.text}*\nWybierz typ klienta:`, {
-            parse_mode: 'Markdown',
-            ...KEYBOARDS.clientTypes
-          });
+          this.send(chatId, txt(lang, 'select_priority'), KB.priorities(lang));
+          break;
+        }
+
+        case 'company_name':
+          this.db.setConversation(chatId, 'company_phone', { nazwa: msg.text });
+          this.send(chatId, `✅ *${msg.text}*\n${txt(lang, 'company_phone')}`);
           break;
 
-        case 'client_phone':
-          this.db.setConversation(chatId, 'client_email', {
-            ...conv.dane,
-            telefon: msg.text === '-' ? null : msg.text
+        case 'company_phone':
+          this.db.setConversation(chatId, 'company_email', {
+            ...conv.dane, telefon: msg.text === '-' ? null : msg.text
           });
-          this.bot.sendMessage(chatId, '📧 Podaj email (lub wpisz - aby pominąć):');
+          this.send(chatId, txt(lang, 'company_email'));
           break;
 
-        case 'client_email': {
-          const data = {
-            ...conv.dane,
-            email: msg.text === '-' ? null : msg.text
-          };
-
-          const result = this.db.createClient(data);
+        case 'company_email': {
+          const data = { ...conv.dane, email: msg.text === '-' ? null : msg.text };
+          this.db.createCompany({ nazwa: data.nazwa, telefon: data.telefon, email: data.email });
           this.db.clearConversation(chatId);
-
-          this.bot.sendMessage(chatId, 
-            `✅ *Klient dodany!*\n\nNazwa: *${data.nazwa}*\nTyp: ${data.typ}\nTelefon: ${data.telefon || '—'}\nEmail: ${data.email || '—'}`, 
-            { parse_mode: 'Markdown', ...KEYBOARDS.back });
+          this.send(chatId, txt(lang, 'company_created')(data.nazwa), KB.back(lang));
           break;
         }
       }
     });
   }
 
-  /* ===== UTILITY ===== */
-  sendOrderDetails(chatId, order) {
-    let text = `📋 *Zlecenie ${order.numer}*\n\n`;
-    text += `${STATUS_LABELS[order.status] || order.status}\n\n`;
-    text += `👤 Klient: *${order.klient_nazwa || '—'}*\n`;
-    if (order.klient_telefon) text += `📞 Tel: ${order.klient_telefon}\n`;
-    text += `🔧 Usługa: *${SERVICE_LABELS[order.typ_uslugi] || order.typ_uslugi || '—'}*\n`;
-    text += `⚡ Priorytet: ${PRIORITY_LABELS[order.priorytet] || order.priorytet}\n`;
-    if (order.opis) text += `📝 Opis: ${order.opis}\n`;
-    if (order.adres_realizacji) text += `📍 Adres: ${order.adres_realizacji}\n`;
-    if (order.kwota) text += `💰 Kwota: ${order.kwota} ${order.waluta}\n`;
-    text += `📅 Utworzono: ${order.created_at}\n`;
-
-    // Action buttons
-    const keyboard = {
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: '🔄 Zmień status', callback_data: `change_status_${order.id}` }],
-          [{ text: '◀️ Powrót', callback_data: 'menu_zlecenia' }]
-        ]
-      }
-    };
-
-    this.bot.sendMessage(chatId, text, { parse_mode: 'Markdown', ...keyboard });
-  }
-
-  handleOrderSelected(chatId, orderId) {
-    const order = this.db.getOrder(orderId);
-    if (!order) return this.bot.sendMessage(chatId, '❌ Zlecenie nie znalezione.');
-    this.sendOrderDetails(chatId, order);
-  }
-
-  handleStatusChange(chatId, orderId, newStatus, from) {
-    const result = this.db.updateOrderStatus(orderId, newStatus, from.first_name);
-    if (!result) return this.bot.sendMessage(chatId, '❌ Nie udało się zmienić statusu.');
-
-    const order = this.db.getOrder(orderId);
-    this.bot.sendMessage(chatId, 
-      `✅ Status zlecenia *${order.numer}* zmieniony na:\n${STATUS_LABELS[newStatus]}`, 
-      { parse_mode: 'Markdown', ...KEYBOARDS.back });
-
-    this.notifyAdmins(chatId, `🔄 Zlecenie *${order.numer}* — status zmieniony na ${STATUS_LABELS[newStatus]} przez ${from.first_name}`);
-  }
-
+  /* ===== NOTIFICATIONS ===== */
   notifyAdmins(excludeChatId, text) {
     const admins = this.db.getAllUsers().filter(u => u.rola === 'admin' && String(u.telegram_id) !== String(excludeChatId));
     admins.forEach(admin => {

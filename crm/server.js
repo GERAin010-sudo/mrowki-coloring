@@ -266,6 +266,97 @@ app.put('/api/zespol/:id/kolor', (req, res) => {
   catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// --- Task Statuses ---
+app.get('/api/task-statusy', (req, res) => {
+  try { res.json(db.getTaskStatuses()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.post('/api/task-statusy', (req, res) => {
+  try { const r = db.createTaskStatus(req.body); res.status(201).json({ id: r.lastInsertRowid }); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.put('/api/task-statusy/:id', (req, res) => {
+  try { db.updateTaskStatus(req.params.id, req.body); res.json({ ok: true }); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.delete('/api/task-statusy/:id', (req, res) => {
+  try { db.deleteTaskStatus(req.params.id); res.json({ ok: true }); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// --- Task Categories ---
+app.get('/api/task-kategorie', (req, res) => {
+  try { res.json(db.getTaskCategories()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.post('/api/task-kategorie', (req, res) => {
+  try { const r = db.createTaskCategory(req.body); res.status(201).json({ id: r.lastInsertRowid }); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.put('/api/task-kategorie/:id', (req, res) => {
+  try { db.updateTaskCategory(req.params.id, req.body); res.json({ ok: true }); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.delete('/api/task-kategorie/:id', (req, res) => {
+  try { db.deleteTaskCategory(req.params.id); res.json({ ok: true }); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// --- Task Templates ---
+app.get('/api/task-szablony', (req, res) => {
+  try { res.json(db.getTaskTemplates()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.post('/api/task-szablony', (req, res) => {
+  try { const r = db.createTaskTemplate(req.body); res.status(201).json({ id: r.lastInsertRowid }); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.put('/api/task-szablony/:id', (req, res) => {
+  try { db.updateTaskTemplate(req.params.id, req.body); res.json({ ok: true }); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.delete('/api/task-szablony/:id', (req, res) => {
+  try { db.deleteTaskTemplate(req.params.id); res.json({ ok: true }); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.post('/api/task-szablony/:id/create', (req, res) => {
+  try {
+    const r = db.createTaskFromTemplate(req.params.id, req.body.transakcja_id, req.body.przypisany_id);
+    if (!r) return res.status(404).json({ error: 'Template not found' });
+    res.status(201).json({ id: r.lastInsertRowid });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// --- Task Relations ---
+app.post('/api/zadania/:id/relacje', (req, res) => {
+  try {
+    const r = db.addTaskRelation(req.params.id, req.body.powiazane_id, req.body.typ);
+    res.status(201).json({ id: r.lastInsertRowid });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.delete('/api/task-relacje/:id', (req, res) => {
+  try { db.deleteTaskRelation(req.params.id); res.json({ ok: true }); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// --- Task Assignees (multiple) ---
+app.post('/api/zadania/:id/przypisani', (req, res) => {
+  try {
+    db.addTaskAssignee(req.params.id, req.body.user_id);
+    res.status(201).json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.delete('/api/zadania/:id/przypisani/:userId', (req, res) => {
+  try { db.removeTaskAssignee(req.params.id, req.params.userId); res.json({ ok: true }); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// --- Task search (for relations) ---
+app.get('/api/zadania-search', (req, res) => {
+  try { res.json(db.searchTasks(req.query.q || '')); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 // --- Tasks ---
 app.get('/api/zadania', (req, res) => {
   try {
@@ -277,8 +368,19 @@ app.get('/api/zadania', (req, res) => {
       const filter = {};
       if (req.query.assignee) filter.assignee = req.query.assignee;
       if (req.query.status) filter.status = req.query.status;
+      if (req.query.status_id) filter.status_id = req.query.status_id;
+      if (req.query.kategoria_id) filter.kategoria_id = req.query.kategoria_id;
+      if (req.query.standalone === '1') filter.standalone = true;
       res.json(db.getAllTasks(filter));
     }
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Create standalone task (no deal required)
+app.post('/api/zadania', (req, res) => {
+  try {
+    const r = db.addStandaloneTask(req.body);
+    res.status(201).json({ id: r.lastInsertRowid });
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -619,6 +721,28 @@ app.post('/api/faktura/:id/apply', (req, res) => {
     }
     res.json({ ok: true, count: results.length });
   } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+/* =========================================
+   TASK MODULE API (/api/tm/*)
+   ========================================= */
+app.get('/api/tm/bootstrap', (req, res) => {
+  try { res.json(db.tmGetBootstrap()); }
+  catch (err) { console.error(err); res.status(500).json({ error: err.message }); }
+});
+
+app.put('/api/tm/tasks/bulk', (req, res) => {
+  try {
+    const tasks = Array.isArray(req.body) ? req.body : (req.body.tasks || []);
+    res.json(db.tmSaveTasksBulk(tasks));
+  } catch (err) { console.error(err); res.status(500).json({ error: err.message }); }
+});
+
+app.put('/api/tm/projects/bulk', (req, res) => {
+  try {
+    const projects = Array.isArray(req.body) ? req.body : (req.body.projects || []);
+    res.json(db.tmSaveProjectsBulk(projects));
+  } catch (err) { console.error(err); res.status(500).json({ error: err.message }); }
 });
 
 // --- Admin panel ---

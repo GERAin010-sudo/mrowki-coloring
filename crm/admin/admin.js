@@ -50,6 +50,12 @@ const L = {
     wykonaj:'Wykonaj', start:'Start', stop:'Stop', priorytet_label:'Priorytet', tagi_label:'Tagi',
     projekt:'Projekt', czas_szac:'Szacowany czas', czas_sped:'Spędzony czas', historia_zadania:'Historia',
     p_niski:'Niski', p_normalny:'Normalny', p_wysoki:'Wysoki', p_pilny:'Pilny', godzin:'godz.',
+    nowe_zadanie:'Nowe zadanie', status_zadania:'Status', kategoria_zadania:'Kategoria', szablon:'Szablon',
+    z_szablonu:'Z szablonu', bez_projektu:'Bez projektu', relacje:'Powiązania', przypisani:'Przypisani',
+    blokuje:'Blokuje', zablokowane:'Zablokowane przez', powiazane:'Powiązane', duplikat:'Duplikat',
+    dodaj_relacje:'Dodaj powiązanie', szukaj_zadania:'Szukaj zadania...', szablony:'Szablony',
+    nowy_szablon:'Nowy szablon', edytuj_szablon:'Edytuj szablon', utworz_z_szablonu:'Utwórz z szablonu',
+    statusy:'Statusy', kategorie:'Kategorie', ustawienia_zadan:'Ustawienia zadań',
     przedplata:'Przedpłata', przedplata_wymagana:'Czy wymagana przedpłata?', przedplata_kwota:'Kwota przedpłaty',
     przedplata_fv:'FV przedpłaty wystawiona', przedplata_oplacona:'Przedpłata opłacona',
     tak:'Tak', nie:'Nie', oczekuje:'Oczekuje', oplacono:'Opłacono', nie_wystawiono:'Nie wystawiono',
@@ -68,7 +74,7 @@ const L = {
     zaloguj_sie:'Zaloguj się', wybierz_uzytkownika:'Wybierz użytkownika', wyloguj:'Wyloguj',
     rola:'Rola', rola_admin:'Admin', rola_wlasciciel:'Właściciel', rola_wykonawca:'Wykonawca',
     zmien_role:'Zmień rolę', brak_uzytkownikow:'Brak użytkowników — wyślij /start w bocie',
-    widok_lista:'Lista', widok_kalendarz:'Kalendarz', widok_tydzien:'Tydzień',
+    widok_lista:'Lista', widok_kalendarz:'Kalendarz', widok_tydzien:'Tydzień', kanban:'Kanban', moje_zadania:'Moje zadania', bez_statusu:'Bez statusu', section_zadania:'ZADANIA',
     pn:'Pn', wt:'Wt', sr:'Śr', cz:'Cz', pt:'Pt', sb:'Sb', nd:'Nd',
     bez_terminu:'Bez terminu',
   },
@@ -99,6 +105,12 @@ const L = {
     wykonaj:'Виконати', start:'Старт', stop:'Стоп', priorytet_label:'Пріоритет', tagi_label:'Теги',
     projekt:'Проєкт', czas_szac:'Оцінка часу', czas_sped:'Витрачений час', historia_zadania:'Історія',
     p_niski:'Низький', p_normalny:'Звичайний', p_wysoki:'Високий', p_pilny:'Терміновий', godzin:'год.',
+    nowe_zadanie:'Нове завдання', status_zadania:'Статус', kategoria_zadania:'Категорія', szablon:'Шаблон',
+    z_szablonu:'З шаблону', bez_projektu:'Без проєкту', relacje:'Зв\'язки', przypisani:'Призначені',
+    blokuje:'Блокує', zablokowane:'Заблоковано', powiazane:'Пов\'язане', duplikat:'Дублікат',
+    dodaj_relacje:'Додати зв\'язок', szukaj_zadania:'Шукати завдання...', szablony:'Шаблони',
+    nowy_szablon:'Новий шаблон', edytuj_szablon:'Редагувати шаблон', utworz_z_szablonu:'Створити з шаблону',
+    statusy:'Статуси', kategorie:'Категорії', ustawienia_zadan:'Налаштування завдань',
     przedplata:'Передоплата', przedplata_wymagana:'Чи потрібна передоплата?', przedplata_kwota:'Сума передоплати',
     przedplata_fv:'FV передоплати виставлено', przedplata_oplacona:'Передоплату сплачено',
     tak:'Так', nie:'Ні', oczekuje:'Очікує', oplacono:'Сплачено', nie_wystawiono:'Не виставлено',
@@ -117,7 +129,7 @@ const L = {
     zaloguj_sie:'Увійти', wybierz_uzytkownika:'Оберіть користувача', wyloguj:'Вийти',
     rola:'Роль', rola_admin:'Адмін', rola_wlasciciel:'Власник', rola_wykonawca:'Виконавець',
     zmien_role:'Змінити роль', brak_uzytkownikow:'Немає користувачів — надішліть /start у боті',
-    widok_lista:'Список', widok_kalendarz:'Календар', widok_tydzien:'Тиждень',
+    widok_lista:'Список', widok_kalendarz:'Календар', widok_tydzien:'Тиждень', kanban:'Канбан', moje_zadania:'Мої задачі', bez_statusu:'Без статусу', section_zadania:'ЗАДАЧІ',
     pn:'Пн', wt:'Вт', sr:'Ср', cz:'Чт', pt:'Пт', sb:'Сб', nd:'Нд',
     bez_terminu:'Без терміну',
   },
@@ -148,6 +160,12 @@ const L = {
     wykonaj:'Выполнить', start:'Старт', stop:'Стоп', priorytet_label:'Приоритет', tagi_label:'Теги',
     projekt:'Проект', czas_szac:'Оценка времени', czas_sped:'Потрачено', historia_zadania:'История',
     p_niski:'Низкий', p_normalny:'Обычный', p_wysoki:'Высокий', p_pilny:'Срочный', godzin:'ч.',
+    nowe_zadanie:'Новое задание', status_zadania:'Статус', kategoria_zadania:'Категория', szablon:'Шаблон',
+    z_szablonu:'Из шаблона', bez_projektu:'Без проекта', relacje:'Связи', przypisani:'Назначены',
+    blokuje:'Блокирует', zablokowane:'Заблокировано', powiazane:'Связано', duplikat:'Дубликат',
+    dodaj_relacje:'Добавить связь', szukaj_zadania:'Искать задание...', szablony:'Шаблоны',
+    nowy_szablon:'Новый шаблон', edytuj_szablon:'Редактировать шаблон', utworz_z_szablonu:'Создать из шаблона',
+    statusy:'Статусы', kategorie:'Категории', ustawienia_zadan:'Настройки заданий',
     przedplata:'Предоплата', przedplata_wymagana:'Нужна предоплата?', przedplata_kwota:'Сумма предоплаты',
     przedplata_fv:'Счёт на предоплату выставлен', przedplata_oplacona:'Предоплата оплачена',
     tak:'Да', nie:'Нет', oczekuje:'Ожидает', oplacono:'Оплачено', nie_wystawiono:'Не выставлено',
@@ -166,7 +184,7 @@ const L = {
     zaloguj_sie:'Войти', wybierz_uzytkownika:'Выберите пользователя', wyloguj:'Выйти',
     rola:'Роль', rola_admin:'Админ', rola_wlasciciel:'Учредитель', rola_wykonawca:'Исполнитель',
     zmien_role:'Изменить роль', brak_uzytkownikow:'Нет пользователей — отправьте /start в боте',
-    widok_lista:'Список', widok_kalendarz:'Календарь', widok_tydzien:'Неделя',
+    widok_lista:'Список', widok_kalendarz:'Календарь', widok_tydzien:'Неделя', kanban:'Канбан', moje_zadania:'Мои задачи', bez_statusu:'Без статуса', section_zadania:'ЗАДАЧИ',
     pn:'Пн', wt:'Вт', sr:'Ср', cz:'Чт', pt:'Пт', sb:'Сб', nd:'Нд',
     bez_terminu:'Без срока',
   }
@@ -298,12 +316,12 @@ function applyLang(lang) {
   localStorage.setItem('crm_lang', lang);
   // Update sidebar nav items
   document.querySelectorAll('.nav-item[data-view]').forEach(el => {
-    const key = {dashboard:'dashboard',funnel_sprzedaz:'sprzedaz',funnel_wykonanie:'wykonanie',zadania:'zadania_all',kontakty:'kontakty',kompanie:'kompanie',magazyn:'magazyn',realizacje:'realizacje'}[el.dataset.view];
+    const key = {dashboard:'dashboard',funnel_sprzedaz:'sprzedaz',funnel_wykonanie:'wykonanie',zadania:'zadania_all',zadania_kanban:'kanban',zadania_tydzien:'widok_tydzien',zadania_moje:'moje_zadania',kontakty:'kontakty',kompanie:'kompanie',magazyn:'magazyn',realizacje:'realizacje'}[el.dataset.view];
     if (key) { const txt = el.childNodes; txt[txt.length - 1].textContent = ' ' + t(key); }
   });
   // Update sidebar section labels
   const sectionLabels = document.querySelectorAll('.nav-section-label');
-  const sectionKeys = ['section_crm', 'section_baza', 'section_zasoby'];
+  const sectionKeys = ['section_crm', 'section_zadania', 'section_baza', 'section_zasoby'];
   sectionLabels.forEach((el, i) => { if (sectionKeys[i]) el.textContent = t(sectionKeys[i]); });
   // Update add button text
   const btnAdd = document.getElementById('btn-add');
@@ -508,7 +526,19 @@ function loadView(view) {
       break;
     case 'zadania':
       title.textContent = t('zadania_all');
-      loadTasksView();
+      loadTaskModule('#tasks');
+      break;
+    case 'zadania_kanban':
+      title.textContent = 'Kanban';
+      loadTaskModule('#kanban');
+      break;
+    case 'zadania_tydzien':
+      title.textContent = t('widok_tydzien');
+      loadTaskModule('#week');
+      break;
+    case 'zadania_moje':
+      title.textContent = t('moje_zadania') || 'Moje zadania';
+      loadTaskModule('#my-tasks');
       break;
     case 'kontakty':
       title.textContent = t('kontakty');
@@ -1558,190 +1588,247 @@ async function showStockDetail(id) {
   `, 'modal-wide');
 }
 
-/* ===== TASK DETAIL MODAL ===== */
+/* ===== TASK DETAIL MODAL (2-column layout like Dashboard_CRM) ===== */
 async function showTaskDetail(taskId) {
   const task = await fetch(`${API}/api/zadania/${taskId}`).then(r => r.json());
   if (!task) return;
   const team = await getTeam();
-  const assigneeOpts = `<option value="">${t('brak')}</option>` + team.map(m => `<option value="${m.id}" ${m.id==task.przypisany_id?'selected':''}>${m.imie}</option>`).join('');
+  const statuses = await getTaskStatuses();
+  const categories = await getTaskCategories();
   const subDone = task.podzadania?.filter(p => p.wykonane).length || 0;
   const subTotal = task.podzadania?.length || 0;
   const isImg = (f) => /\.(jpg|jpeg|png|webp|gif)$/i.test(f);
   const timerRunning = !!task.timer_start;
   const timeSpent = task.czas_spedzony || 0;
   const priorityIcons = { niski:'⚪', normalny:'🟢', wysoki:'🟡', pilny:'🔴' };
+  const priLabels = { niski:t('p_niski'), normalny:t('p_normalny'), wysoki:t('p_wysoki'), pilny:t('p_pilny') };
+  const priColors = { niski:'#9e9e9e', normalny:'#4caf50', wysoki:'#ff9800', pilny:'#e53935' };
+  const currentStatus = statuses.find(s => s.id == task.status_id) || statuses[0];
+  const currentCategory = categories.find(c => c.id == task.kategoria_id);
+  const assignees = task.przypisani || [];
+  const relations = task.relacje || [];
+  const pColor = priColors[task.priorytet] || priColors.normalny;
 
   document.getElementById('modal').classList.add('modal-wide');
   openModal(`#${task.id} ${task.tresc}`, `
-    <div class="task-detail">
-      <!-- Action bar -->
-      <div class="td-actions">
-        <button type="button" class="td-btn-complete ${task.wykonane?'done':''}" onclick="toggleTaskAndReload(${taskId})">
-          ○ ${task.wykonane ? '✅ ' + t('zakonczone') : t('wykonaj')}
-        </button>
-        <button type="button" class="td-btn-timer ${timerRunning?'running':''}" onclick="${timerRunning ? `stopTimer(${taskId})` : `startTimer(${taskId})`}">
-          ▶ ${timerRunning ? t('stop') : t('start')}
-        </button>
-        ${timeSpent > 0 ? `<span style="font-size:11px;color:var(--text-muted)">${timeSpent.toFixed(1)} ${t('godzin')}</span>` : ''}
-        <span class="td-meta">${new Date(task.created_at).toLocaleString()}</span>
-      </div>
-
-      <!-- Quick bar -->
-      <div class="td-quickbar">
-        <span onclick="document.getElementById('td-new-subtask')?.focus()">+ ${t('podzadania')}</span>
-        <span onclick="document.getElementById('td-file-input')?.click()">+ ${t('pliki_zadania')}</span>
-        <span onclick="document.getElementById('td-address')?.focus()">📍 ${t('lokalizacja')}</span>
-        <span onclick="document.getElementById('td-comment-input')?.focus()">💬 ${task.komentarze?.length||0}</span>
-      </div>
-
-      <!-- Properties -->
-      <div class="td-props">
-        <div class="td-prop">
-          <span class="td-prop-icon">👤</span>
-          <span class="td-prop-label">${t('przypisany')}</span>
-          <div class="td-prop-value"><select id="td-assignee" onchange="saveTaskDetail(${taskId})">${assigneeOpts}</select></div>
-        </div>
-        <div class="td-prop">
-          <span class="td-prop-icon">📋</span>
-          <span class="td-prop-label">${t('projekt')}</span>
-          <div class="td-prop-value"><span class="task-deal-link" onclick="closeModal();setTimeout(()=>showDealDetail(${task.deal_id}),200)">${task.deal_nazwa}</span></div>
-        </div>
-        <div class="td-prop">
-          <span class="td-prop-icon">📅</span>
-          <span class="td-prop-label">${t('termin')}</span>
-          <div class="td-prop-value"><input type="date" id="td-deadline" value="${task.termin||''}" onchange="saveTaskDetail(${taskId})"></div>
-        </div>
-        <div class="td-prop">
-          <span class="td-prop-icon">⏱</span>
-          <span class="td-prop-label">${t('czas_szac')}</span>
-          <div class="td-prop-value"><input type="number" id="td-time-est" step="0.5" placeholder="0" value="${task.czas_szacowany||''}" onchange="saveTaskDetail(${taskId})" style="max-width:80px"> <small style="color:var(--text-muted)">${t('godzin')}</small></div>
-        </div>
-        <div class="td-prop">
-          <span class="td-prop-icon">${priorityIcons[task.priorytet]||'🟢'}</span>
-          <span class="td-prop-label">${t('priorytet_label')}</span>
-          <div class="td-prop-value"><select id="td-priority" onchange="saveTaskDetail(${taskId})">
-            <option value="niski" ${task.priorytet==='niski'?'selected':''}>⚪ ${t('p_niski')}</option>
-            <option value="normalny" ${task.priorytet==='normalny'||!task.priorytet?'selected':''}>🟢 ${t('p_normalny')}</option>
-            <option value="wysoki" ${task.priorytet==='wysoki'?'selected':''}>🟡 ${t('p_wysoki')}</option>
-            <option value="pilny" ${task.priorytet==='pilny'?'selected':''}>🔴 ${t('p_pilny')}</option>
-          </select></div>
-        </div>
-        <div class="td-prop">
-          <span class="td-prop-icon">🏷</span>
-          <span class="td-prop-label">${t('tagi_label')}</span>
-          <div class="td-prop-value"><input type="text" id="td-tags" value="${task.tagi||''}" placeholder="tag1, tag2..." onblur="saveTaskDetail(${taskId})"></div>
-        </div>
-      </div>
-
-      <!-- Description -->
-      <div class="td-desc">
-        <textarea class="task-desc-textarea" id="td-desc" placeholder="${t('opis_zadania')}..." onblur="saveTaskDetail(${taskId})">${task.opis||''}</textarea>
-      </div>
-
-      <!-- Subtasks -->
-      <div class="td-section">
-        <div class="td-section-header" onclick="this.classList.toggle('collapsed')">
-          <span class="td-chevron">▼</span>
-          <span class="td-section-title">${t('podzadania')}</span>
-          <span class="td-section-count">${subTotal ? subDone+'/'+subTotal : '0/0'}</span>
-        </div>
-        <div class="td-section-body">
-          ${(task.podzadania||[]).map(p => `
-            <div class="task-list-item ${p.wykonane ? 'done' : ''}" style="padding:5px 0">
-              <input type="checkbox" ${p.wykonane ? 'checked' : ''} onchange="toggleSubtask(${p.id},${taskId})">
-              <span class="task-text">${p.tresc}</span>
-              <button type="button" class="task-del" onclick="deleteSubtask(${p.id},${taskId})">×</button>
-            </div>
+    <div class="td2">
+      <!-- Header: badges row -->
+      <div class="td2-header">
+        <div class="td2-badges">
+          ${statuses.map(s => `
+            <span class="task-badge ${s.id == task.status_id ? 'active' : ''}" style="--badge-color:${s.kolor}" onclick="updateTaskStatus(${taskId},${s.id})">${s.ikona||''} ${s.nazwa}</span>
           `).join('')}
-          <div class="task-add-row" style="margin-top:4px">
-            <input type="text" id="td-new-subtask" placeholder="${t('nowe_podzadanie')}" class="form-input" onkeydown="if(event.key==='Enter'){event.preventDefault();addSubtask(${taskId})}">
-            <button type="button" class="btn-sm" onclick="addSubtask(${taskId})">+</button>
-          </div>
+          <span class="task-badge" style="--badge-color:${pColor}">${priorityIcons[task.priorytet]||'🟢'} ${priLabels[task.priorytet]||priLabels.normalny}</span>
+          ${currentCategory ? `<span class="task-badge" style="--badge-color:${currentCategory.kolor}">${currentCategory.ikona||''} ${currentCategory.nazwa}</span>` : ''}
+        </div>
+        <div class="td2-header-actions">
+          <button type="button" class="td-btn-complete ${task.wykonane?'done':''}" onclick="toggleTaskAndReload(${taskId})">
+            ${task.wykonane ? '✅' : '○'} ${task.wykonane ? t('zakonczone') : t('wykonaj')}
+          </button>
+          <button type="button" class="td-btn-timer ${timerRunning?'running':''}" onclick="${timerRunning ? `stopTimer(${taskId})` : `startTimer(${taskId})`}">
+            ${timerRunning ? '⏸' : '▶'} ${timerRunning ? t('stop') : t('start')}
+          </button>
         </div>
       </div>
 
-      <!-- Files -->
-      <div class="td-section">
-        <div class="td-section-header" onclick="this.classList.toggle('collapsed')">
-          <span class="td-chevron">▼</span>
-          <span class="td-section-title">${t('pliki_zadania')}</span>
-          <span class="td-section-count">${task.pliki?.length||0}</span>
-          <div class="td-section-actions">
-            <input type="file" id="td-file-input" style="display:none" multiple onchange="uploadTaskFiles(${taskId})">
-            <button type="button" class="btn-sm" onclick="event.stopPropagation();document.getElementById('td-file-input').click()">📎 ${t('dodaj_plik')}</button>
+      <!-- 2-column grid -->
+      <div class="td2-grid">
+        <!-- LEFT: main content -->
+        <div class="td2-main">
+
+          <!-- Description -->
+          <div class="td2-card">
+            <h4 class="td2-card-title">${t('opis_zadania')}</h4>
+            <textarea class="td2-textarea" id="td-desc" placeholder="${t('opis_zadania')}..." onblur="saveTaskDetail(${taskId})">${task.opis||''}</textarea>
           </div>
-        </div>
-        <div class="td-section-body">
-          <div class="task-files-grid">
-            ${(task.pliki||[]).map(f => isImg(f.plik) ? `
-              <div class="task-file-thumb">
-                <img src="/uploads/${f.plik}" alt="${f.nazwa}" onclick="window.open('/uploads/${f.plik}','_blank')">
-                <span class="task-file-name">${f.nazwa||f.plik}</span>
-                <button type="button" class="task-file-del" onclick="deleteTaskFile(${f.id},${taskId})">×</button>
+
+          <!-- Subtasks -->
+          <div class="td2-card">
+            <h4 class="td2-card-title">${t('podzadania')} <span class="td2-count">${subDone}/${subTotal}</span></h4>
+            ${subTotal > 0 ? `<div class="td2-progress"><div class="td2-progress-bar" style="width:${subTotal?Math.round(subDone/subTotal*100):0}%"></div></div>` : ''}
+            <div class="td2-subtasks">
+              ${(task.podzadania||[]).map(p => `
+                <div class="td2-subtask ${p.wykonane ? 'done' : ''}">
+                  <input type="checkbox" ${p.wykonane ? 'checked' : ''} onchange="toggleSubtask(${p.id},${taskId})">
+                  <span class="${p.wykonane ? 'td2-done-text' : ''}">${p.tresc}</span>
+                  <button type="button" class="td2-del" onclick="deleteSubtask(${p.id},${taskId})">×</button>
+                </div>
+              `).join('')}
+              <div class="td2-add-row">
+                <input type="text" id="td-new-subtask" placeholder="${t('nowe_podzadanie')}" class="td2-input" onkeydown="if(event.key==='Enter'){event.preventDefault();addSubtask(${taskId})}">
+                <button type="button" class="td2-add-btn" onclick="addSubtask(${taskId})">+</button>
               </div>
-            ` : `
-              <div class="task-file-doc">
-                <a href="/uploads/${f.plik}" target="_blank">📄 ${f.nazwa||f.plik}</a>
-                <button type="button" class="task-del" onclick="deleteTaskFile(${f.id},${taskId})">×</button>
+            </div>
+          </div>
+
+          <!-- Relations -->
+          ${relations.length > 0 || true ? `
+          <div class="td2-card">
+            <h4 class="td2-card-title">${t('relacje')}</h4>
+            ${relations.map(r => `
+              <div class="td2-relation">
+                <span class="td2-rel-type td-relation-${r.typ}">${t(r.typ) || r.typ}</span>
+                <span class="td2-rel-link" onclick="closeModal();setTimeout(()=>showTaskDetail(${r.related_id}),200)">#${r.related_id} ${r.related_tresc||''}</span>
+                <button type="button" class="td2-del" onclick="deleteRelation(${r.id},${taskId})">×</button>
               </div>
             `).join('')}
-          </div>
-        </div>
-      </div>
-
-      <!-- Geo -->
-      <div class="td-section">
-        <div class="td-section-header" onclick="this.classList.toggle('collapsed')">
-          <span class="td-chevron">▼</span>
-          <span class="td-section-title">📍 ${t('lokalizacja')}</span>
-        </div>
-        <div class="td-section-body">
-          <div class="map-picker-wrap">
-            <input class="form-input" id="td-address" value="${task.adres||''}" placeholder="ul. ..." autocomplete="off" onblur="saveTaskDetail(${taskId})">
-            <div class="map-container" id="td-map"></div>
-            <input type="hidden" id="td-lat" value="${task.lat||''}"><input type="hidden" id="td-lng" value="${task.lng||''}">
-          </div>
-          ${task.lat && task.lng ? `<a class="map-link" href="https://www.google.com/maps/search/?api=1&query=${task.lat},${task.lng}" target="_blank">📍 ${t('pokaz_na_mapie')}</a>` : ''}
-        </div>
-      </div>
-
-      <!-- History -->
-      ${task.historia?.length ? `
-      <div class="td-section">
-        <div class="td-section-header collapsed" onclick="this.classList.toggle('collapsed')">
-          <span class="td-chevron">▼</span>
-          <span class="td-section-title">${t('historia_zadania')}</span>
-        </div>
-        <div class="td-section-body">
-          ${task.historia.map(h => `<div style="padding:3px 0;font-size:11px;color:var(--text-muted)">${h.opis} <span>(${new Date(h.created_at).toLocaleString()})</span></div>`).join('')}
-        </div>
-      </div>` : ''}
-
-      <!-- Comments -->
-      <div class="td-section">
-        <div class="td-section-header" onclick="this.classList.toggle('collapsed')">
-          <span class="td-chevron">▼</span>
-          <span class="td-section-title">💬 ${t('komentarze')}</span>
-          <span class="td-section-count">${task.komentarze?.length||0}</span>
-        </div>
-        <div class="td-section-body">
-          ${(task.komentarze||[]).map(c => `
-            <div class="task-comment">
-              <div class="task-comment-avatar" style="background:${c.autor_kolor||'#999'}">${(c.autor_imie||'?')[0]}</div>
-              <div class="task-comment-body">
-                <div class="task-comment-meta">${c.autor_imie||'—'} · ${new Date(c.created_at).toLocaleString()}</div>
-                <div class="task-comment-text">${c.tresc}</div>
+            <div class="td2-add-relation">
+              <select id="td-rel-type" class="td2-select-sm">
+                <option value="blokuje">${t('blokuje')}</option>
+                <option value="zablokowane">${t('zablokowane')}</option>
+                <option value="powiazane">${t('powiazane')}</option>
+                <option value="duplikat">${t('duplikat')}</option>
+              </select>
+              <div class="td-rel-search-wrap" style="flex:1">
+                <input type="text" class="td2-input" id="td-rel-search" placeholder="${t('szukaj_zadania')}" oninput="searchRelationTasks(this.value,${taskId})">
+                <div class="td-rel-dropdown" id="td-rel-dropdown"></div>
               </div>
             </div>
-          `).join('')}
-        </div>
-      </div>
+          </div>` : ''}
 
-      <!-- Sticky comment + actions -->
-      <div class="td-comment-bar">
-        <input type="text" id="td-comment-input" class="form-input" placeholder="${t('dodaj_komentarz')}" onkeydown="if(event.key==='Enter'){event.preventDefault();addTaskComment(${taskId})}">
-        <button type="button" class="btn-sm" onclick="addTaskComment(${taskId})">→</button>
-        <button type="button" class="btn-sm btn-danger" onclick="deleteTaskFromDetail(${taskId})">🗑️</button>
+          <!-- Files -->
+          <div class="td2-card">
+            <div class="td2-card-header">
+              <h4 class="td2-card-title">${t('pliki_zadania')} <span class="td2-count">${task.pliki?.length||0}</span></h4>
+              <input type="file" id="td-file-input" style="display:none" multiple onchange="uploadTaskFiles(${taskId})">
+              <button type="button" class="td2-add-btn" onclick="document.getElementById('td-file-input').click()">📎 ${t('dodaj_plik')}</button>
+            </div>
+            <div class="task-files-grid">
+              ${(task.pliki||[]).map(f => isImg(f.plik) ? `
+                <div class="task-file-thumb">
+                  <img src="/uploads/${f.plik}" alt="${f.nazwa}" onclick="window.open('/uploads/${f.plik}','_blank')">
+                  <span class="task-file-name">${f.nazwa||f.plik}</span>
+                  <button type="button" class="task-file-del" onclick="deleteTaskFile(${f.id},${taskId})">×</button>
+                </div>
+              ` : `
+                <div class="task-file-doc">
+                  <a href="/uploads/${f.plik}" target="_blank">📄 ${f.nazwa||f.plik}</a>
+                  <button type="button" class="td2-del" onclick="deleteTaskFile(${f.id},${taskId})">×</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- History -->
+          ${task.historia?.length ? `
+          <div class="td2-card">
+            <h4 class="td2-card-title">${t('historia_zadania')}</h4>
+            <div class="td2-history">
+              ${task.historia.map(h => `
+                <div class="td2-history-item">
+                  <span class="td2-history-meta">${h.uzytkownik_imie||'System'} · ${new Date(h.created_at).toLocaleString()}</span>
+                  <span class="td2-history-text">${h.opis}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>` : ''}
+
+          <!-- Comments -->
+          <div class="td2-card">
+            <h4 class="td2-card-title">💬 ${t('komentarze')} <span class="td2-count">${task.komentarze?.length||0}</span></h4>
+            ${(task.komentarze||[]).map(c => `
+              <div class="td2-comment">
+                <div class="td2-comment-avatar" style="background:${c.autor_kolor||'#999'}">${(c.autor_imie||'?')[0]}</div>
+                <div class="td2-comment-body">
+                  <span class="td2-comment-meta">${c.autor_imie||'—'} · ${new Date(c.created_at).toLocaleString()}</span>
+                  <p class="td2-comment-text">${c.tresc}</p>
+                </div>
+              </div>
+            `).join('')}
+            <div class="td2-comment-form">
+              <input type="text" id="td-comment-input" class="td2-input" placeholder="${t('dodaj_komentarz')}" onkeydown="if(event.key==='Enter'){event.preventDefault();addTaskComment(${taskId})}">
+              <button type="button" class="td2-add-btn" onclick="addTaskComment(${taskId})">→</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: sidebar -->
+        <div class="td2-sidebar">
+
+          <!-- Details card -->
+          <div class="td2-card">
+            <h4 class="td2-card-title">${t('opis')}</h4>
+            <dl class="td2-details">
+              <div class="td2-detail-row">
+                <dt>${t('projekt')}</dt>
+                <dd>${task.deal_id ? `<span class="td2-link" onclick="closeModal();setTimeout(()=>showDealDetail(${task.deal_id}),200)">${task.deal_nazwa}</span>` : '—'}</dd>
+              </div>
+              <div class="td2-detail-row">
+                <dt>${t('kategoria_zadania')}</dt>
+                <dd><select id="td-category" class="td2-select-sm" onchange="saveTaskDetail(${taskId})">
+                  <option value="">—</option>
+                  ${categories.map(c => `<option value="${c.id}" ${c.id==task.kategoria_id?'selected':''}>${c.ikona||''} ${c.nazwa}</option>`).join('')}
+                </select></dd>
+              </div>
+              <div class="td2-detail-row">
+                <dt>${t('priorytet_label')}</dt>
+                <dd><select id="td-priority" class="td2-select-sm" onchange="saveTaskDetail(${taskId})">
+                  <option value="niski" ${task.priorytet==='niski'?'selected':''}>⚪ ${t('p_niski')}</option>
+                  <option value="normalny" ${task.priorytet==='normalny'||!task.priorytet?'selected':''}>🟢 ${t('p_normalny')}</option>
+                  <option value="wysoki" ${task.priorytet==='wysoki'?'selected':''}>🟡 ${t('p_wysoki')}</option>
+                  <option value="pilny" ${task.priorytet==='pilny'?'selected':''}>🔴 ${t('p_pilny')}</option>
+                </select></dd>
+              </div>
+              <div class="td2-detail-row">
+                <dt>${t('termin')}</dt>
+                <dd><input type="date" id="td-deadline" value="${task.termin||''}" class="td2-select-sm" onchange="saveTaskDetail(${taskId})"></dd>
+              </div>
+              <div class="td2-detail-row">
+                <dt>${t('czas_szac')}</dt>
+                <dd><input type="number" id="td-time-est" step="0.5" value="${task.czas_szacowany||''}" class="td2-select-sm" style="width:60px" onchange="saveTaskDetail(${taskId})"> <small>${t('godzin')}</small></dd>
+              </div>
+              <div class="td2-detail-row">
+                <dt>${t('data')}</dt>
+                <dd>${new Date(task.created_at).toLocaleDateString()}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Assignees card -->
+          <div class="td2-card">
+            <h4 class="td2-card-title">${t('przypisani')}</h4>
+            ${assignees.length ? `
+              <div class="td2-assignee-list">
+                ${assignees.map(a => `
+                  <div class="td2-assignee-row">
+                    <span class="td2-avatar" style="background:${a.kolor||'#4A8EFF'}">${(a.imie||'?')[0]}</span>
+                    <span class="td2-assignee-name">${a.imie}</span>
+                    <button type="button" class="td2-del" onclick="removeAssignee(${taskId},${a.user_id})">×</button>
+                  </div>
+                `).join('')}
+              </div>
+            ` : `<p class="td2-empty">${t('brak')}</p>`}
+            <select class="td2-select-sm td2-add-select" onchange="if(this.value){addAssignee(${taskId},this.value)}">
+              <option value="">+ ${t('dodaj')}</option>
+              ${team.filter(m => !assignees.some(a => a.user_id == m.id)).map(m => `<option value="${m.id}">${m.imie}</option>`).join('')}
+            </select>
+          </div>
+
+          <!-- Tags card -->
+          <div class="td2-card">
+            <h4 class="td2-card-title">${t('tagi_label')}</h4>
+            <input type="text" id="td-tags" value="${task.tagi||''}" placeholder="tag1, tag2..." class="td2-input" onblur="saveTaskDetail(${taskId})">
+            ${task.tagi ? `<div class="td2-tags">${task.tagi.split(',').map(tg => tg.trim()).filter(Boolean).map(tg => `<span class="td2-tag">${tg}</span>`).join('')}</div>` : ''}
+          </div>
+
+          <!-- Time tracking card -->
+          <div class="td2-card">
+            <h4 class="td2-card-title">${t('czas_sped')}</h4>
+            <p class="td2-time-total">${timeSpent > 0 ? timeSpent.toFixed(1) + ' ' + t('godzin') : '0 ' + t('godzin')}</p>
+          </div>
+
+          <!-- Geo card -->
+          <div class="td2-card">
+            <h4 class="td2-card-title">📍 ${t('lokalizacja')}</h4>
+            <input class="td2-input" id="td-address" value="${task.adres||''}" placeholder="${t('adres')}..." onblur="saveTaskDetail(${taskId})">
+            <div class="map-container" id="td-map" style="margin-top:6px"></div>
+            <input type="hidden" id="td-lat" value="${task.lat||''}"><input type="hidden" id="td-lng" value="${task.lng||''}">
+            ${task.lat && task.lng ? `<a class="td2-link" href="https://www.google.com/maps/search/?api=1&query=${task.lat},${task.lng}" target="_blank" style="font-size:11px;margin-top:4px;display:block">📍 ${t('pokaz_na_mapie')}</a>` : ''}
+          </div>
+
+          <!-- Delete -->
+          <button type="button" class="td2-delete-btn" onclick="deleteTaskFromDetail(${taskId})">🗑️ ${t('usun')}</button>
+        </div>
       </div>
     </div>
   `);
@@ -1762,8 +1849,17 @@ async function saveTaskDetail(taskId) {
       priorytet: document.getElementById('td-priority')?.value || 'normalny',
       tagi: document.getElementById('td-tags')?.value || null,
       czas_szacowany: parseFloat(document.getElementById('td-time-est')?.value) || null,
+      kategoria_id: document.getElementById('td-category')?.value || null,
     })
   });
+}
+
+async function updateTaskStatus(taskId, statusId) {
+  await fetch(`${API}/api/zadania/${taskId}`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status_id: statusId })
+  });
+  showTaskDetail(taskId);
 }
 
 async function toggleTaskAndReload(taskId) {
@@ -1831,14 +1927,38 @@ async function deleteTaskFromDetail(taskId) {
 }
 
 /* ===== TASKS VIEW ===== */
-let tasksFilter = { assignee: '', status: 'open' };
+let tasksFilter = { assignee: '', status: 'open', status_id: '', kategoria_id: '', standalone: '' };
 let tasksViewMode = localStorage.getItem('crm_tasks_view') || 'list';
 let calendarMonth = new Date();
+let _taskStatusesCache = null;
+let _taskCategoriesCache = null;
+
+async function getTaskStatuses() {
+  if (!_taskStatusesCache) _taskStatusesCache = await fetch(`${API}/api/task-statusy`).then(r => r.json());
+  return _taskStatusesCache;
+}
+async function getTaskCategories() {
+  if (!_taskCategoriesCache) _taskCategoriesCache = await fetch(`${API}/api/task-kategorie`).then(r => r.json());
+  return _taskCategoriesCache;
+}
+
+function loadTaskModule(hash) {
+  const c = document.getElementById('content');
+  c.innerHTML = `<iframe src="/taskmodule/index.html${hash||''}" id="taskmodule-iframe" style="width:100%;height:calc(100vh - 80px);border:none;border-radius:12px;background:#fff"></iframe>`;
+}
 
 async function loadTasksView() {
+  if (!window._tasksLegacyMode) { loadTaskModule('#tasks'); return; }
   const c = document.getElementById('content');
-  const team = await getTeam();
-  const tasks = await fetch(`${API}/api/zadania?${tasksFilter.assignee ? 'assignee='+tasksFilter.assignee+'&' : ''}${tasksFilter.status ? 'status='+tasksFilter.status : ''}`).then(r => r.json());
+  // legacy view (set window._tasksLegacyMode=true to restore)
+  const [team, statuses, categories] = await Promise.all([getTeam(), getTaskStatuses(), getTaskCategories()]);
+  const qp = new URLSearchParams();
+  if (tasksFilter.assignee) qp.set('assignee', tasksFilter.assignee);
+  if (tasksFilter.status) qp.set('status', tasksFilter.status);
+  if (tasksFilter.status_id) qp.set('status_id', tasksFilter.status_id);
+  if (tasksFilter.kategoria_id) qp.set('kategoria_id', tasksFilter.kategoria_id);
+  if (tasksFilter.standalone) qp.set('standalone', '1');
+  const tasks = await fetch(`${API}/api/zadania?${qp}`).then(r => r.json());
 
   const today = new Date().toISOString().split('T')[0];
   const overdue = tasks.filter(z => z.termin && !z.wykonane && z.termin < today).length;
@@ -1861,41 +1981,92 @@ async function loadTasksView() {
     </div>
 
     <div class="tasks-toolbar">
-      <button class="tasks-filter-btn ${tasksFilter.status===''?'active':''}" onclick="setTaskFilter('status','')">${t('wszystkie')}</button>
-      <button class="tasks-filter-btn ${tasksFilter.status==='open'?'active':''}" onclick="setTaskFilter('status','open')">${t('otwarte')}</button>
-      <button class="tasks-filter-btn ${tasksFilter.status==='done'?'active':''}" onclick="setTaskFilter('status','done')">${t('zakonczone')}</button>
-      ${overdue > 0 ? `<span style="font-size:12px;color:#e53935;margin-left:4px">⚠ ${overdue} ${t('przeterminowane').toLowerCase()}</span>` : ''}
-      <div style="flex:1"></div>
-      <select class="form-select" style="max-width:150px" onchange="setTaskFilter('assignee',this.value)">
-        <option value="">${t('wszystkie')}</option>
-        ${team.map(m => `<option value="${m.id}" ${tasksFilter.assignee==m.id?'selected':''}>${m.imie}</option>`).join('')}
-      </select>
-      <div class="tasks-view-toggle">
-        <button class="tasks-view-btn ${tasksViewMode==='list'?'active':''}" onclick="setTasksViewMode('list')" title="${t('widok_lista')}">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="2" rx="1" fill="currentColor"/><rect x="1" y="7" width="14" height="2" rx="1" fill="currentColor"/><rect x="1" y="12" width="14" height="2" rx="1" fill="currentColor"/></svg>
-        </button>
-        <button class="tasks-view-btn ${tasksViewMode==='week'?'active':''}" onclick="setTasksViewMode('week')" title="${t('widok_tydzien')}">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/><line x1="1" y1="5" x2="15" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="5.5" y1="5" x2="5.5" y2="15" stroke="currentColor" stroke-width="1"/><line x1="10.5" y1="5" x2="10.5" y2="15" stroke="currentColor" stroke-width="1"/></svg>
-        </button>
+      <div class="tasks-toolbar-row">
+        <button class="tasks-filter-btn ${tasksFilter.status===''&&!tasksFilter.status_id?'active':''}" onclick="setTaskFilter('status','');setTaskFilter('status_id','')">${t('wszystkie')}</button>
+        <button class="tasks-filter-btn ${tasksFilter.status==='open'?'active':''}" onclick="setTaskFilter('status','open')">${t('otwarte')}</button>
+        <button class="tasks-filter-btn ${tasksFilter.status==='done'?'active':''}" onclick="setTaskFilter('status','done')">${t('zakonczone')}</button>
+        ${statuses.map(s => `<button class="tasks-filter-btn task-status-filter ${tasksFilter.status_id==s.id?'active':''}" onclick="setTaskFilter('status','');setTaskFilter('status_id','${s.id}')" style="--status-color:${s.kolor}"><span class="status-dot" style="background:${s.kolor}"></span>${s.nazwa}</button>`).join('')}
+        ${overdue > 0 ? `<span style="font-size:12px;color:#e53935;margin-left:4px">⚠ ${overdue} ${t('przeterminowane').toLowerCase()}</span>` : ''}
+      </div>
+      <div class="tasks-toolbar-row">
+        <select class="form-select tasks-select" onchange="setTaskFilter('assignee',this.value)">
+          <option value="">👤 ${t('wszystkie')}</option>
+          ${team.map(m => `<option value="${m.id}" ${tasksFilter.assignee==m.id?'selected':''}>${m.imie}</option>`).join('')}
+        </select>
+        <select class="form-select tasks-select" onchange="setTaskFilter('kategoria_id',this.value)">
+          <option value="">${t('kategoria_zadania')}: ${t('wszystkie')}</option>
+          ${categories.map(k => `<option value="${k.id}" ${tasksFilter.kategoria_id==k.id?'selected':''}>${k.ikona} ${k.nazwa}</option>`).join('')}
+        </select>
+        <label class="tasks-standalone-toggle"><input type="checkbox" ${tasksFilter.standalone?'checked':''} onchange="setTaskFilter('standalone',this.checked?'1':'')"> ${t('bez_projektu')}</label>
+        <div style="flex:1"></div>
+        <button class="btn-primary btn-sm" onclick="showNewTaskModal()">${t('nowe_zadanie')}</button>
+        <button class="btn-sm" onclick="showTaskSettingsModal()" title="${t('ustawienia_zadan')}">⚙</button>
+        <div class="tasks-view-toggle">
+          <button class="tasks-view-btn ${tasksViewMode==='list'?'active':''}" onclick="setTasksViewMode('list')" title="${t('widok_lista')}">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="2" width="14" height="2" rx="1" fill="currentColor"/><rect x="1" y="7" width="14" height="2" rx="1" fill="currentColor"/><rect x="1" y="12" width="14" height="2" rx="1" fill="currentColor"/></svg>
+          </button>
+          <button class="tasks-view-btn ${tasksViewMode==='week'?'active':''}" onclick="setTasksViewMode('week')" title="${t('widok_tydzien')}">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/><line x1="1" y1="5" x2="15" y2="5" stroke="currentColor" stroke-width="1.5"/><line x1="5.5" y1="5" x2="5.5" y2="15" stroke="currentColor" stroke-width="1"/><line x1="10.5" y1="5" x2="10.5" y2="15" stroke="currentColor" stroke-width="1"/></svg>
+          </button>
+        </div>
       </div>
     </div>
 
     ${tasksViewMode === 'week' ? renderTasksWeekView(tasks, team, today) : `
-    <div class="table-wrapper">
+    <div class="tasks-table-wrap">
       ${tasks.length ? `
-        ${tasks.map(z => {
-          const isOverdue = z.termin && !z.wykonane && z.termin < today;
-          const isToday = z.termin === today;
-          return `
-          <div class="task-list-item ${z.wykonane ? 'done' : ''} ${isOverdue ? 'overdue' : ''}">
-            <input type="checkbox" ${z.wykonane ? 'checked' : ''} onchange="toggleTaskGlobal(${z.id})">
-            ${z.przypisany_imie ? `<span class="task-assignee-chip" style="background:${z.przypisany_kolor||'#4A8EFF'}22;color:${z.przypisany_kolor||'#4A8EFF'}">${z.przypisany_imie}</span>` : '<span class="task-assignee-dot" style="background:#ccc"></span>'}
-            <span class="task-text" style="cursor:pointer" onclick="showTaskDetail(${z.id})">${z.tresc}</span>
-            <span class="task-deal-link" onclick="navToDeal(${z.transakcja_id})">${z.deal_nazwa}</span>
-            ${z.termin ? `<span class="task-deadline ${isOverdue ? 'overdue' : isToday ? 'today' : 'future'}">${isToday ? t('dzisiaj') : z.termin}</span>` : ''}
-            <button type="button" class="task-del" onclick="deleteTaskGlobal(${z.id})">×</button>
-          </div>`;
-        }).join('')}
+      <table class="tasks-table">
+        <thead>
+          <tr>
+            <th>${t('zadania')}</th>
+            <th>${t('status_zadania')}</th>
+            <th>${t('priorytet_label')}</th>
+            <th>${t('projekt')}</th>
+            <th>${t('przypisani')}</th>
+            <th>${t('termin')}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tasks.map(z => {
+            const isOverdue = z.termin && !z.wykonane && z.termin < today;
+            const isToday = z.termin === today;
+            const priColors = { niski:'#9e9e9e', normalny:'#4caf50', wysoki:'#ff9800', pilny:'#e53935' };
+            const priLabels = { niski:t('p_niski'), normalny:t('p_normalny'), wysoki:t('p_wysoki'), pilny:t('p_pilny') };
+            const pColor = priColors[z.priorytet] || priColors.normalny;
+            const pLabel = priLabels[z.priorytet] || priLabels.normalny;
+            return `
+            <tr class="tasks-row ${z.wykonane ? 'done' : ''} ${isOverdue ? 'overdue' : ''}" onclick="showTaskDetail(${z.id})">
+              <td class="tasks-td-title">
+                <span class="tasks-title-text">${z.tresc}</span>
+                ${z.kategoria_nazwa ? `<span class="task-category-tag-sm" style="--cat-color:${z.kategoria_kolor}">${z.kategoria_ikona||''} ${z.kategoria_nazwa}</span>` : ''}
+              </td>
+              <td>
+                ${z.status_nazwa ? `<span class="task-badge" style="--badge-color:${z.status_kolor}">${z.status_ikona||''} ${z.status_nazwa}</span>` : '—'}
+              </td>
+              <td>
+                <span class="task-badge" style="--badge-color:${pColor}">${pLabel}</span>
+              </td>
+              <td class="tasks-td-project">
+                ${z.deal_nazwa ? `<span class="tasks-project-dot" style="background:var(--accent)"></span><span class="tasks-project-name" onclick="event.stopPropagation();navToDeal(${z.transakcja_id})">${z.deal_nazwa}</span>` : `<span style="color:var(--text-muted);font-size:12px">—</span>`}
+              </td>
+              <td>
+                <div class="tasks-avatars">
+                  ${z.przypisany_imie ? `<span class="tasks-avatar" style="--av-color:${z.przypisany_kolor||'#4A8EFF'}" title="${z.przypisany_imie}">${z.przypisany_imie[0]}</span>` : '<span style="color:var(--text-muted);font-size:12px">—</span>'}
+                </div>
+              </td>
+              <td class="tasks-td-deadline ${isOverdue ? 'overdue' : isToday ? 'today' : ''}">
+                ${z.termin ? (isToday ? t('dzisiaj') : new Date(z.termin).toLocaleDateString()) : '—'}
+              </td>
+              <td class="tasks-td-actions">
+                <button type="button" class="tasks-del-btn" onclick="event.stopPropagation();deleteTaskGlobal(${z.id})" title="${t('usun')}">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14"/></svg>
+                </button>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
       ` : `<div class="empty-state">${t('brak_zadan')}</div>`}
     </div>
     `}
@@ -1940,6 +2111,163 @@ function getWeekDays(offset) {
     });
   }
   return days;
+}
+
+/* ===== TASKS KANBAN VIEW ===== */
+let dragTaskId = null;
+async function loadTasksKanbanView() {
+  const c = document.getElementById('content');
+  try {
+    const [tasks, statuses, team] = await Promise.all([
+      fetch(`${API}/api/zadania`).then(r => r.json()),
+      fetch(`${API}/api/task-statusy`).then(r => r.json()),
+      fetch(`${API}/api/users`).then(r => r.json())
+    ]);
+
+    // Group tasks by status_id
+    const grouped = {};
+    const noStatus = [];
+    statuses.forEach(s => grouped[s.id] = []);
+    tasks.forEach(task => {
+      if (task.status_id && grouped[task.status_id]) {
+        grouped[task.status_id].push(task);
+      } else {
+        noStatus.push(task);
+      }
+    });
+
+    const today = new Date().toISOString().slice(0, 10);
+
+    c.innerHTML = `
+      <div class="kanban-board">
+        ${noStatus.length ? `
+          <div class="kanban-column" data-status-id="0"
+               ondragover="event.preventDefault();this.classList.add('drag-over')"
+               ondragleave="this.classList.remove('drag-over')"
+               ondrop="handleTaskDrop(event, 0)">
+            <div class="kanban-col-header">
+              <span class="kanban-col-title">📋 ${t('bez_statusu') || 'Bez statusu'}</span>
+              <span class="kanban-col-count">${noStatus.length}</span>
+            </div>
+            <div class="kanban-col-body">
+              ${noStatus.map(task => taskKanbanCard(task, today)).join('')}
+            </div>
+          </div>
+        ` : ''}
+        ${statuses.map(status => {
+          const statusTasks = grouped[status.id] || [];
+          return `
+            <div class="kanban-column" data-status-id="${status.id}"
+                 ondragover="event.preventDefault();this.classList.add('drag-over')"
+                 ondragleave="this.classList.remove('drag-over')"
+                 ondrop="handleTaskDrop(event, ${status.id})">
+              <div class="kanban-col-header">
+                <span class="kanban-col-title">${status.ikona || '●'} ${status.nazwa}</span>
+                <span class="kanban-col-count">${statusTasks.length}</span>
+              </div>
+              <div class="kanban-col-body">
+                ${statusTasks.map(task => taskKanbanCard(task, today)).join('')}
+                <button class="kanban-add-btn" onclick="showNewTaskModal(null, ${status.id})">+ ${t('dodaj')}</button>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  } catch(e) { c.innerHTML = '<div class="empty-state">' + t('blad') + '</div>'; }
+}
+
+function taskKanbanCard(task, today) {
+  const isOverdue = task.termin && task.termin < today && !task.wykonane;
+  const isToday = task.termin === today;
+  const prioColor = task.priorytet === 'wysoki' ? '#e53935' : task.priorytet === 'krytyczny' ? '#9c27b0' : task.priorytet === 'niski' ? '#4caf50' : '#4A8EFF';
+  const assignee = task.przypisany_imie || '';
+  const initials = assignee.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  const subtasksDone = task.podzadania_done || 0;
+  const subtasksTotal = task.podzadania_total || 0;
+
+  return `
+    <div class="deal-card task-kanban-card ${task.wykonane ? 'task-done' : ''}" draggable="true" data-task-id="${task.id}"
+         ondragstart="dragTaskId=${task.id};this.classList.add('dragging')"
+         ondragend="this.classList.remove('dragging')"
+         onclick="showTaskDetail(${task.id})">
+      <div style="position:absolute;top:0;left:0;width:4px;height:100%;background:${prioColor};border-radius:4px 0 0 4px"></div>
+      <div class="deal-card-title" style="padding-left:8px;${task.wykonane ? 'text-decoration:line-through;opacity:0.6' : ''}">${task.tresc}</div>
+      <div class="deal-card-meta" style="padding-left:8px">
+        ${task.kategoria_nazwa ? `<span class="deal-tag" style="background:${task.kategoria_kolor || '#eee'};color:#fff">${task.kategoria_nazwa}</span>` : ''}
+        ${task.termin ? `<span class="deal-tag ${isOverdue ? 'deal-tag-overdue' : isToday ? 'deal-tag-today' : ''}">${isOverdue ? '⚠️' : isToday ? '📅' : '🗓️'} ${task.termin}</span>` : ''}
+        ${assignee ? `<span class="task-assignee-dot" title="${assignee}">${initials}</span>` : ''}
+        ${subtasksTotal > 0 ? `<span class="deal-tag" style="background:#f0f0f0;color:#555">✅ ${subtasksDone}/${subtasksTotal}</span>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+async function handleTaskDrop(event, newStatusId) {
+  event.preventDefault();
+  event.currentTarget.classList.remove('drag-over');
+  if (!dragTaskId) return;
+  await fetch(`${API}/api/zadania/${dragTaskId}`, {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status_id: newStatusId || null })
+  });
+  dragTaskId = null;
+  loadTasksKanbanView();
+}
+
+/* ===== MY TASKS VIEW ===== */
+async function loadMyTasksView() {
+  const c = document.getElementById('content');
+  const userId = currentUser?.id;
+  try {
+    const tasks = await fetch(`${API}/api/zadania?assignee=${userId || ''}`).then(r => r.json());
+    const today = new Date().toISOString().slice(0, 10);
+
+    const total = tasks.length;
+    const inProgress = tasks.filter(t => !t.wykonane).length;
+    const overdue = tasks.filter(t => t.termin && t.termin < today && !t.wykonane).length;
+    const dueToday = tasks.filter(t => t.termin === today && !t.wykonane).length;
+    const done = tasks.filter(t => t.wykonane).length;
+
+    c.innerHTML = `
+      <div class="stats-grid" style="margin-bottom:20px">
+        <div class="stat-card"><div class="stat-card-label">${t('wszystkie') || 'Wszystkie'}</div><div class="stat-card-value primary">${total}</div></div>
+        <div class="stat-card"><div class="stat-card-label">${t('otwarte') || 'W toku'}</div><div class="stat-card-value accent">${inProgress}</div></div>
+        <div class="stat-card"><div class="stat-card-label">${t('przeterminowane') || 'Przeterminowane'}</div><div class="stat-card-value" style="color:#e53935">${overdue}</div></div>
+        <div class="stat-card"><div class="stat-card-label">${t('dzisiaj') || 'Dziś'}</div><div class="stat-card-value success">${dueToday}</div></div>
+      </div>
+      <div class="table-wrapper">
+        <div class="table-header"><span class="table-title">${t('moje_zadania') || 'Moje zadania'} (${total})</span></div>
+        ${tasks.length ? `<table><thead><tr>
+          <th style="width:30px"></th>
+          <th>${t('nazwa') || 'Zadanie'}</th>
+          <th>${t('priorytet_label') || 'Priorytet'}</th>
+          <th>${t('kategoria_zadania') || 'Kategoria'}</th>
+          <th>${t('termin') || 'Termin'}</th>
+          <th>${t('status_zadania') || 'Status'}</th>
+        </tr></thead><tbody>
+          ${tasks.map(task => {
+            const isOverdue = task.termin && task.termin < today && !task.wykonane;
+            const isToday = task.termin === today;
+            const prioMap = {krytyczny:'🔴',wysoki:'🟠',normalny:'🔵',niski:'🟢'};
+            return `<tr style="cursor:pointer;${task.wykonane ? 'opacity:0.5' : ''}" onclick="showTaskDetail(${task.id})">
+              <td><input type="checkbox" ${task.wykonane ? 'checked' : ''} onclick="event.stopPropagation();toggleTaskDone(${task.id})" style="cursor:pointer"></td>
+              <td><strong>${task.tresc}</strong>${task.deal_nazwa ? `<br><small style="color:var(--text-muted)">📎 ${task.deal_nazwa}</small>` : ''}</td>
+              <td>${prioMap[task.priorytet] || '🔵'} ${task.priorytet || 'normalny'}</td>
+              <td>${task.kategoria_nazwa ? `<span style="background:${task.kategoria_kolor || '#eee'};color:#fff;padding:2px 8px;border-radius:10px;font-size:0.75em">${task.kategoria_nazwa}</span>` : '—'}</td>
+              <td class="${isOverdue ? 'task-deadline overdue' : isToday ? 'task-deadline today' : ''}">${task.termin || '—'}</td>
+              <td>${task.status_nazwa ? `<span class="task-status-badge" style="background:${task.status_kolor || '#999'}">${task.status_ikona || '●'} ${task.status_nazwa}</span>` : '—'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody></table>` : `<div class="empty-state">${t('brak_zadan') || 'Brak zadań'}</div>`}
+      </div>
+    `;
+  } catch(e) { c.innerHTML = '<div class="empty-state">' + t('blad') + '</div>'; }
+}
+
+async function toggleTaskDone(id) {
+  await fetch(`${API}/api/zadania/${id}/toggle`, { method: 'PUT' });
+  loadView(currentView);
 }
 
 function renderTasksWeekView(tasks, team, today) {
@@ -2045,6 +2373,197 @@ async function updateMemberRole(id, rola) {
   teamCache = null;
   await getTeam();
   loadTasksView();
+}
+
+/* ===== NEW TASK MODAL ===== */
+async function showNewTaskModal() {
+  const [team, statuses, categories, templates, deals] = await Promise.all([
+    getTeam(), getTaskStatuses(), getTaskCategories(),
+    fetch(`${API}/api/task-szablony`).then(r => r.json()),
+    fetch(`${API}/api/transakcje`).then(r => r.json())
+  ]);
+  const defaultStatus = statuses.find(s => s.domyslny) || statuses[0];
+  openModal(t('nowe_zadanie'), `
+    <form onsubmit="event.preventDefault();createNewTask()">
+      ${templates.length ? `<div class="form-group">
+        <label class="form-label">${t('z_szablonu')}</label>
+        <select id="nt-template" class="form-select" onchange="applyTaskTemplate(this.value)">
+          <option value="">— ${t('szablon')} —</option>
+          ${templates.map(tmpl => `<option value="${tmpl.id}">${tmpl.nazwa}</option>`).join('')}
+        </select>
+      </div>` : ''}
+      <div class="form-group"><label class="form-label">${t('zadania_all')}</label><input type="text" id="nt-tresc" class="form-input" required placeholder="${t('nowe_zadanie')}..."></div>
+      <div class="form-group"><label class="form-label">${t('opis_zadania')}</label><textarea id="nt-opis" class="form-input" rows="2"></textarea></div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1"><label class="form-label">${t('status_zadania')}</label><select id="nt-status" class="form-select">${statuses.map(s => `<option value="${s.id}" ${s.id===defaultStatus?.id?'selected':''}>${s.ikona} ${s.nazwa}</option>`).join('')}</select></div>
+        <div class="form-group" style="flex:1"><label class="form-label">${t('kategoria_zadania')}</label><select id="nt-kategoria" class="form-select"><option value="">—</option>${categories.map(k => `<option value="${k.id}">${k.ikona} ${k.nazwa}</option>`).join('')}</select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1"><label class="form-label">${t('przypisany')}</label><select id="nt-assignee" class="form-select"><option value="">—</option>${team.map(m => `<option value="${m.id}">${m.imie}</option>`).join('')}</select></div>
+        <div class="form-group" style="flex:1"><label class="form-label">${t('priorytet_label')}</label><select id="nt-priority" class="form-select"><option value="niski">⚪ ${t('p_niski')}</option><option value="normalny" selected>🟢 ${t('p_normalny')}</option><option value="wysoki">🟡 ${t('p_wysoki')}</option><option value="pilny">🔴 ${t('p_pilny')}</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1"><label class="form-label">${t('termin')}</label><input type="date" id="nt-termin" class="form-input"></div>
+        <div class="form-group" style="flex:1"><label class="form-label">${t('projekt')}</label><select id="nt-deal" class="form-select"><option value="">${t('bez_projektu')}</option>${deals.map(d => `<option value="${d.id}">${d.nazwa}</option>`).join('')}</select></div>
+      </div>
+      <div class="form-actions"><button type="button" class="btn-secondary" onclick="closeModal()">${t('anuluj')}</button><button type="submit" class="btn-primary">${t('zapisz')}</button></div>
+    </form>
+  `);
+}
+
+async function applyTaskTemplate(templateId) {
+  if (!templateId) return;
+  const templates = await fetch(`${API}/api/task-szablony`).then(r => r.json());
+  const tmpl = templates.find(t => t.id == templateId);
+  if (!tmpl) return;
+  document.getElementById('nt-tresc').value = tmpl.nazwa;
+  if (tmpl.opis) document.getElementById('nt-opis').value = tmpl.opis;
+  if (tmpl.kategoria_id) document.getElementById('nt-kategoria').value = tmpl.kategoria_id;
+  if (tmpl.priorytet) document.getElementById('nt-priority').value = tmpl.priorytet;
+}
+
+async function createNewTask() {
+  const data = {
+    tresc: document.getElementById('nt-tresc').value.trim(),
+    opis: document.getElementById('nt-opis').value.trim() || null,
+    status_id: document.getElementById('nt-status').value || null,
+    kategoria_id: document.getElementById('nt-kategoria').value || null,
+    przypisany_id: document.getElementById('nt-assignee').value || null,
+    priorytet: document.getElementById('nt-priority').value,
+    termin: document.getElementById('nt-termin').value || null,
+    transakcja_id: document.getElementById('nt-deal').value || null,
+  };
+  if (!data.tresc) return;
+  await fetch(`${API}/api/zadania`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  closeModal();
+  loadTasksView();
+}
+
+/* ===== TASK SETTINGS MODAL ===== */
+async function showTaskSettingsModal() {
+  const [statuses, categories, templates] = await Promise.all([getTaskStatuses(), getTaskCategories(), fetch(`${API}/api/task-szablony`).then(r => r.json())]);
+  openModal(t('ustawienia_zadan'), `
+    <div class="task-settings">
+      <div class="task-settings-section"><h3>${t('statusy')}</h3><div id="ts-statuses">
+        ${statuses.map(s => `<div class="task-setting-row"><input type="color" value="${s.kolor}" onchange="updateTaskStatusColor(${s.id},this.value)" style="width:28px;height:28px;border:none;padding:0;cursor:pointer"><input type="text" value="${s.ikona}" style="width:36px" onchange="updateTaskStatusField(${s.id},'ikona',this.value)"><input type="text" value="${s.nazwa}" style="flex:1" onchange="updateTaskStatusField(${s.id},'nazwa',this.value)"><button class="task-del" onclick="deleteTaskStatusItem(${s.id})">×</button></div>`).join('')}
+        <div class="task-setting-add"><input type="text" id="ts-new-status" placeholder="${t('statusy')}..." class="form-input" style="flex:1"><input type="color" id="ts-new-status-color" value="#4A90D9" style="width:28px;height:28px;border:none;padding:0;cursor:pointer"><button class="btn-sm" onclick="addNewTaskStatus()">+</button></div>
+      </div></div>
+      <div class="task-settings-section"><h3>${t('kategorie')}</h3><div id="ts-categories">
+        ${categories.map(k => `<div class="task-setting-row"><input type="color" value="${k.kolor}" onchange="updateTaskCategoryColor(${k.id},this.value)" style="width:28px;height:28px;border:none;padding:0;cursor:pointer"><input type="text" value="${k.ikona}" style="width:36px" onchange="updateTaskCategoryField(${k.id},'ikona',this.value)"><input type="text" value="${k.nazwa}" style="flex:1" onchange="updateTaskCategoryField(${k.id},'nazwa',this.value)"><button class="task-del" onclick="deleteTaskCategoryItem(${k.id})">×</button></div>`).join('')}
+        <div class="task-setting-add"><input type="text" id="ts-new-cat" placeholder="${t('kategorie')}..." class="form-input" style="flex:1"><input type="color" id="ts-new-cat-color" value="#3498DB" style="width:28px;height:28px;border:none;padding:0;cursor:pointer"><button class="btn-sm" onclick="addNewTaskCategory()">+</button></div>
+      </div></div>
+      <div class="task-settings-section"><h3>${t('szablony')}</h3><div id="ts-templates">
+        ${templates.map(tmpl => `<div class="task-setting-row"><span style="flex:1">${tmpl.nazwa} ${tmpl.kategoria_nazwa ? `<span class="task-category-tag" style="background:${tmpl.kategoria_kolor}18;color:${tmpl.kategoria_kolor}">${tmpl.kategoria_nazwa}</span>` : ''}</span><button class="task-del" onclick="deleteTaskTemplateItem(${tmpl.id})">×</button></div>`).join('')}
+        <button class="btn-sm" onclick="closeModal();showNewTemplateModal()" style="margin-top:6px">${t('nowy_szablon')}</button>
+      </div></div>
+    </div>
+  `);
+}
+
+async function addNewTaskStatus() {
+  const name = document.getElementById('ts-new-status').value.trim();
+  const color = document.getElementById('ts-new-status-color').value;
+  if (!name) return;
+  await fetch(`${API}/api/task-statusy`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({nazwa:name, kolor:color}) });
+  _taskStatusesCache = null; showTaskSettingsModal();
+}
+async function updateTaskStatusColor(id, color) {
+  const statuses = await getTaskStatuses(); const s = statuses.find(x => x.id === id);
+  if (s) await fetch(`${API}/api/task-statusy/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({...s, kolor:color}) });
+  _taskStatusesCache = null;
+}
+async function updateTaskStatusField(id, field, value) {
+  const statuses = await getTaskStatuses(); const s = statuses.find(x => x.id === id);
+  if (s) { s[field] = value; await fetch(`${API}/api/task-statusy/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(s) }); }
+  _taskStatusesCache = null;
+}
+async function deleteTaskStatusItem(id) {
+  if (!confirm(t('na_pewno_usunac'))) return;
+  await fetch(`${API}/api/task-statusy/${id}`, { method:'DELETE' }); _taskStatusesCache = null; showTaskSettingsModal();
+}
+async function addNewTaskCategory() {
+  const name = document.getElementById('ts-new-cat').value.trim();
+  const color = document.getElementById('ts-new-cat-color').value;
+  if (!name) return;
+  await fetch(`${API}/api/task-kategorie`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({nazwa:name, kolor:color}) });
+  _taskCategoriesCache = null; showTaskSettingsModal();
+}
+async function updateTaskCategoryColor(id, color) {
+  const cats = await getTaskCategories(); const c = cats.find(x => x.id === id);
+  if (c) await fetch(`${API}/api/task-kategorie/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({...c, kolor:color}) });
+  _taskCategoriesCache = null;
+}
+async function updateTaskCategoryField(id, field, value) {
+  const cats = await getTaskCategories(); const c = cats.find(x => x.id === id);
+  if (c) { c[field] = value; await fetch(`${API}/api/task-kategorie/${id}`, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(c) }); }
+  _taskCategoriesCache = null;
+}
+async function deleteTaskCategoryItem(id) {
+  if (!confirm(t('na_pewno_usunac'))) return;
+  await fetch(`${API}/api/task-kategorie/${id}`, { method:'DELETE' }); _taskCategoriesCache = null; showTaskSettingsModal();
+}
+async function deleteTaskTemplateItem(id) {
+  if (!confirm(t('na_pewno_usunac'))) return;
+  await fetch(`${API}/api/task-szablony/${id}`, { method:'DELETE' }); showTaskSettingsModal();
+}
+
+async function showNewTemplateModal() {
+  const categories = await getTaskCategories();
+  openModal(t('nowy_szablon'), `
+    <form onsubmit="event.preventDefault();createNewTemplate()">
+      <div class="form-group"><label class="form-label">${t('nazwa')}</label><input type="text" id="tmpl-name" class="form-input" required></div>
+      <div class="form-group"><label class="form-label">${t('opis_zadania')}</label><textarea id="tmpl-desc" class="form-input" rows="2"></textarea></div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1"><label class="form-label">${t('kategoria_zadania')}</label><select id="tmpl-cat" class="form-select"><option value="">—</option>${categories.map(k => `<option value="${k.id}">${k.ikona} ${k.nazwa}</option>`).join('')}</select></div>
+        <div class="form-group" style="flex:1"><label class="form-label">${t('priorytet_label')}</label><select id="tmpl-priority" class="form-select"><option value="niski">⚪ ${t('p_niski')}</option><option value="normalny" selected>🟢 ${t('p_normalny')}</option><option value="wysoki">🟡 ${t('p_wysoki')}</option><option value="pilny">🔴 ${t('p_pilny')}</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">${t('podzadania')}</label><textarea id="tmpl-subs" class="form-input" rows="4" placeholder="Subtask 1\nSubtask 2\nSubtask 3"></textarea></div>
+      <div class="form-actions"><button type="button" class="btn-secondary" onclick="closeModal()">${t('anuluj')}</button><button type="submit" class="btn-primary">${t('zapisz')}</button></div>
+    </form>
+  `);
+}
+
+async function createNewTemplate() {
+  const subs = document.getElementById('tmpl-subs').value.split('\n').map(s => s.trim()).filter(Boolean);
+  await fetch(`${API}/api/task-szablony`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nazwa: document.getElementById('tmpl-name').value.trim(), opis: document.getElementById('tmpl-desc').value.trim() || null,
+      kategoria_id: document.getElementById('tmpl-cat').value || null, priorytet: document.getElementById('tmpl-priority').value, podzadania_json: JSON.stringify(subs) })
+  });
+  closeModal();
+}
+
+/* ===== TASK ASSIGNEES ===== */
+async function addAssignee(taskId, userId) {
+  if (!userId) return;
+  await fetch(`${API}/api/zadania/${taskId}/przypisani`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: userId }) });
+  showTaskDetail(taskId);
+}
+async function removeAssignee(taskId, userId) {
+  await fetch(`${API}/api/zadania/${taskId}/przypisani/${userId}`, { method: 'DELETE' }); showTaskDetail(taskId);
+}
+
+/* ===== TASK RELATIONS ===== */
+let _relSearchTimeout = null;
+async function searchRelationTasks(query, taskId) {
+  clearTimeout(_relSearchTimeout);
+  const container = document.getElementById('td-rel-dropdown');
+  if (!container) return;
+  if (query.length < 2) { container.innerHTML = ''; container.classList.remove('visible'); return; }
+  _relSearchTimeout = setTimeout(async () => {
+    const results = await fetch(`${API}/api/zadania-search?q=${encodeURIComponent(query)}`).then(r => r.json());
+    container.innerHTML = results.filter(r => r.id !== taskId).map(r => `
+      <div class="td-rel-option ${r.wykonane?'done':''}" onclick="addRelation(${taskId},${r.id})">#${r.id} ${r.tresc}</div>
+    `).join('') || '<div class="td-rel-option" style="color:var(--text-muted)">—</div>';
+    container.classList.add('visible');
+  }, 300);
+}
+async function addRelation(taskId, relatedId) {
+  const typ = document.getElementById('td-rel-type')?.value || 'related';
+  await fetch(`${API}/api/zadania/${taskId}/relacje`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ powiazane_id: relatedId, typ }) });
+  showTaskDetail(taskId);
+}
+async function deleteRelation(relId, taskId) {
+  await fetch(`${API}/api/task-relacje/${relId}`, { method: 'DELETE' }); showTaskDetail(taskId);
 }
 
 /* ===== REALIZACJE (preserved) ===== */
