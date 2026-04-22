@@ -1450,6 +1450,57 @@ class CRMDatabase {
     return { ok: true, count: projects.length };
   }
 
+  /* ========== TASKS FOR BOT ========== */
+
+  // Get tasks where user is assignee (single or multi), by Telegram chat_id
+  // Returns simplified objects compatible with bot's expected shape:
+  //   { id, tresc, deal_nazwa, termin, priorytet, status }
+  getTasksForUser(chatId) {
+    const user = this.db.prepare('SELECT id FROM uzytkownicy WHERE telegram_id = ? AND aktywny = 1').get(String(chatId));
+    if (!user) return [];
+    const rows = this.db.prepare(`
+      SELECT DISTINCT t.id, t.title as tresc, t.deadline as termin,
+             t.priority as priorytet, t.status,
+             (SELECT name FROM tm_projects WHERE id = t.project_id) as deal_nazwa
+      FROM tm_tasks t
+      LEFT JOIN tm_task_assignees a ON a.task_id = t.id
+      WHERE (t.assignee_id = ? OR a.user_id = ?)
+        AND t.status != 'done'
+      ORDER BY t.deadline ASC, t.priority DESC
+    `).all(user.id, user.id);
+    return rows;
+  }
+
+  // Tasks due tomorrow (or any specific date) for a user
+  getTasksForUserOnDate(chatId, date /* YYYY-MM-DD */) {
+    const user = this.db.prepare('SELECT id FROM uzytkownicy WHERE telegram_id = ? AND aktywny = 1').get(String(chatId));
+    if (!user) return [];
+    return this.db.prepare(`
+      SELECT DISTINCT t.id, t.title as tresc, t.deadline as termin,
+             t.priority as priorytet, t.status,
+             (SELECT name FROM tm_projects WHERE id = t.project_id) as deal_nazwa
+      FROM tm_tasks t
+      LEFT JOIN tm_task_assignees a ON a.task_id = t.id
+      WHERE (t.assignee_id = ? OR a.user_id = ?)
+        AND DATE(t.deadline) = ?
+        AND t.status != 'done'
+      ORDER BY t.deadline ASC
+    `).all(user.id, user.id, date);
+  }
+
+  // All tasks due today/tomorrow across all users (for daily morning digest)
+  getTasksForDate(date /* YYYY-MM-DD */) {
+    return this.db.prepare(`
+      SELECT t.id, t.title, t.deadline, t.priority, t.status,
+             u.telegram_id, u.imie as user_name,
+             (SELECT name FROM tm_projects WHERE id = t.project_id) as project_name
+      FROM tm_tasks t
+      LEFT JOIN uzytkownicy u ON u.id = t.assignee_id
+      WHERE DATE(t.deadline) = ?
+        AND t.status != 'done'
+    `).all(date);
+  }
+
   /* ========== AUTH ========== */
 
   setUserPassword(userId, passwordHash) {
