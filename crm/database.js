@@ -6,6 +6,7 @@
 
 const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
 
 /* ===== FUNNEL STAGE DEFINITIONS ===== */
 const FUNNELS = {
@@ -40,7 +41,10 @@ const FUNNELS = {
 };
 
 class CRMDatabase {
-  constructor(dbPath = path.join(__dirname, 'crm.db')) {
+  constructor(dbPath = process.env.DB_PATH || path.join(__dirname, 'crm.db')) {
+    // Ensure directory exists (for volume-mounted paths)
+    const dir = path.dirname(dbPath);
+    try { if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true }); } catch(e) {}
     this.db = new Database(dbPath);
     this.db.pragma('journal_mode = WAL');
     this.db.pragma('foreign_keys = ON');

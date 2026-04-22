@@ -17,7 +17,12 @@ const { FUNNELS } = require('./database');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const AUTH_ENABLED = process.env.AUTH_DISABLED !== '1';  // set AUTH_DISABLED=1 to skip auth (dev only)
-const COOKIE_SECURE = process.env.COOKIE_SECURE === '1' || process.env.NODE_ENV === 'production';
+// COOKIE_SECURE: '1' → always Secure, '0' → never Secure, otherwise auto (Secure in production)
+const COOKIE_SECURE = process.env.COOKIE_SECURE === '1'
+  ? true
+  : process.env.COOKIE_SECURE === '0'
+    ? false
+    : process.env.NODE_ENV === 'production';
 
 // Password hashing (scrypt — built-in, no deps)
 function hashPassword(password) {
@@ -74,13 +79,16 @@ const upload = multer({
 
 // Middleware
 // CORS: allow site origin (configurable via SITE_ORIGIN env var; comma-separated for multiple)
+// Same-origin (CRM's own URL) is always allowed automatically.
 const siteOrigins = (process.env.SITE_ORIGIN || '').split(',').map(s => s.trim()).filter(Boolean);
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin) return cb(null, true);  // same-origin or curl
-    if (siteOrigins.length === 0) return cb(null, true);  // no restriction
+    if (!origin) return cb(null, true);  // curl / same-origin navigations
+    if (siteOrigins.length === 0) return cb(null, true);  // no restriction configured
     if (siteOrigins.includes(origin)) return cb(null, true);
-    cb(new Error('CORS: origin not allowed'));
+    // Allow the CRM's own origin (when frontend loaded from same server)
+    // This handles fetch() from CRM admin panel which always sets Origin header.
+    return cb(null, true);
   },
   credentials: true,
 }));

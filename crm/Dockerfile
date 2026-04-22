@@ -14,7 +14,7 @@ VOLUME ["/app/uploads"]
 
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV COOKIE_SECURE=1
+# COOKIE_SECURE controlled via env_file (1=always, 0=never, unset=auto)
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
