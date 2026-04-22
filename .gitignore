@@ -23,3 +23,13 @@ mail/
 
 # Claude Code config
 .claude/launch.json
+
+# Claude Code / agent memory files
+AGENTS.md
+HEARTBEAT.md
+IDENTITY.md
+SOUL.md
+TOOLS.md
+USER.md
+.openclaw/
+TM_MIGRATION_STATUS.md

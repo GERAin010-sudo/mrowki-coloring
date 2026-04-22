@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mrówki Coloring CRM — Logowanie</title>
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+  <div class="login-card">
+    <div class="login-logo">MC</div>
+    <h1 class="login-title">Mrówki Coloring</h1>
+    <p class="login-sub">CRM — logowanie / вхід / вход</p>
+
+    <form id="loginForm" class="login-form">
+      <label>
+        <span>Login</span>
+        <input type="text" id="login" autocomplete="username" required autofocus>
+      </label>
+      <label>
+        <span>Hasło / пароль</span>
+        <input type="password" id="password" autocomplete="current-password" required>
+      </label>
+      <div id="err" class="login-err" hidden></div>
+      <button type="submit" id="submitBtn">Zaloguj się</button>
+    </form>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+</html>

@@ -315,8 +315,21 @@ class CRMDatabase {
         rola TEXT DEFAULT 'wykonawca',
         kolor TEXT DEFAULT '#4A8EFF',
         aktywny INTEGER DEFAULT 1,
+        login TEXT UNIQUE,
+        password_hash TEXT,
+        last_login_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
+
+      -- Sessions (cookie-based auth)
+      CREATE TABLE IF NOT EXISTS sessions (
+        id TEXT PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES uzytkownicy(id) ON DELETE CASCADE,
+        expires_at DATETIME NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+      CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
 
       -- ===== TASK MODULE (tm_*) =====
       CREATE TABLE IF NOT EXISTS tm_users (
@@ -493,6 +506,9 @@ class CRMDatabase {
       `ALTER TABLE zadania ADD COLUMN przypisany_id INTEGER REFERENCES uzytkownicy(id) ON DELETE SET NULL`,
       `ALTER TABLE zadania ADD COLUMN termin DATE`,
       `ALTER TABLE uzytkownicy ADD COLUMN kolor TEXT DEFAULT '#4A8EFF'`,
+      `ALTER TABLE uzytkownicy ADD COLUMN login TEXT`,
+      `ALTER TABLE uzytkownicy ADD COLUMN password_hash TEXT`,
+      `ALTER TABLE uzytkownicy ADD COLUMN last_login_at DATETIME`,
       `ALTER TABLE zadania ADD COLUMN opis TEXT`,
       `ALTER TABLE zadania ADD COLUMN adres TEXT`,
       `ALTER TABLE zadania ADD COLUMN lat REAL`,
@@ -1412,6 +1428,47 @@ class CRMDatabase {
     });
     trx(projects);
     return { ok: true, count: projects.length };
+  }
+
+  /* ========== AUTH ========== */
+
+  setUserPassword(userId, passwordHash) {
+    return this.db.prepare('UPDATE uzytkownicy SET password_hash=? WHERE id=?').run(passwordHash, userId);
+  }
+
+  setUserLogin(userId, login) {
+    return this.db.prepare('UPDATE uzytkownicy SET login=? WHERE id=?').run(login, userId);
+  }
+
+  getUserByLogin(login) {
+    return this.db.prepare('SELECT * FROM uzytkownicy WHERE login = ? AND aktywny = 1').get(login);
+  }
+
+  touchLastLogin(userId) {
+    this.db.prepare("UPDATE uzytkownicy SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?").run(userId);
+  }
+
+  createSession(sessionId, userId, ttlHours = 24 * 30) {
+    const expires = new Date(Date.now() + ttlHours * 3600 * 1000).toISOString();
+    return this.db.prepare('INSERT INTO sessions (id, user_id, expires_at) VALUES (?,?,?)').run(sessionId, userId, expires);
+  }
+
+  getSessionUser(sessionId) {
+    if (!sessionId) return null;
+    const row = this.db.prepare(`
+      SELECT u.* FROM sessions s
+      JOIN uzytkownicy u ON u.id = s.user_id
+      WHERE s.id = ? AND s.expires_at > CURRENT_TIMESTAMP AND u.aktywny = 1
+    `).get(sessionId);
+    return row || null;
+  }
+
+  deleteSession(sessionId) {
+    return this.db.prepare('DELETE FROM sessions WHERE id = ?').run(sessionId);
+  }
+
+  cleanupExpiredSessions() {
+    return this.db.prepare('DELETE FROM sessions WHERE expires_at <= CURRENT_TIMESTAMP').run();
   }
 
   close() {

@@ -9,15 +9,48 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const multer = require('multer');
 const CRMDatabase = require('./database');
 const { FUNNELS } = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const AUTH_ENABLED = process.env.AUTH_DISABLED !== '1';  // set AUTH_DISABLED=1 to skip auth (dev only)
+const COOKIE_SECURE = process.env.COOKIE_SECURE === '1' || process.env.NODE_ENV === 'production';
 
-// Uploads directory
-const UPLOADS_DIR = path.join(__dirname, '..', 'assets', 'uploads');
+// Password hashing (scrypt — built-in, no deps)
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.scryptSync(password, salt, 64).toString('hex');
+  return `scrypt:${salt}:${hash}`;
+}
+function verifyPassword(password, stored) {
+  if (!stored || !stored.startsWith('scrypt:')) return false;
+  const [, salt, hash] = stored.split(':');
+  const test = crypto.scryptSync(password, salt, 64).toString('hex');
+  return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(test, 'hex'));
+}
+
+// Simple cookie parser (one header value)
+function parseCookies(req) {
+  const out = {};
+  const header = req.headers.cookie;
+  if (!header) return out;
+  header.split(';').forEach(pair => {
+    const i = pair.indexOf('=');
+    if (i < 0) return;
+    const k = pair.slice(0, i).trim();
+    const v = pair.slice(i + 1).trim();
+    out[k] = decodeURIComponent(v);
+  });
+  return out;
+}
+
+// Uploads directory (own folder; site fetches via CRM /uploads/* which is public)
+const UPLOADS_DIR = process.env.UPLOADS_DIR
+  ? path.resolve(process.env.UPLOADS_DIR)
+  : path.join(__dirname, 'uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 // Multer config
@@ -40,8 +73,43 @@ const upload = multer({
 });
 
 // Middleware
-app.use(cors());
+// CORS: allow site origin (configurable via SITE_ORIGIN env var; comma-separated for multiple)
+const siteOrigins = (process.env.SITE_ORIGIN || '').split(',').map(s => s.trim()).filter(Boolean);
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);  // same-origin or curl
+    if (siteOrigins.length === 0) return cb(null, true);  // no restriction
+    if (siteOrigins.includes(origin)) return cb(null, true);
+    cb(new Error('CORS: origin not allowed'));
+  },
+  credentials: true,
+}));
 app.use(express.json());
+
+// Auth gate — runs BEFORE static so we can redirect unauth'd HTML to /login.html
+const PUBLIC_PATHS = ['/login.html', '/login.js', '/login.css', '/favicon.ico'];
+const PUBLIC_PREFIXES = ['/api/auth/', '/uploads/', '/api/public/'];
+app.use((req, res, next) => {
+  if (!AUTH_ENABLED) return next();
+
+  const p = req.path;
+  // Allow public
+  if (PUBLIC_PATHS.includes(p)) return next();
+  if (PUBLIC_PREFIXES.some(pre => p.startsWith(pre))) return next();
+
+  const user = getCurrentUser(req);
+  if (user) { req.currentUser = user; return next(); }
+
+  // Not authed
+  if (p.startsWith('/api/')) return res.status(401).json({ error: 'Not authenticated' });
+  // Redirect HTML requests
+  if (req.method === 'GET' && (req.headers.accept || '').includes('text/html')) {
+    return res.redirect(302, '/login.html');
+  }
+  // Other requests (assets) — 401
+  return res.status(401).send('Not authenticated');
+});
+
 app.use(express.static(path.join(__dirname, 'admin')));
 app.use('/uploads', express.static(UPLOADS_DIR));
 
@@ -72,26 +140,38 @@ if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_BOT_TOKEN !== 'YOUR_B
 
 /* ===== AUTH ===== */
 
-// Login — returns user info by ID
-app.post('/api/login', (req, res) => {
-  try {
-    const user = db.getUserById(req.body.user_id);
-    if (!user || !user.aktywny) return res.status(401).json({ error: 'User not found or inactive' });
-    res.json(user);
-  } catch (err) { res.status(500).json({ error: err.message }); }
-});
+const SESSION_COOKIE = 'mrowki_sid';
+const SESSION_TTL_HOURS = 24 * 30;  // 30 days
 
-// Get all users (for login picker)
-app.get('/api/users', (req, res) => {
-  try { res.json(db.getTeam()); }
-  catch (err) { res.status(500).json({ error: err.message }); }
-});
+function setSessionCookie(res, sessionId) {
+  const parts = [
+    `${SESSION_COOKIE}=${encodeURIComponent(sessionId)}`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Lax',
+    `Max-Age=${SESSION_TTL_HOURS * 3600}`,
+  ];
+  if (COOKIE_SECURE) parts.push('Secure');
+  res.setHeader('Set-Cookie', parts.join('; '));
+}
+function clearSessionCookie(res) {
+  res.setHeader('Set-Cookie', `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0${COOKIE_SECURE ? '; Secure' : ''}`);
+}
 
-// Auth helper — extracts current user from X-User-Id header
+// Extracts current user from session cookie (NEW) or X-User-Id (LEGACY, if AUTH_DISABLED)
 function getCurrentUser(req) {
-  const userId = req.headers['x-user-id'];
-  if (!userId) return null;
-  return db.getUserById(parseInt(userId));
+  const cookies = parseCookies(req);
+  const sid = cookies[SESSION_COOKIE];
+  if (sid) {
+    const user = db.getSessionUser(sid);
+    if (user) return user;
+  }
+  // Legacy fallback (only when auth is disabled)
+  if (!AUTH_ENABLED) {
+    const userId = req.headers['x-user-id'];
+    if (userId) return db.getUserById(parseInt(userId));
+  }
+  return null;
 }
 
 function requireAuth(req, res, next) {
@@ -108,6 +188,97 @@ function requireAdmin(req, res, next) {
   req.currentUser = user;
   next();
 }
+
+// Simple rate limit for login (in-memory, per IP)
+const _loginAttempts = new Map();
+function loginRateLimit(req, res, next) {
+  const ip = req.headers['x-forwarded-for']?.split(',')[0] || req.ip || 'unknown';
+  const now = Date.now();
+  const data = _loginAttempts.get(ip) || { count: 0, reset: now + 15 * 60 * 1000 };
+  if (now > data.reset) { data.count = 0; data.reset = now + 15 * 60 * 1000; }
+  if (data.count >= 10) return res.status(429).json({ error: 'Too many login attempts. Try again in 15 minutes.' });
+  data.count++;
+  _loginAttempts.set(ip, data);
+  next();
+}
+
+// Login: POST { login, password } -> sets cookie, returns user
+app.post('/api/auth/login', loginRateLimit, (req, res) => {
+  try {
+    const { login, password } = req.body || {};
+    if (!login || !password) return res.status(400).json({ error: 'Missing login or password' });
+    const user = db.getUserByLogin(String(login).trim());
+    if (!user || !user.password_hash) return res.status(401).json({ error: 'Invalid login or password' });
+    if (!verifyPassword(password, user.password_hash)) return res.status(401).json({ error: 'Invalid login or password' });
+
+    const sid = crypto.randomBytes(32).toString('hex');
+    db.createSession(sid, user.id, SESSION_TTL_HOURS);
+    db.touchLastLogin(user.id);
+    setSessionCookie(res, sid);
+    delete user.password_hash;
+    res.json({ ok: true, user });
+  } catch (err) { console.error(err); res.status(500).json({ error: err.message }); }
+});
+
+// Logout
+app.post('/api/auth/logout', (req, res) => {
+  const cookies = parseCookies(req);
+  const sid = cookies[SESSION_COOKIE];
+  if (sid) db.deleteSession(sid);
+  clearSessionCookie(res);
+  res.json({ ok: true });
+});
+
+// Current user info
+app.get('/api/auth/me', (req, res) => {
+  const user = getCurrentUser(req);
+  if (!user) return res.status(401).json({ error: 'Not authenticated' });
+  delete user.password_hash;
+  res.json(user);
+});
+
+// Change own password
+app.post('/api/auth/change-password', requireAuth, (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+    if (!newPassword || newPassword.length < 6) return res.status(400).json({ error: 'New password must be at least 6 characters' });
+    const fullUser = db.getUserById(req.currentUser.id);
+    if (fullUser.password_hash && !verifyPassword(currentPassword || '', fullUser.password_hash)) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+    db.setUserPassword(req.currentUser.id, hashPassword(newPassword));
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Admin: set password / login for any user
+app.post('/api/auth/admin-set-password', requireAdmin, (req, res) => {
+  try {
+    const { userId, login, password } = req.body || {};
+    if (!userId || !password) return res.status(400).json({ error: 'Missing userId or password' });
+    if (login) db.setUserLogin(userId, login);
+    db.setUserPassword(userId, hashPassword(password));
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Legacy endpoints (kept for compatibility, but login picker no longer works with auth enabled)
+app.post('/api/login', (req, res) => {
+  try {
+    const user = db.getUserById(req.body.user_id);
+    if (!user || !user.aktywny) return res.status(401).json({ error: 'User not found or inactive' });
+    // In AUTH_ENABLED mode, creating a session here is skipped — force proper login via /api/auth/login
+    res.json(user);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/api/users', (req, res) => {
+  try { res.json(db.getTeam()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Expose hash/verify to scripts (cli setup-password.js uses them)
+module.exports = { hashPassword, verifyPassword };
 
 // Update user role (admin only)
 app.put('/api/users/:id/rola', requireAdmin, (req, res) => {
@@ -536,6 +707,12 @@ app.post('/api/magazyn/:id/zuzycie', (req, res) => {
 });
 
 // --- Realizacje (Portfolio) --- preserved
+// PUBLIC endpoint for the site (no auth, CORS-friendly)
+app.get('/api/public/realizacje', (req, res) => {
+  try { res.json(db.getAllRealizacje()); }
+  catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.get('/api/realizacje', (req, res) => {
   try { res.json(db.getAllRealizacje()); }
   catch (err) { res.status(500).json({ error: err.message }); }

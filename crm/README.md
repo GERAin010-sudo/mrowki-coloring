@@ -144,6 +144,32 @@ crm/
 | `GOOGLE_MAPS_API_KEY`  |      ❌      | Google Maps API (для карты адресов)                   |
 | `COMPANY_PHONE`        |      ❌      | Телефон компании (шаблоны email)                      |
 | `COMPANY_EMAIL`        |      ❌      | Email компании (шаблоны email)                        |
+| `NODE_ENV`             |      ❌      | `production` → включает Secure cookie                 |
+| `COOKIE_SECURE`        |      ❌      | `1` → Secure cookies (нужно для HTTPS)                |
+| `SITE_ORIGIN`          |      ❌      | CORS allowed origin (`https://mrowki-coloring.pl`)    |
+| `UPLOADS_DIR`          |      ❌      | Путь к папке загрузок (по умолчанию `./uploads`)      |
+| `AUTH_DISABLED`        |      ❌      | `1` → отключить логин (ТОЛЬКО для разработки)         |
+
+## Публичный API для внешнего сайта
+
+Эти endpoints не требуют авторизации (используются `site/`):
+- `GET /api/public/realizacje` — список фото галереи
+- `GET /uploads/*` — сами файлы (фото)
+
+Всё остальное под логином (middleware редиректит на `/login.html`).
+
+## Первоначальная настройка юзеров
+
+```bash
+# Посмотреть существующих:
+node setup-password.js list
+
+# Задать логин/пароль существующему юзеру (созданному через Telegram bot /start):
+node setup-password.js set --user 1 --login admin --password MyS3cretPass
+
+# Создать нового (без Telegram):
+node setup-password.js create --telegram 0 --name "Admin" --role admin --login admin --password MyS3cretPass
+```
 
 ## Резервное копирование
 

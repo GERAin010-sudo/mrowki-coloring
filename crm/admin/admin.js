@@ -386,32 +386,34 @@ async function loginAs(userId) {
   location.reload();
 }
 
-function logout() {
+async function logout() {
+  try {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+  } catch (e) { /* ignore */ }
   currentUser = null;
   localStorage.removeItem('crm_user');
-  location.reload();
+  window.location.href = '/login.html';
 }
 
 /* ===== INIT ===== */
 (async () => {
   applyTheme(currentTheme);
 
-  // Check login
-  if (!currentUser) {
-    showLoginScreen();
-    return;
-  }
-
-  // Verify user still valid
+  // Check session via /api/auth/me — redirects to /login.html on 401 (handled by server middleware)
   try {
-    const check = await fetch(`${API}/api/login`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: currentUser.id })
-    });
-    if (!check.ok) { logout(); return; }
-    currentUser = await check.json();
-    localStorage.setItem('crm_user', JSON.stringify(currentUser));
-  } catch(e) { /* offline, use cached */ }
+    const meRes = await fetch('/api/auth/me', { credentials: 'include' });
+    if (meRes.status === 401) { window.location.href = '/login.html'; return; }
+    if (meRes.ok) {
+      currentUser = await meRes.json();
+      localStorage.setItem('crm_user', JSON.stringify(currentUser));
+    } else if (!currentUser) {
+      window.location.href = '/login.html';
+      return;
+    }
+  } catch(e) {
+    // Network error — fall back to cached user if any
+    if (!currentUser) { window.location.href = '/login.html'; return; }
+  }
 
   try {
     const res = await fetch(`${API}/api/funnels`);

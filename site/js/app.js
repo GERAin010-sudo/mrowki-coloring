@@ -656,7 +656,8 @@
   }
 
   /* === GALLERY === */
-  const CRM_API = 'http://localhost:3000';
+  // CRM API URL — configurable. Set window.__CRM_API__ via js/config.js to override.
+  const CRM_API = (window.__CRM_API__ || '').replace(/\/$/, '') || 'http://localhost:3000';
   
   // Fallback hardcoded photos
   const FALLBACK_PHOTOS = [
@@ -684,7 +685,7 @@
 
     // Try loading from API, fallback to hardcoded
     try {
-      const res = await fetch(`${CRM_API}/api/realizacje`);
+      const res = await fetch(`${CRM_API}/api/public/realizacje`);
       if (res.ok) {
         const apiPhotos = await res.json();
         if (apiPhotos.length > 0) {
